@@ -24,4 +24,20 @@ case class Workflow[T <: DataType](val elements:List[WFElement], val links:List[
    */
   def addLink(l:Link[T]) = new Workflow[T](elements, l::links)
 
+  /**
+   * Workflow sources
+   */
+  val sources:List[Source[T]] = elements collect {case x:Source[T] => x} match {
+    case l:List[Source[T]] => l
+    case _ => throw new ClassCastException
+  }
+
+  /**
+   * Workflow sinks
+   */
+  val sinks:List[Sink[T]] = elements collect {case x:Sink[T] => x} match {
+    case l:List[Sink[T]] => l
+    case _ => throw new ClassCastException
+  }
+
 }
