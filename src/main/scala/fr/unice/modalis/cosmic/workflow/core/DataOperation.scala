@@ -36,8 +36,8 @@ case class Synchronizer[T<: DataType](val inputs:List[Input[T]], val outputs:Lis
  * @param transformation Transformation function
  */
 case class Transformer[T<: DataType](val transformation:T=>T) extends DataOperation[T] {
-  val inputs = List(new Input[T])
-  val outputs = List(new Output[T])
+  val inputs = List(new Input[T](this))
+  val outputs = List(new Output[T](this))
 
   val input = inputs.head
   val output = outputs.head
@@ -51,8 +51,10 @@ case class Transformer[T<: DataType](val transformation:T=>T) extends DataOperat
  * @param predicate Predicate to satisfy
  */
 case class Predicate[T<: DataType](val predicate:T=>Boolean) extends DataOperation[T]{
-  val inputs = List(new Input[T])
-  val outputs = List(new Output[T]("true"), new Output[T]("false"))
+  val inputs = List(new Input[T](this))
+  val outputs = List(new Output[T]("true", this), new Output[T]("false", this))
+
+  val input = inputs.head
 
   val trueOutput = outputs.head
   val falseOutput = outputs.last
@@ -69,8 +71,8 @@ case class Predicate[T<: DataType](val predicate:T=>Boolean) extends DataOperati
  */
 case class PeriodicGetter[T<: DataType](val period:Int) extends DataOperation[T] {
   require(period>0)
-  val inputs = List(new Input[T])
-  val outputs = List(new Output[T])
+  val inputs = List(new Input[T](this))
+  val outputs = List(new Output[T](this))
 
   val input = inputs.head
   val output = outputs.head

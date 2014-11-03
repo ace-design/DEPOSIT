@@ -8,7 +8,7 @@ package fr.unice.modalis.cosmic.workflow.core
  */
 case class Link[T <: DataType](val source:Output[T], val destination:Input[T])
 {
-  override def toString:String = source + "-->" + destination
+  override def toString:String = source.component + "-->" + destination.component
 }
 
 

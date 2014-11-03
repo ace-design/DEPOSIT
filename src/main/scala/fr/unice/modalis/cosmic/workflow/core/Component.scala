@@ -13,17 +13,19 @@ trait Component extends WFElement {
 /**
  * Workflow component input
  * @param name Input name
+ * @param component Reference to component
  * @tparam T Data type
  */
-class Input[T <: DataType](val name:String) {
-  def this() = this("input_" + Random.alphanumeric.take(5).mkString)
+class Input[T <: DataType](val name:String, val component:WFElement) {
+  def this(component:WFElement) = this("input_" + Random.alphanumeric.take(5).mkString, component)
 }
 
 /**
  * Workflow component output
  * @param name Output name
+ * @param component Reference to component
  * @tparam T Data type
  */
-class Output[T <: DataType](val name:String) {
-  def this() = this("output_" + Random.alphanumeric.take(5).mkString)
+class Output[T <: DataType](val name:String, val component:WFElement) {
+  def this(component:WFElement) = this("output_" + Random.alphanumeric.take(5).mkString, component)
 }

@@ -14,7 +14,7 @@ trait DataIO extends WFElement {
  * @tparam T Data type
  */
 case class Source[T<: DataType](val sensor:String) extends DataIO{
-  val output = new Output[T]()
+  val output = new Output[T](this)
 }
 
 /**
@@ -23,5 +23,5 @@ case class Source[T<: DataType](val sensor:String) extends DataIO{
  * @tparam T Data type
  */
 case class Sink[T<: DataType](val url:String) extends DataIO{
-  val input = new Input[T]()
+  val input = new Input[T](this)
 }
