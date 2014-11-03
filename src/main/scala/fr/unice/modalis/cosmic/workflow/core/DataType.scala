@@ -11,9 +11,9 @@ trait DataType {
 /**
  * Represent Integer values
  */
-class IntegerType extends DataType
+class IntegerType(val value:Int) extends DataType
 
 /**
  * Represent Double values
  */
-class DoubleType extends DataType
+class DoubleType(val value:Double) extends DataType
