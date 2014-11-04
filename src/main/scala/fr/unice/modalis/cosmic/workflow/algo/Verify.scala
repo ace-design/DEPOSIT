@@ -19,7 +19,7 @@ object Verify {
    * @param l Link
    * @return Link validity status
    */
-def checkLink(l:WFLink[_]):Boolean = (l.source.component, l.destination.component) match {
+def checkLink[T<:DataType](l:WFLink[T]):Boolean = (l.source.parent, l.destination.parent) match {
   case (Source(_), PeriodicGetter(_)) => true
   case (PeriodicGetter(_), Predicate(_)) => true
   case (Predicate(_), Predicate(_)) => true

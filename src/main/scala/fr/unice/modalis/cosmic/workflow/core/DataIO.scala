@@ -4,7 +4,7 @@ package fr.unice.modalis.cosmic.workflow.core
  * Data Input/Output trait
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
  */
-trait DataIO extends WFElement {
+trait DataIO[T<:DataType] extends WFElement[T] {
 
 }
 
@@ -13,7 +13,7 @@ trait DataIO extends WFElement {
  * @param sensor Sensor ID
  * @tparam T Data type
  */
-case class Source[T<: DataType](val sensor:String) extends DataIO{
+case class Source[T<:DataType](val sensor:String) extends DataIO[T]{
   val output = new Output[T](this)
 }
 
@@ -22,6 +22,6 @@ case class Source[T<: DataType](val sensor:String) extends DataIO{
  * @param url Collector URL
  * @tparam T Data type
  */
-case class Sink[T<: DataType](val url:String) extends DataIO{
+case class Sink[T<:DataType](val url:String) extends DataIO[T]{
   val input = new Input[T](this)
 }

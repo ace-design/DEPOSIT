@@ -5,7 +5,7 @@ package fr.unice.modalis.cosmic.workflow.core
  * Represents operations performed on data
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
  */
-trait DataOperation[T<: DataType] extends Component{
+trait DataOperation[T<: DataType] extends Component[T]{
 
   // Component input list
   val inputs:List[Input[T]]
@@ -52,7 +52,7 @@ case class Transformer[T<: DataType](val transformation:T=>T) extends DataOperat
  */
 case class Predicate[T<: DataType](val predicate:T=>Boolean) extends DataOperation[T]{
   val inputs = List(new Input[T](this))
-  val outputs = List(new Output[T]("true", this), new Output[T]("false", this))
+  val outputs = List(new Output[T](this), new Output[T](this))
 
   val input = inputs.head
 

@@ -7,7 +7,7 @@ package fr.unice.modalis.cosmic.workflow.core
  * @param links Link list
  * @tparam T Workflow data type
  */
-case class Workflow[T <: DataType](val elements:List[WFElement], val links:List[WFLink[T]]) {
+case class Workflow[T <: DataType](val elements:List[WFElement[T]], val links:List[WFLink[T]]) {
 
   def this() = this(List(), List())
   /**
@@ -15,7 +15,7 @@ case class Workflow[T <: DataType](val elements:List[WFElement], val links:List[
    * @param c Workflow Element
    * @return A new workflow with the element added
    */
-  def addElement(c:WFElement) = new Workflow(c :: elements, links)
+  def addElement(c:WFElement[T]) = new Workflow[T](c :: elements, links)
 
   /**
    * Add a link in the current workflow
