@@ -6,7 +6,7 @@ package fr.unice.modalis.cosmic.workflow.core
  * @param source Link source (component output)
  * @param destination Link destination (component input)
  */
-case class Link[T <: DataType](val source:Output[T], val destination:Input[T])
+case class WFLink[T <: DataType](val source:Output[T], val destination:Input[T])
 {
   override def toString:String = source.component + "-->" + destination.component
 }

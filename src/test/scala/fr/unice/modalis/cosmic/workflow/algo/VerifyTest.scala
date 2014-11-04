@@ -20,8 +20,8 @@ class VerifyTest extends SpecificationWithJUnit{
     val collector = new Sink[IntegerType]("alice")
 
     new Workflow[IntegerType]().addElement(temperatureSensor).addElement(periodicGetter).addElement(predicate).addElement(collector)
-    .addLink(new Link[IntegerType](temperatureSensor.output, periodicGetter.input)).addLink(new Link[IntegerType](periodicGetter.output, predicate.input))
-    .addLink(new Link[IntegerType](predicate.trueOutput,collector.input))
+    .addLink(new WFLink[IntegerType](temperatureSensor.output, periodicGetter.input)).addLink(new WFLink[IntegerType](periodicGetter.output, predicate.input))
+    .addLink(new WFLink[IntegerType](predicate.trueOutput,collector.input))
 
   }
 
@@ -34,17 +34,17 @@ class VerifyTest extends SpecificationWithJUnit{
     val collector = new Sink[IntegerType]("alice")
 
     new Workflow[IntegerType]().addElement(temperatureSensor).addElement(predicate).addElement(collector)
-      .addLink(new Link[IntegerType](temperatureSensor.output, predicate.input))
-      .addLink(new Link[IntegerType](predicate.trueOutput,collector.input))
+      .addLink(new WFLink[IntegerType](temperatureSensor.output, predicate.input))
+      .addLink(new WFLink[IntegerType](predicate.trueOutput,collector.input))
 
   }
 
   //END Scenario 2
 
   //Links
-  val link1 = new Link[IntegerType](new Source[IntegerType]("TEST").output, new Predicate[IntegerType](p => p.value > 0).input) //Invalid
+  val link1 = new WFLink[IntegerType](new Source[IntegerType]("TEST").output, new Predicate[IntegerType](p => p.value > 0).input) //Invalid
 
-  val link2 = new Link[IntegerType](new Source[IntegerType]("TEST").output, new PeriodicGetter[IntegerType](10000).input) //Valid
+  val link2 = new WFLink[IntegerType](new Source[IntegerType]("TEST").output, new PeriodicGetter[IntegerType](10000).input) //Valid
 
   "A valid link must pass checkLink" in {
     Verify.checkLink(link2) must beTrue
