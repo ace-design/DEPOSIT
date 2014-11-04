@@ -17,12 +17,17 @@ case class Workflow[T <: DataType](val elements:List[WFElement[T]], val links:Li
    */
   def addElement(c:WFElement[T]) = new Workflow[T](c :: elements, links)
 
+  def deleteElement(c:WFElement[T]) = ???
+
   /**
    * Add a link in the current workflow
    * @param l Link
    * @return A new workflow with the link added
    */
   def addLink(l:WFLink[T]) = new Workflow[T](elements, l::links)
+
+  def deleteLink(l:WFLink[T]) = ???
+
 
   /**
    * Workflow sources

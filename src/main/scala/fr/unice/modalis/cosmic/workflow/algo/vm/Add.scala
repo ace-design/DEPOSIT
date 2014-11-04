@@ -5,6 +5,12 @@ import fr.unice.modalis.cosmic.workflow.core.{DataType, WFLink, WFElement, Workf
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 04/11/14.
  */
+
+/**
+ * Represent the action of adding an element
+ * @param e Element to add
+ * @tparam T Data type of the element
+ */
 case class AddElement[T<:DataType](e: WFElement[T]) extends Instruction[T]{
 
   /**
@@ -17,6 +23,11 @@ case class AddElement[T<:DataType](e: WFElement[T]) extends Instruction[T]{
   override def toString:String = "{AddElement element=" + e + "}"
 }
 
+/**
+ * Represent the action of adding a link
+ * @param l Link to add
+ * @tparam T Data type of the link
+ */
 case class AddLink[T<:DataType](l:WFLink[T]) extends Instruction[T]{
   /**
    * Apply the action on a workflow
