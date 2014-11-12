@@ -7,15 +7,15 @@ package fr.unice.modalis.cosmic.workflow.core
  * @param links Link list
  * @tparam T Workflow data type
  */
-case class Workflow[T <: DataType](val elements:List[WFElement[T]], val links:List[WFLink[T]]) {
+case class Workflow[T <: DataType](val elements:Set[WFElement[T]], val links:Set[WFLink[T]]) {
 
-  def this() = this(List(), List())
+  def this() = this(Set(), Set())
   /**
    * Add an element in the current workflow
    * @param c Workflow Element
    * @return A new workflow with the element added
    */
-  def addElement(c:WFElement[T]) = new Workflow[T](c :: elements, links)
+  def addElement(c:WFElement[T]) = new Workflow[T](elements + c, links)
 
   def deleteElement(c:WFElement[T]) = ???
 
@@ -24,7 +24,7 @@ case class Workflow[T <: DataType](val elements:List[WFElement[T]], val links:Li
    * @param l Link
    * @return A new workflow with the link added
    */
-  def addLink(l:WFLink[T]) = new Workflow[T](elements, l::links)
+  def addLink(l:WFLink[T]) = new Workflow[T](elements, links + l)
 
   def deleteLink(l:WFLink[T]) = ???
 
@@ -32,7 +32,7 @@ case class Workflow[T <: DataType](val elements:List[WFElement[T]], val links:Li
   /**
    * Workflow sources
    */
-  val sources:List[Source[T]] = elements collect {case x:Source[T] => x} match {
+  val sources:List[Source[T]] = elements.toList collect {case x:Source[T] => x} match {
     case l:List[Source[T]] => l
     case _ => throw new ClassCastException
   }
@@ -40,7 +40,7 @@ case class Workflow[T <: DataType](val elements:List[WFElement[T]], val links:Li
   /**
    * Workflow sinks
    */
-  val sinks:List[Sink[T]] = elements collect {case x:Sink[T] => x} match {
+  val sinks:List[Sink[T]] = elements.toList collect {case x:Sink[T] => x} match {
     case l:List[Sink[T]] => l
     case _ => throw new ClassCastException
   }
