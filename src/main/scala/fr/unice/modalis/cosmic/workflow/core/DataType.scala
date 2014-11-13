@@ -5,7 +5,7 @@ package fr.unice.modalis.cosmic.workflow.core
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
  */
 trait DataType {
-
+  val value:AnyVal
 }
 
 /**
