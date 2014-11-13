@@ -57,4 +57,9 @@ class WorkflowTest extends SpecificationWithJUnit{
   "The deletion of an element must remove it from the workflow" in {
     wf.deleteElement(predicate).elements.contains(predicate) must beFalse
   }
+
+  /* PATH TESTS */
+  "Next element test" in {
+    wf.nextElements(predicate) mustEqual Set(collector, predicate)
+  }
 }

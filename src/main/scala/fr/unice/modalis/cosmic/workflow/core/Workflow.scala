@@ -17,6 +17,11 @@ case class Workflow[T <: DataType](val elements:Set[WFElement[T]], val links:Set
    */
   def addElement(c:WFElement[T]):Workflow[T]  = new Workflow[T](elements + c, links)
 
+  /**
+   * Delete an element in the current workflow (/!\ Delete also all links refering this element)
+   * @param c Workflow element
+   * @return A workflow without this element and links refering this element
+   */
   def deleteElement(c:WFElement[T]):Workflow[T] = new Workflow[T](elements - c, links.filterNot(p => (p.destination.parent == c) || (p.source.parent == c)))
 
   /**
@@ -26,8 +31,19 @@ case class Workflow[T <: DataType](val elements:Set[WFElement[T]], val links:Set
    */
   def addLink(l:WFLink[T]):Workflow[T]  = new Workflow[T](elements, links + l)
 
+  /**
+   * Delete a link in the current workflow
+   * @param l Link
+   * @return A workflow with the linked removed
+   */
   def deleteLink(l:WFLink[T]):Workflow[T]  = new Workflow[T](elements, links - l)
 
+  /**
+   * Find the next workflow elements
+   * @param e Current workflow element
+   * @return Immediate next elements
+   */
+  def nextElements(e:WFElement[T]) = links.filter(l => l.source.parent == e).foldLeft(Set[WFElement[T]]()){(acc, e) => acc + e.destination.parent } // We use a set because we don't care of the order
 
   /**
    * Workflow sources
