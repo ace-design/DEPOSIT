@@ -1,5 +1,6 @@
 package fr.unice.modalis.cosmic.workflow.algo
 
+import fr.unice.modalis.cosmic.actions.guard.constraint.ValueConstraint
 import fr.unice.modalis.cosmic.workflow.core._
 import org.specs2.mutable.SpecificationWithJUnit
 
@@ -9,7 +10,7 @@ import org.specs2.mutable.SpecificationWithJUnit
 class VerifyTest extends SpecificationWithJUnit{
 
   //Links
-  val link1 = new WFLink[IntegerType](new Source[IntegerType]("TEST").output, new Predicate[IntegerType](p => p.value > 0).input) //Invalid
+  val link1 = new WFLink[IntegerType](new Source[IntegerType]("TEST").output, new Predicate[IntegerType](ValueConstraint("==", 2)).input) //Invalid
 
   val link2 = new WFLink[IntegerType](new Source[IntegerType]("TEST").output, new PeriodicGetter[IntegerType](10000).input) //Valid
 

@@ -15,18 +15,18 @@ case class Workflow[T <: DataType](val elements:Set[WFElement[T]], val links:Set
    * @param c Workflow Element
    * @return A new workflow with the element added
    */
-  def addElement(c:WFElement[T]) = new Workflow[T](elements + c, links)
+  def addElement(c:WFElement[T]):Workflow[T]  = new Workflow[T](elements + c, links)
 
-  def deleteElement(c:WFElement[T]) = ???
+  def deleteElement(c:WFElement[T]):Workflow[T] = new Workflow[T](elements - c, links.filterNot(p => (p.destination.parent == c) || (p.source.parent == c)))
 
   /**
    * Add a link in the current workflow
    * @param l Link
    * @return A new workflow with the link added
    */
-  def addLink(l:WFLink[T]) = new Workflow[T](elements, links + l)
+  def addLink(l:WFLink[T]):Workflow[T]  = new Workflow[T](elements, links + l)
 
-  def deleteLink(l:WFLink[T]) = ???
+  def deleteLink(l:WFLink[T]):Workflow[T]  = new Workflow[T](elements, links - l)
 
 
   /**

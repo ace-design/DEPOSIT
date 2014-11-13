@@ -35,7 +35,7 @@ trait ComponentIO[T <: DataType] {
  * @param parent Reference to component
  * @tparam T Data type
  */
-class Input[T <: DataType](val parent:WFElement[T]) extends ComponentIO[T] {
+case class Input[T <: DataType](parent:WFElement[T]) extends ComponentIO[T] {
   val way = IO.IN
 }
 
@@ -44,7 +44,7 @@ class Input[T <: DataType](val parent:WFElement[T]) extends ComponentIO[T] {
  * @param parent Reference to component
  * @tparam T Data type
  */
-class Output[T <: DataType](val parent:WFElement[T]) extends ComponentIO[T] {
+case class Output[T <: DataType](parent:WFElement[T]) extends ComponentIO[T] {
   val way = IO.OUT
 
 }

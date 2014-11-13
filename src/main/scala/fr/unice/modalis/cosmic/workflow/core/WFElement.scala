@@ -5,5 +5,10 @@ package fr.unice.modalis.cosmic.workflow.core
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
  */
 trait WFElement[T<:DataType] {
+  // Component input list
+  val inputs:List[Input[T]]
+
+  // Component output list
+  val outputs:List[Output[T]]
 
 }

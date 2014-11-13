@@ -10,7 +10,7 @@ import fr.unice.modalis.cosmic.workflow.core.DataType
  * @param threshold Threshold
  * @param operator Operator
  */
-case class ValueConstraint[T<:DataType](val operator: String, val threshold: Int) extends Constraint {
+case class ValueConstraint[T<:DataType](operator: String, threshold: Int) extends Constraint {
 
   def isCorrect(o: String): Boolean = {
     o == ">" || o == "<" || o == "==" || o == ">=" || o == "<=" || o == "!="

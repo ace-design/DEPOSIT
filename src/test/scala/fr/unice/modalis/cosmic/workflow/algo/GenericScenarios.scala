@@ -1,5 +1,6 @@
 package fr.unice.modalis.cosmic.workflow.algo
 
+import fr.unice.modalis.cosmic.actions.guard.constraint.ValueConstraint
 import fr.unice.modalis.cosmic.workflow.core._
 
 /**
@@ -14,7 +15,8 @@ object GenericScenarios {
 
     val periodicGetter = new PeriodicGetter[IntegerType](30000)
 
-    val predicate = new Predicate[IntegerType](p => p.value > 50)
+    val predicate = new Predicate[IntegerType](ValueConstraint(">", 50))
+
 
     val collector = new Sink[IntegerType]("alice")
 
@@ -28,7 +30,7 @@ object GenericScenarios {
 
     val temperatureSensor = new Source[IntegerType]("TEMP_SENSOR")
 
-    val predicate = new Predicate[IntegerType](p => p.value > 50)
+    val predicate = new Predicate[IntegerType](ValueConstraint(">", 50))
 
     val collector = new Sink[IntegerType]("alice")
 
@@ -39,4 +41,21 @@ object GenericScenarios {
   }
 
   //END Scenario 2
+
+  val validWFWithLoop:Workflow[IntegerType] = {
+
+    val temperatureSensor = new Source[IntegerType]("TEMP_SENSOR")
+
+    val periodicGetter = new PeriodicGetter[IntegerType](30000)
+
+    val predicate = new Predicate[IntegerType](ValueConstraint(">", 50))
+
+
+    val collector = new Sink[IntegerType]("alice")
+
+    new Workflow[IntegerType]().addElement(temperatureSensor).addElement(periodicGetter).addElement(predicate).addElement(collector)
+      .addLink(new WFLink[IntegerType](temperatureSensor.output, periodicGetter.input)).addLink(new WFLink[IntegerType](periodicGetter.output, predicate.input))
+      .addLink(new WFLink[IntegerType](predicate.trueOutput,collector.input)).addLink(new WFLink[IntegerType](predicate.falseOutput, predicate.input))
+
+  }
 }
