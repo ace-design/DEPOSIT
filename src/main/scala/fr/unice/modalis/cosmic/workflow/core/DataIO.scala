@@ -18,6 +18,11 @@ case class Source[T<:DataType](sensor:String) extends DataIO[T]{
 
   override val inputs: List[Input[T]] = List()
   override val outputs: List[Output[T]] = List(output)
+
+  // Merge operator
+  override def +(e: WFElement[T]): WFElement[T] = ???
+
+
 }
 
 /**
@@ -25,9 +30,13 @@ case class Source[T<:DataType](sensor:String) extends DataIO[T]{
  * @param url Collector URL
  * @tparam T Data type
  */
-case class Sink[T<:DataType](url:String) extends DataIO[T]{
-  val input =  Input[T](this)
+case class Sink[T<:DataType](url:String) extends DataIO[T] {
+  val input = Input[T](this)
 
   override val inputs: List[Input[T]] = List(input)
   override val outputs: List[Output[T]] = List()
+
+  // Merge operator
+  override def +(e: WFElement[T]): WFElement[T] = ???
+
 }

@@ -10,8 +10,8 @@ import fr.unice.modalis.cosmic.actions.guard.GuardAction
 trait DataOperation[T<: DataType] extends Component[T]{
 
 
+def toString:String
 
-  def toString:String
 }
 
 /**
@@ -27,6 +27,8 @@ case class Synchronizer[T<: DataType](inputs:List[Input[T]], outputs:List[Output
 
   override def toString:String = "Synchronizer[offset=" + offset + "]"
 
+  // Merge operator
+  override def +(e: WFElement[T]): WFElement[T] = ???
 }
 
 /**
@@ -37,10 +39,10 @@ case class Transformer[T<: DataType](transformation:T=>T) extends DataOperation[
   val inputs = List(new Input[T](this))
   val outputs = List(new Output[T](this))
 
-
-
   override def toString:String = "Transformer"
 
+  // Merge operator
+  override def +(e: WFElement[T]): WFElement[T] = ???
 }
 
 /**
@@ -56,8 +58,10 @@ case class Predicate[T<: DataType](predicate:GuardAction) extends DataOperation[
   val trueOutput = outputs.head
   val falseOutput = outputs.last
 
-  override def toString:String = "Predicate"
+  override def toString:String = "Predicate[" + predicate + "]"
 
+  // Merge operator
+  override def +(e: WFElement[T]): WFElement[T] = ???
 }
 
 
@@ -76,5 +80,7 @@ case class PeriodicGetter[T<: DataType](period:Int) extends DataOperation[T] {
 
   override def toString:String = "PeriodicGetter[period=" + period + "]"
 
+  // Merge operator
+  override def +(e: WFElement[T]): WFElement[T] = ???
 }
 

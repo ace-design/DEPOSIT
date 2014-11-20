@@ -8,7 +8,7 @@ package fr.unice.modalis.cosmic.workflow.core
  */
 case class WFLink[T <: DataType](source:Output[T], destination:Input[T])
 {
-  override def toString:String = source.parent + "-->" + destination.parent
+  override def toString:String = source.parent.toString + "-->" + destination.parent.toString
 }
 
 
