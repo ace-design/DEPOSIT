@@ -28,6 +28,13 @@ def checkLink[T<:DataType](l:WFLink[T]):Boolean = (l.source.parent, l.destinatio
   case _ => false
 }
 
+  /**
+   * Verify the connectivity of a workflow (assumed as a directed graph)
+   * Implements algorithm : http://fr.wikipedia.org/wiki/Algorithme_de_parcours_en_largeur
+   * @param wf Workflow
+   * @tparam T Workflow data type
+   * @return Connectivity of the workflow
+   */
   def connectivity[T<:DataType](wf:Workflow[T]) = {
 
     def BFS[T<:DataType](l:List[WFLink[T]], s:Source[T]) = {
@@ -52,8 +59,28 @@ def checkLink[T<:DataType](l:WFLink[T]):Boolean = (l.source.parent, l.destinatio
   }
 
 
+  /**
+   * Check if sinks are collectors
+   * @param wf Workflow
+   * @tparam T Workflow data type
+   * @return All sinks are collectors
+   */
+  def collectorSink[T<:DataType](wf:Workflow[T]) = {
 
+    // Destination of all links is the source of an other link.
+    var res = Set.empty[WFLink[T]]
+    for (i <- wf.links.iterator) {
+      res = res ++  wf.links.filter(p => (p.destination.parent == i.source.parent))
+    }
 
+    // Get elements from the links
+    val remaining = res.foldLeft(Set.empty[WFElement[T]]){(acc, e) => acc ++ Set(e.source.parent, e.destination.parent)}
+
+    // The only remaining elements must be collectors
+    val result = wf.elements -- remaining
+
+    result.forall(p=> p match {case Sink(_) => true; case _ => false})
+  }
 
 
 }

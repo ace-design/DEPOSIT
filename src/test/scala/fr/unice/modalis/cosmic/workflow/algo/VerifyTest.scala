@@ -26,7 +26,7 @@ class VerifyTest extends SpecificationWithJUnit{
 
 
   // Sink is not collector
-  val wf2 = new Workflow[IntegerType]().addElement(temperatureSensor).addElement(periodicGetter).addElement(predicate).addElement(collector)
+  val wf2 = new Workflow[IntegerType]().addElement(temperatureSensor).addElement(periodicGetter).addElement(predicate).addElement(collector).addElement(predicate2)
     .addLink(new WFLink[IntegerType](temperatureSensor.output, periodicGetter.input)).addLink(new WFLink[IntegerType](periodicGetter.output, predicate.input))
     .addLink(new WFLink[IntegerType](predicate.trueOutput,collector.input)).addLink(new WFLink[IntegerType](predicate.falseOutput, predicate.input))
     .addLink(new WFLink[IntegerType](predicate.trueOutput, predicate2.input))
@@ -52,7 +52,19 @@ class VerifyTest extends SpecificationWithJUnit{
   }
 
   "A user workflow has to be connected" in {
-    (Verify.connectivity(wf) must beTrue) and (Verify.connectivity(wf3) must beFalse)
+    Verify.connectivity(wf) must beTrue
   }
 
+  "A user workflow has to be connected (2)" in {
+    Verify.connectivity(wf3) must beFalse
+  }
+
+
+  "A workflow must have sinks" in {
+    Verify.collectorSink(wf) must beTrue
+  }
+
+  "A workflow must have sinks (2)" in {
+    Verify.collectorSink(wf2) must beFalse
+  }
 }
