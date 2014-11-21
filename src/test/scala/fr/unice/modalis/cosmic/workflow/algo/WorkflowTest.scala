@@ -50,7 +50,7 @@ class WorkflowTest extends SpecificationWithJUnit{
     .addLink(new WFLink[IntegerType](predicate.trueOutput,collector.input)).addLink(new WFLink[IntegerType](predicate.falseOutput, predicate.input))
 
   "The deletion of an element must delete links refering this elements" in {
-    wf.deleteElement(predicate).links.filter(p => (p.source.parent == predicate) || (p.destination.parent == predicate)).size must_== 0
+    wf.deleteElement(predicate).links.filter(p => (p.source == predicate) || (p.destination == predicate)).size must_== 0
 
   }
 
