@@ -15,5 +15,5 @@ trait WFElement[T<:DataType] {
 
   // Merge operator
   @throws(classOf[NonMergeableException])
-  def +(e:WFElement[T]):WFElement[T]
+  def +(e : WFElement[T]):WFElement[T] = if (e == this) this else throw new NonMergeableException
 }

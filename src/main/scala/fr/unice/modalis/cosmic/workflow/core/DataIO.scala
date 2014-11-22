@@ -1,10 +1,13 @@
 package fr.unice.modalis.cosmic.workflow.core
 
+import fr.unice.modalis.cosmic.workflow.algo.exception.NonMergeableException
+
 /**
  * Data Input/Output trait
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
  */
 trait DataIO[T<:DataType] extends WFElement[T] {
+
 
 }
 
@@ -19,10 +22,6 @@ case class Source[T<:DataType](sensor:String) extends DataIO[T]{
   override val inputs: List[Input[T]] = List()
   override val outputs: List[Output[T]] = List(output)
 
-  // Merge operator
-  override def +(e: WFElement[T]): WFElement[T] = ???
-
-
 }
 
 /**
@@ -36,7 +35,9 @@ case class Sink[T<:DataType](url:String) extends DataIO[T] {
   override val inputs: List[Input[T]] = List(input)
   override val outputs: List[Output[T]] = List()
 
-  // Merge operator
-  override def +(e: WFElement[T]): WFElement[T] = ???
+
+
+
+
 
 }
