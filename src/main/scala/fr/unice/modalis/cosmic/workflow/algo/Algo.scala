@@ -30,19 +30,19 @@ object Algo {
 
     /**
      * Topological sorting
-     * @return A stack containing all workflow elements.
+     * @return A List containing all workflow elements.
      *         If u is before v then u and v are not connected or there exists a path from u to v
      */
-    def browse():Stack[WFElement[T]] = {
-      val stack = new mutable.Stack[WFElement[T]]()
-      for (el:WFElement[T] <- wf.elements)
+    def browse():List[WFElement[T]] = {
+      val stack = new mutable.Stack[WFElement[T]]() // Empty stack
+      for (el:WFElement[T] <- wf.elements) // Set non visited attribute to all WF elements
         visited.put(el, 0)
-      for (el:WFElement[T] <- wf.elements) {
+      for (el:WFElement[T] <- wf.elements) { // For each element, if non visited then visit
         if (visited.get(el) match {case Some(0) => true; case _ => false})
           visit(el, stack)
       }
 
-      stack
+      stack.foldLeft(List[WFElement[T]]()){(l, e) => e :: l}
     }
 
     /**
@@ -54,14 +54,15 @@ object Algo {
      */
     def visit(e:WFElement[T], stack:Stack[WFElement[T]]):Unit = {
       require(visited.get(e) match {case Some(0) => true; case _ => false})
-      visited.update(e, 1)
-      for (el:WFElement[T] <- wf.nextElements(e)) {
+      visited.update(e, 1) // Set being visited attribute
+      for (el:WFElement[T] <- wf.nextElements(e)) { // For each non visited neighbour,
         if (visited.get(el) == 0){
-          visit(el, stack)
+          visit(el, stack) // Visit neighbour
         }
       }
-      stack.push(e)
-      visited.update(e, 2)
+      visited.update(e, 2) // Set visited attribute
+      stack.push(e) // Push current WF element in stack
+
     }
   }
 }
