@@ -20,7 +20,7 @@ object Verify {
    * @param l Link
    * @return Link validity status
    */
-def checkLink[T<:DataType](l:WFLink[T]):Boolean = (l.source.parent, l.destination.parent) match {
+def checkLink[T<:DataType](l:WFLink[T]):Boolean = (l.source, l.destination) match {
   case (Source(_), PeriodicGetter(_)) => true
   case (PeriodicGetter(_), Predicate(_)) => true
   case (Predicate(_), Predicate(_)) => true
@@ -44,9 +44,9 @@ def checkLink[T<:DataType](l:WFLink[T]):Boolean = (l.source.parent, l.destinatio
       visited = s :: visited
       while (f.size > 0){
         val current = f.dequeue()
-        l.filter(link => link.source.parent == current).foreach(
-          e => if (!visited.contains(e.destination.parent)){
-            f.enqueue(e.destination.parent)
+        l.filter(link => link.source == current).foreach(
+          e => if (!visited.contains(e.destination)){
+            f.enqueue(e.destination)
             visited = current :: visited
           }
         )
@@ -70,11 +70,11 @@ def checkLink[T<:DataType](l:WFLink[T]):Boolean = (l.source.parent, l.destinatio
     // Destination of all links is the source of an other link.
     var res = Set.empty[WFLink[T]]
     for (i <- wf.links.iterator) {
-      res = res ++  wf.links.filter(p => (p.destination.parent == i.source.parent))
+      res = res ++  wf.links.filter(p => (p.destination == i.source))
     }
 
     // Get elements from the links
-    val remaining = res.foldLeft(Set.empty[WFElement[T]]){(acc, e) => acc ++ Set(e.source.parent, e.destination.parent)}
+    val remaining = res.foldLeft(Set.empty[WFElement[T]]){(acc, e) => acc ++ Set(e.source, e.destination)}
 
     // The only remaining elements must be collectors
     val result = wf.elements -- remaining
