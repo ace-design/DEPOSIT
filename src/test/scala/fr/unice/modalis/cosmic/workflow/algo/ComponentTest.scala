@@ -32,13 +32,13 @@ class ComponentTest extends SpecificationWithJUnit{
     g1 must_== g2
   }
 
-  "Merging two different sources must raise an exception" in {
-    (s1 + s2) must throwA[NonMergeableException]
+  "The merge of two different sources give a set of 2 elements" in {
+    (s1 + s2) must beEqualTo(Set(s1, s2))
 
   }
 
-  "Merging identical elements must produce the same element" in {
-    (g1 + g2) must beEqualTo(g1)
+  "The merge of identical elements give a set of 1 element" in {
+    (g1 + g2) must beEqualTo(Set(g1))
   }
 
 
