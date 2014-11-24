@@ -13,7 +13,9 @@ trait WFElement[T<:DataType] {
   // Component output list
   val outputs:List[Output[T]]
 
+  // Unique identifier
+  val id:String = "WFElement_" + scala.util.Random.alphanumeric.take(5).mkString
+
   // Merge operator
-  @throws(classOf[NonMergeableException])
   def +(e : WFElement[T]):Set[WFElement[T]] = Set(this, e)
 }

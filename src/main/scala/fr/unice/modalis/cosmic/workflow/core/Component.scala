@@ -26,7 +26,6 @@ object IO extends Enumeration {
 trait ComponentIO[T <: DataType] {
   val way:IO.ComponentIO
   val parent:WFElement[T]
-  val name = way + "_" + Random.alphanumeric.take(5).mkString
 
 }
 
@@ -35,7 +34,9 @@ trait ComponentIO[T <: DataType] {
  * @param parent Reference to component
  * @tparam T Data type
  */
-case class Input[T <: DataType](parent:WFElement[T]) extends ComponentIO[T] {
+case class Input[T <: DataType](parent:WFElement[T], name:String) extends ComponentIO[T] {
+  def this(parent:WFElement[T]) = this(parent,  "in_" + Random.alphanumeric.take(5).mkString)
+
   val way = IO.IN
 }
 
@@ -44,7 +45,9 @@ case class Input[T <: DataType](parent:WFElement[T]) extends ComponentIO[T] {
  * @param parent Reference to component
  * @tparam T Data type
  */
-case class Output[T <: DataType](parent:WFElement[T]) extends ComponentIO[T] {
+case class Output[T <: DataType](parent:WFElement[T], name:String) extends ComponentIO[T] {
+  def this(parent:WFElement[T]) = this(parent, "out_" + Random.alphanumeric.take(5).mkString)
+
   val way = IO.OUT
 
 }

@@ -48,7 +48,7 @@ case class Transformer[T<: DataType](transformation:T=>T) extends DataOperation[
  */
 case class Predicate[T<: DataType](predicate:GuardAction) extends DataOperation[T]{
   val inputs = List(new Input[T](this))
-  val outputs = List(new Output[T](this), new Output[T](this))
+  val outputs = List(new Output[T](this, "true"), new Output[T](this, "false"))
 
   val input = inputs.head
 
