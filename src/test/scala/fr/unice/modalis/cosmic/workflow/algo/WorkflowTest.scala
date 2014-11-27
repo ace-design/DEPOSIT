@@ -45,9 +45,12 @@ class WorkflowTest extends SpecificationWithJUnit{
 
   val collector = new Sink[IntegerType]("alice")
 
+  val l1 = new WFLink[IntegerType](temperatureSensor.output, periodicGetter.input)
+  val l2 = new WFLink[IntegerType](periodicGetter.output, predicate.input)
+  val l3 = new WFLink[IntegerType](predicate.trueOutput,collector.input)
+
   val wf = new Workflow[IntegerType]().addElement(temperatureSensor).addElement(periodicGetter).addElement(predicate).addElement(collector)
-    .addLink(new WFLink[IntegerType](temperatureSensor.output, periodicGetter.input)).addLink(new WFLink[IntegerType](periodicGetter.output, predicate.input))
-    .addLink(new WFLink[IntegerType](predicate.trueOutput,collector.input)).addLink(new WFLink[IntegerType](predicate.falseOutput, predicate.input))
+    .addLink(l1).addLink(l2).addLink(l3)
 
   "The deletion of an element must delete links refering this elements" in {
     wf.deleteElement(predicate).links.filter(p => (p.source == predicate) || (p.destination == predicate)).size must_== 0
@@ -60,6 +63,6 @@ class WorkflowTest extends SpecificationWithJUnit{
 
   /* PATH TESTS */
   "Next element test" in {
-    wf.nextElements(predicate) mustEqual Set(collector, predicate)
+    wf.nextElements(predicate) mustEqual Set((collector, l3))
   }
 }

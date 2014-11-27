@@ -39,11 +39,22 @@ case class Workflow[T <: DataType](val elements:Set[WFElement[T]], val links:Set
   def deleteLink(l:WFLink[T]):Workflow[T]  = new Workflow[T](elements, links - l)
 
   /**
-   * Find the next workflow elements
+   * Find the next workflow elements"
    * @param e Current workflow element
    * @return Immediate next elements
    */
-  def nextElements(e:WFElement[T]) = links.filter(l => l.source == e).foldLeft(Set[WFElement[T]]()){(acc, e) => acc + e.destination } // We use a set because we don't care of the order
+  def nextElements(e:WFElement[T]):Set[(WFElement[T], WFLink[T])] = {
+    var res = Set[(WFElement[T], WFLink[T])]()
+    for (l <- links) {
+      if (l.source == e)
+        res = res ++ links.filter(l => l.source == e).foldLeft(Set[(WFElement[T], WFLink[T])]()) { (acc, e) => acc.+((e.destination, l))}
+    }
+
+    res
+  }
+
+
+  // links.filter(l => l.source == e).foldLeft(Set[WFElement[T]]()){(acc, e) => acc + e.destination } // We use a set because we don't care of the order
 
   /**
    * Workflow sources

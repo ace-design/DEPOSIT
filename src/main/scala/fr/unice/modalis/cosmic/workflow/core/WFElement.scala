@@ -17,5 +17,8 @@ trait WFElement[T<:DataType] {
   val id:String = "WFElement_" + scala.util.Random.alphanumeric.take(5).mkString
 
   // Merge operator
-  def +(e : WFElement[T]):Set[WFElement[T]] = Set(this, e)
+  def +(e : WFElement[T]):WFElement[T] // Naive implementation = Set(this, e)
+
+  def uid:String = toString + "_" + id
+
 }

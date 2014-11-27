@@ -22,6 +22,8 @@ case class Source[T<:DataType](sensor:String) extends DataIO[T]{
   override val inputs: List[Input[T]] = List()
   override val outputs: List[Output[T]] = List(output)
 
+  // Merge operator
+  override def +(e: WFElement[T]): WFElement[T] = if (e.equals(this)) new Source[T](sensor) else throw new NonMergeableException
 }
 
 /**
@@ -35,9 +37,6 @@ case class Sink[T<:DataType](url:String) extends DataIO[T] {
   override val inputs: List[Input[T]] = List(input)
   override val outputs: List[Output[T]] = List()
 
-
-
-
-
-
+  // Merge operator
+  override def +(e: WFElement[T]): WFElement[T] = if (e.equals(this)) new Sink[T](url) else throw new NonMergeableException
 }

@@ -1,6 +1,6 @@
 package fr.unice.modalis.cosmic.workflow.algo.vm
 
-import fr.unice.modalis.cosmic.workflow.core.{DataType, Workflow}
+import fr.unice.modalis.cosmic.workflow.core.{WFElement, DataType, Workflow}
 
 /**
  * Instruction trait
@@ -9,7 +9,8 @@ import fr.unice.modalis.cosmic.workflow.core.{DataType, Workflow}
  */
 trait Instruction[T<:DataType] {
 
-  /**
+  val component:Any
+  /**+
    * Apply the action on a workflow
    * @param w Workflow
    * @return A new workflow

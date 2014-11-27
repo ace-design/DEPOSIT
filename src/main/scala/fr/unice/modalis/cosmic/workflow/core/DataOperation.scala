@@ -1,6 +1,7 @@
 package fr.unice.modalis.cosmic.workflow.core
 
 import fr.unice.modalis.cosmic.actions.guard.GuardAction
+import fr.unice.modalis.cosmic.workflow.algo.exception.NonMergeableException
 
 /**
  * Workflow data operation trait
@@ -27,6 +28,8 @@ case class Synchronizer[T<: DataType](inputs:List[Input[T]], outputs:List[Output
 
   override def toString:String = "Synchronizer[offset=" + offset + "]"
 
+  // Merge operator
+  override def +(e: WFElement[T]):WFElement[T] = if (e.equals(this)) new Synchronizer[T](inputs, outputs, offset) else throw new NonMergeableException
 }
 
 /**
@@ -39,7 +42,8 @@ case class Transformer[T<: DataType](transformation:T=>T) extends DataOperation[
 
   override def toString:String = "Transformer"
 
-
+  // Merge operator
+  override def +(e: WFElement[T]): WFElement[T] = if (e.equals(this)) new Transformer[T](transformation) else throw new NonMergeableException
 }
 
 /**
@@ -57,7 +61,8 @@ case class Predicate[T<: DataType](predicate:GuardAction) extends DataOperation[
 
   override def toString:String = "Predicate[" + predicate + "]"
 
-
+  // Merge operator
+  override def +(e: WFElement[T]): WFElement[T] = if (e.equals(this)) new Predicate[T](predicate) else throw new NonMergeableException
 }
 
 
@@ -76,5 +81,7 @@ case class PeriodicGetter[T<: DataType](period:Int) extends DataOperation[T] {
 
   override def toString:String = "PeriodicGetter[period=" + period + "]"
 
+  // Merge operator
+  override def +(e: WFElement[T]): WFElement[T] = if (e.equals(this)) new PeriodicGetter[T](period) else throw new NonMergeableException
 }
 

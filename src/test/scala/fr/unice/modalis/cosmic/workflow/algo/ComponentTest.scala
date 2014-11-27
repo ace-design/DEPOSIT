@@ -25,20 +25,20 @@ class ComponentTest extends SpecificationWithJUnit{
 
 
   "Different elements are not equal" in {
-    p1 must_!=  p2
+    p1.equals(p2) must_==  false
   }
 
   "Same elements are equals" in {
-    g1 must_== g2
+    g1.equals(g2) must_== true
   }
 
-  "The merge of two different sources give a set of 2 elements" in {
-    (s1 + s2) must beEqualTo(Set(s1, s2))
+  "The merge of two different sources must raise an exception" in {
+    (s1 + s2) must throwA (new NonMergeableException)
 
   }
 
-  "The merge of identical elements give a set of 1 element" in {
-    (g1 + g2) must beEqualTo(Set(g1))
+  "The merge of two different sources must NOT raise an exception" in {
+    (g1 + g2) must not throwA (new NonMergeableException)
   }
 
 
