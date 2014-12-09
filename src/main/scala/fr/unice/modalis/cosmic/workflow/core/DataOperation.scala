@@ -1,6 +1,7 @@
 package fr.unice.modalis.cosmic.workflow.core
 
 import fr.unice.modalis.cosmic.actions.guard.GuardAction
+import fr.unice.modalis.cosmic.actions.guard.predicate.Predicate
 import fr.unice.modalis.cosmic.workflow.algo.exception.NonMergeableException
 
 /**
@@ -8,80 +9,59 @@ import fr.unice.modalis.cosmic.workflow.algo.exception.NonMergeableException
  * Represents operations performed on data
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
  */
-trait DataOperation[T<: DataType] extends Component[T]{
+trait DataOperation extends Component{
 
+  val inputs:List[Input[_<:DataType]]
+  val outputs:List[Output[_<:DataType]]
 
-def toString:String
+  /**
+   * Find an input with its name
+   * @param s Requested name
+   * @return Input option
+   */
+  def getInput(s:String):Option[Input[_<:DataType]] = inputs.find(_.name.equalsIgnoreCase(s))
+
+  /**
+   * Find an output with its name
+   * @param s Requested name
+   * @return Output option
+   */
+  def getOutput(s:String):Option[Output[_<:DataType]] = outputs.find(_.name.equalsIgnoreCase(s))
+}
+
+trait IFilter extends DataOperation {
+  val p:GuardAction
 
 }
 
-/**
- * Synchronize data coming from different components
- * Pre-condition: inputs.size == outputs.size, offset > 0
- * @param inputs Inputs list
- * @param outputs Outputs list
- * @param offset Window (in ms) in which data are considered to be timed equivalent
- */
-case class Synchronizer[T<: DataType](inputs:List[Input[T]], outputs:List[Output[T]], offset:Int) extends DataOperation[T]{
-  require(inputs.size == outputs.size)
-  require(offset > 0)
+case class IntegerFilter(val p:GuardAction) extends IFilter {
+  override val inputs: List[Input[_ <: DataType]] = List(new Input[IntegerType](this))
+  override val outputs: List[Output[_ <: DataType]] = List(new Output[IntegerType](this))
 
-  override def toString:String = "Synchronizer[offset=" + offset + "]"
+  val input:Input[IntegerType] = (inputs collect { case x:Input[IntegerType] => x}).head
+  val output:Output[IntegerType] = (outputs collect { case x:Output[IntegerType] => x}).head
+
+
 
   // Merge operator
-  override def +(e: WFElement[T]):WFElement[T] = if (e.equals(this)) new Synchronizer[T](inputs, outputs, offset) else throw new NonMergeableException
+  override def +(e: WFElement): WFElement = e match {
+    case i:IntegerFilter if i.p == p => new IntegerFilter(p)
+    case _ => throw new NonMergeableException
+  }
 }
 
-/**
- * Apply a transformation operation on data
- * @param transformation Transformation function
- */
-case class Transformer[T<: DataType](transformation:T=>T) extends DataOperation[T] {
-  val inputs = List(new Input[T](this))
-  val outputs = List(new Output[T](this))
+case class IntegerLongFilter(val p:GuardAction) extends IFilter {
+  override val inputs: List[Input[_ <: DataType]] = List(new Input[LongType](this), new Input[IntegerType](this))
+  override val outputs: List[Output[_ <: DataType]] = List(new Output[IntegerType](this))
 
-  override def toString:String = "Transformer"
+  val integerInput:Input[IntegerType] = (inputs collect { case x:Input[IntegerType] => x}).head
+  val longInput:Input[LongType] = (inputs collect { case x:Input[LongType] => x}).head
+
+  val output:Output[IntegerType] = (outputs collect { case x:Output[IntegerType] => x}).head
 
   // Merge operator
-  override def +(e: WFElement[T]): WFElement[T] = if (e.equals(this)) new Transformer[T](transformation) else throw new NonMergeableException
+  override def +(e: WFElement): WFElement = e match {
+    case i:IntegerLongFilter if i.p == p => new IntegerLongFilter(p)
+    case _ => throw new NonMergeableException
+  }
 }
-
-/**
- * Assess a predicate on data
- * @param predicate Predicate to satisfy
- */
-case class Predicate[T<: DataType](predicate:GuardAction) extends DataOperation[T]{
-  val inputs = List(new Input[T](this))
-  val outputs = List(new Output[T](this, "true"), new Output[T](this, "false"))
-
-  val input = inputs.head
-
-  val trueOutput = outputs.head
-  val falseOutput = outputs.last
-
-  override def toString:String = "Predicate[" + predicate + "]"
-
-  // Merge operator
-  override def +(e: WFElement[T]): WFElement[T] = if (e.equals(this)) new Predicate[T](predicate) else throw new NonMergeableException
-}
-
-
-/**
- * Get data periodically
- * Pre-condition : period > 0
- * @param period Data collection period
- */
-case class PeriodicGetter[T<: DataType](period:Int) extends DataOperation[T] {
-  require(period>0)
-  val inputs = List(new Input[T](this))
-  val outputs = List(new Output[T](this))
-
-  val input = inputs.head
-  val output = outputs.head
-
-  override def toString:String = "PeriodicGetter[period=" + period + "]"
-
-  // Merge operator
-  override def +(e: WFElement[T]): WFElement[T] = if (e.equals(this)) new PeriodicGetter[T](period) else throw new NonMergeableException
-}
-

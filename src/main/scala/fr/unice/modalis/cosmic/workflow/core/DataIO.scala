@@ -6,7 +6,7 @@ import fr.unice.modalis.cosmic.workflow.algo.exception.NonMergeableException
  * Data Input/Output trait
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
  */
-trait DataIO[T<:DataType] extends WFElement[T] {
+trait DataIO[T<:DataType] extends WFElement{
 
 
 }
@@ -23,7 +23,7 @@ case class Source[T<:DataType](sensor:String) extends DataIO[T]{
   override val outputs: List[Output[T]] = List(output)
 
   // Merge operator
-  override def +(e: WFElement[T]): WFElement[T] = if (e.equals(this)) new Source[T](sensor) else throw new NonMergeableException
+  override def +(e: WFElement): WFElement = if (e.equals(this)) new Source[T](sensor) else throw new NonMergeableException
 }
 
 /**
@@ -38,5 +38,5 @@ case class Sink[T<:DataType](url:String) extends DataIO[T] {
   override val outputs: List[Output[T]] = List()
 
   // Merge operator
-  override def +(e: WFElement[T]): WFElement[T] = if (e.equals(this)) new Sink[T](url) else throw new NonMergeableException
+  override def +(e: WFElement): WFElement = if (e.equals(this)) new Sink[T](url) else throw new NonMergeableException
 }

@@ -7,7 +7,7 @@ import scala.util.Random
  * Workflow component trait
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
  */
-trait Component[T<:DataType] extends WFElement[T] {
+trait Component extends WFElement{
 
 }
 
@@ -25,7 +25,7 @@ object IO extends Enumeration {
  */
 trait ComponentIO[T <: DataType] {
   val way:IO.ComponentIO
-  val parent:WFElement[T]
+  val parent:WFElement
 
 }
 
@@ -34,8 +34,8 @@ trait ComponentIO[T <: DataType] {
  * @param parent Reference to component
  * @tparam T Data type
  */
-case class Input[T <: DataType](parent:WFElement[T], name:String) extends ComponentIO[T] {
-  def this(parent:WFElement[T]) = this(parent,  "in_" + Random.alphanumeric.take(5).mkString)
+case class Input[T <: DataType](parent:WFElement, name:String) extends ComponentIO[T] {
+  def this(parent:WFElement) = this(parent,  "in_" + Random.alphanumeric.take(5).mkString)
 
   val way = IO.IN
 }
@@ -45,11 +45,9 @@ case class Input[T <: DataType](parent:WFElement[T], name:String) extends Compon
  * @param parent Reference to component
  * @tparam T Data type
  */
-case class Output[T <: DataType](parent:WFElement[T], name:String) extends ComponentIO[T] {
-  def this(parent:WFElement[T]) = this(parent, "out_" + Random.alphanumeric.take(5).mkString)
+case class Output[T <: DataType](parent:WFElement, name:String) extends ComponentIO[T] {
+  def this(parent:WFElement) = this(parent, "out_" + Random.alphanumeric.take(5).mkString)
 
   val way = IO.OUT
 
 }
-
-

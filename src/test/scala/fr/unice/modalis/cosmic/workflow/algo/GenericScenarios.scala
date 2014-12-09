@@ -8,54 +8,25 @@ import fr.unice.modalis.cosmic.workflow.core._
  */
 object GenericScenarios {
 
-  // Implementation scenario 2 : Fire prevention: a fire alert if a temperature threshold is reached
-  val validWF:Workflow[IntegerType] = {
+  val easy = {
+    val sourceSensor = new Source[IntegerType]("TEMP")
+    val clock = new Source[LongType]("CLK")
 
-    val temperatureSensor = new Source[IntegerType]("TEMP_SENSOR")
+    val filter_clock = new IntegerLongFilter(null)
 
-    val periodicGetter = new PeriodicGetter[IntegerType](30000)
+    val filter_value = new IntegerFilter(new ValueConstraint(">", new IntegerType(50)))
 
-    val predicate = new Predicate[IntegerType](ValueConstraint(">", 50))
+    val sink = new Sink[IntegerType]("alice")
 
+    val l1 = new WFLink(sourceSensor.output, filter_clock.integerInput)
+    val l2 = new WFLink(clock.output, filter_clock.longInput)
+    val l3 = new WFLink(filter_clock.output, filter_value.input)
+    val l4 = new WFLink(filter_value.output, sink.input)
 
-    val collector = new Sink[IntegerType]("alice")
-
-    new Workflow[IntegerType]().addElement(temperatureSensor).addElement(periodicGetter).addElement(predicate).addElement(collector)
-      .addLink(new WFLink[IntegerType](temperatureSensor.output, periodicGetter.input)).addLink(new WFLink[IntegerType](periodicGetter.output, predicate.input))
-      .addLink(new WFLink[IntegerType](predicate.trueOutput,collector.input))
-
-  }
-
-  val invalidWF:Workflow[IntegerType] = {
-
-    val temperatureSensor = new Source[IntegerType]("TEMP_SENSOR")
-
-    val predicate = new Predicate[IntegerType](ValueConstraint(">", 50))
-
-    val collector = new Sink[IntegerType]("alice")
-
-    new Workflow[IntegerType]().addElement(temperatureSensor).addElement(predicate).addElement(collector)
-      .addLink(new WFLink[IntegerType](temperatureSensor.output, predicate.input))
-      .addLink(new WFLink[IntegerType](predicate.trueOutput,collector.input))
+    new Workflow().addElement(sourceSensor).addElement(clock).addElement(filter_clock).addElement(filter_value)
+      .addLink(l1).addLink(l2).addLink(l3).addLink(l4)
 
   }
 
-  //END Scenario 2
 
-  val validWFWithLoop:Workflow[IntegerType] = {
-
-    val temperatureSensor = new Source[IntegerType]("TEMP_SENSOR")
-
-    val periodicGetter = new PeriodicGetter[IntegerType](30000)
-
-    val predicate = new Predicate[IntegerType](ValueConstraint(">", 50))
-
-
-    val collector = new Sink[IntegerType]("alice")
-
-    new Workflow[IntegerType]().addElement(temperatureSensor).addElement(periodicGetter).addElement(predicate).addElement(collector)
-      .addLink(new WFLink[IntegerType](temperatureSensor.output, periodicGetter.input)).addLink(new WFLink[IntegerType](periodicGetter.output, predicate.input))
-      .addLink(new WFLink[IntegerType](predicate.trueOutput,collector.input)).addLink(new WFLink[IntegerType](predicate.falseOutput, predicate.input))
-
-  }
 }

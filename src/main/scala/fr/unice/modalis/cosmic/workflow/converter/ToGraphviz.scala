@@ -8,9 +8,9 @@ import fr.unice.modalis.cosmic.workflow.core._
  */
 object ToGraphviz {
 
-  def apply[T<:DataType](w: Workflow[T]): String = generateCode(w)
+  /*def apply[T<:DataType](w: Workflow): String = generateCode(w)
 
-  def generateCode[T<:DataType](w: Workflow[T]): String = {
+  def generateCode[T<:DataType](w: Workflow): String = {
     val s = new StringBuilder
     s.append(generateHeader)
     s.append(generateNodeShape("box"))
@@ -28,17 +28,17 @@ object ToGraphviz {
   def generateLinkCode[T<:DataType](t: WFLink[T]) = {
 
     t.source.id + "->" + t.destination.id + (t.source match {
-      case Predicate(_) => printlabel(t.source_output.name)
+      case Filter(_,_,_) => printlabel(t.source_output.name)
       case _ => ""
     }) + "\n"
   }
 
 
-  def generateElementCode[T<:DataType](n: WFElement[T]) = {
+  def generateElementCode[T<:DataType](n: WFElement) = {
     n.id + printlabel(n.toString)
   }
 
   def generateFooter() = "}"
 
-  def printlabel(str:String) = "[label=\"" + str + "\"]"
+  def printlabel(str:String) = "[label=\"" + str + "\"]" */
 }

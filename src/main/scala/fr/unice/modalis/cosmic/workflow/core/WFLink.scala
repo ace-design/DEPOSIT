@@ -6,7 +6,7 @@ package fr.unice.modalis.cosmic.workflow.core
  * @param source_output Link source (component output)
  * @param destination_input Link destination (component input)
  */
-case class WFLink[T <: DataType](source_output:Output[T], destination_input:Input[T])
+case class WFLink(source_output:Output[_<:DataType], destination_input:Input[_<:DataType])
 {
 
   val source = source_output.parent

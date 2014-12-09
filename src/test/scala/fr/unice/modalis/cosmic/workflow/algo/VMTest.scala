@@ -10,22 +10,5 @@ import org.specs2.mutable.SpecificationWithJUnit
 class VMTest extends SpecificationWithJUnit{
 
 
-  val newCollector = new Sink[IntegerType]("falseResults")
 
-  "a AddElement action should add an element to a given workflow" in {
-    val action = new AddElement(newCollector)
-
-    action.make(GenericScenarios.validWF).elements.contains(newCollector) must beTrue
-  }
-
-
-  "a AddLink action should add an element to a given workflow" in {
-    val source = new Source[IntegerType]("TEMP")
-    val sink = new Sink[IntegerType]("bob")
-    val wf = new Workflow[IntegerType]().addElement(source).addElement(sink)
-
-    val newLink = new WFLink[IntegerType](source.output, sink.input)
-    val action = new AddLink(newLink)
-    action.make(wf).links.contains(newLink) must beTrue
-  }
 }

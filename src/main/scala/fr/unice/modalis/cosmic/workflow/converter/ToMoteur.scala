@@ -6,9 +6,9 @@ import fr.unice.modalis.cosmic.workflow.core._
  * Created by Cyril Cecchinel - I3S Laboratory on 02/12/14.
  */
 object ToMoteur {
-  def apply[T<:DataType](w: Workflow[T]): String = generateCode(w)
+  def apply[T<:DataType](w: Workflow): String = generateCode(w)
 
-  def generateElementCode[T<:DataType](e: WFElement[T]) = {
+  def generateElementCode(e: WFElement) = {
 
     def generateElementIOCode[T<:DataType](io: ComponentIO[T]) = {
       io match {
@@ -18,12 +18,12 @@ object ToMoteur {
     }
 
     <processor name={e.id} type="integer">
-      { (e.inputs ++ e.outputs).map(generateElementIOCode(_)) }
+      { (e.inputs).map(generateElementIOCode(_) ++ (e.outputs).map(generateElementIOCode(_))) }
     </processor>
 
   }
 
-  def generateLinkCode[T<:DataType](l: WFLink[T]) = {
+  def generateLinkCode(l: WFLink) = {
     <link from={(l.source) match {case Source(_) => l.source_output.name; case _ => (l.source.id + ":" + l.source_output.name)}} to={(l.destination) match {case Sink(_) => l.destination_input.name; case _ => (l.destination.id + ":" + l.destination_input.name)}}/>
   }
 
@@ -36,7 +36,7 @@ object ToMoteur {
 
 
 
-  def generateCode[T<:DataType](w: Workflow[T]): String = {
+  def generateCode(w: Workflow): String = {
 
     "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
       <workflow name="new workflow" version="0.1" author="unknown">
