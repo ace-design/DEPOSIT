@@ -7,7 +7,7 @@ import fr.unice.modalis.cosmic.workflow.core.{WFElement, DataType, Workflow}
  * Represent actions performed by the virtual machine
  * Created by Cyril Cecchinel - I3S Laboratory on 04/11/14.
  */
-trait Instruction[T<:DataType] {
+trait Instruction {
 
   val component:Any
   /**+
@@ -15,7 +15,7 @@ trait Instruction[T<:DataType] {
    * @param w Workflow
    * @return A new workflow
    */
-  def make(w: Workflow[T]): Workflow[T]
+  def make(w: Workflow): Workflow
 
   override def toString:String
 

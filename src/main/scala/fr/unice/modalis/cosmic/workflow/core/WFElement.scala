@@ -14,12 +14,13 @@ trait WFElement {
   val outputs:List[Output[_<:DataType]]
 
   // Unique identifier
-  val id:String = "WFElement_" + scala.util.Random.alphanumeric.take(5).mkString
+  val id:String = scala.util.Random.alphanumeric.take(5).mkString
 
   // Merge operator
   def +(e : WFElement):WFElement // Naive implementation = Set(this, e)
 
-  
-  def uid:String = toString + "_" + id
+  // Similar operator
+  def ~(x: WFElement):Boolean
 
+  override def equals(x:Any) = x.isInstanceOf[WFElement] && x.asInstanceOf[WFElement].id == id
 }

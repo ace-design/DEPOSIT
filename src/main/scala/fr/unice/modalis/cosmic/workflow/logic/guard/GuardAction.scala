@@ -6,4 +6,5 @@ package fr.unice.modalis.cosmic.actions.guard
  */
 trait GuardAction {
 
+  override def equals(x: Any) = x.toString.equals(this.toString)
 }

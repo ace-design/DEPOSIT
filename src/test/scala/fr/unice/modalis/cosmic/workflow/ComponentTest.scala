@@ -1,4 +1,4 @@
-package fr.unice.modalis.cosmic.workflow.algo
+package fr.unice.modalis.cosmic.workflow
 
 import fr.unice.modalis.cosmic.actions.guard.constraint.ValueConstraint
 import fr.unice.modalis.cosmic.workflow.algo.exception.NonMergeableException
@@ -27,6 +27,14 @@ class ComponentTest extends SpecificationWithJUnit{
 
   "Same elements are equals" in {
     s3.equals(s3) must_== true
+  }
+
+  "Same elements with different references are similar" in {
+    s1 ~ s3 must beTrue
+  }
+
+  "Different elements are not similar" in {
+    s1 ~ s2 must beFalse
   }
 
   "The merge of two different sources must raise an exception" in {

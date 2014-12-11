@@ -12,10 +12,9 @@ object VirtualMachine {
    * Apply an action list on a workflow
    * @param w Current workflow
    * @param arr Action list
-   * @tparam T Type of workflow
    * @return A new workflow with the actions list applied
    */
-  def apply[T<:DataType](w: Workflow[T], arr:List[Instruction[T]]):Workflow[T] = arr match {
+  def apply(w: Workflow, arr:List[Instruction]):Workflow = arr match {
     case x :: tail => apply(x.make(w), tail)
     case Nil => w
   }

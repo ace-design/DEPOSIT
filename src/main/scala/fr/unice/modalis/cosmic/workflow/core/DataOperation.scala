@@ -41,13 +41,14 @@ case class IntegerFilter(val p:GuardAction) extends IFilter {
   val input:Input[IntegerType] = (inputs collect { case x:Input[IntegerType] => x}).head
   val output:Output[IntegerType] = (outputs collect { case x:Output[IntegerType] => x}).head
 
+  def ~(x: WFElement):Boolean = x.isInstanceOf[IntegerFilter] && x.asInstanceOf[IntegerFilter].p.equals(p)
+
+  override def toString:String = "IntegerFilter_" + id
 
 
-  // Merge operator
-  override def +(e: WFElement): WFElement = e match {
-    case i:IntegerFilter if i.p == p => new IntegerFilter(p)
-    case _ => throw new NonMergeableException
-  }
+  override def +(e: WFElement): WFElement = if (e ~ this) new IntegerFilter(p) else throw new NonMergeableException
+
+
 }
 
 case class IntegerLongFilter(val p:GuardAction) extends IFilter {
@@ -59,9 +60,10 @@ case class IntegerLongFilter(val p:GuardAction) extends IFilter {
 
   val output:Output[IntegerType] = (outputs collect { case x:Output[IntegerType] => x}).head
 
-  // Merge operator
-  override def +(e: WFElement): WFElement = e match {
-    case i:IntegerLongFilter if i.p == p => new IntegerLongFilter(p)
-    case _ => throw new NonMergeableException
-  }
+  def ~(x: WFElement):Boolean = x.isInstanceOf[IntegerLongFilter] && x.asInstanceOf[IntegerLongFilter].p.equals(p)
+
+  override def toString:String = "IntegerLongFilter_" + id
+
+  override def +(e: WFElement): WFElement = if (e ~ this) new IntegerLongFilter(p) else throw new NonMergeableException
+
 }

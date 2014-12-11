@@ -1,4 +1,4 @@
-package fr.unice.modalis.cosmic.workflow.algo
+package fr.unice.modalis.cosmic.workflow
 
 import fr.unice.modalis.cosmic.actions.guard.constraint.ValueConstraint
 import fr.unice.modalis.cosmic.workflow.core._
