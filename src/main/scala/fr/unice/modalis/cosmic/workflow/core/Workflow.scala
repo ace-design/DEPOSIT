@@ -3,6 +3,8 @@ package fr.unice.modalis.cosmic.workflow.core
 import fr.unice.modalis.cosmic.workflow.algo.Algo
 import fr.unice.modalis.cosmic.workflow.algo.vm.VirtualMachine
 
+import scala.collection.mutable.ArrayBuffer
+
 /**
  * Workflow definition
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
@@ -73,6 +75,23 @@ case class Workflow(val elements:Set[WFElement], val links:Set[WFLink]) {
   }
 
   /**
+   * Return sub Workflow
+   * @param root Root element
+   */
+  def subWorkflow(root:WFElement):Workflow = {
+    val elements = new ArrayBuffer[WFElement]()
+    val links = new ArrayBuffer[WFLink]()
+
+    def internal(e:WFElement):Unit = {
+      val next = nextElements(e)
+      next.foreach(e => {elements += e._1; links += e._2; if (e != Set.empty) internal(e._1)})
+
+    }
+    internal(root)
+    new Workflow(elements.toSet, links.toSet)
+  }
+
+  /**
    * Merge two workflows
    * @param w Workflow to be merged with
    * @return Merged workflow
@@ -80,9 +99,7 @@ case class Workflow(val elements:Set[WFElement], val links:Set[WFLink]) {
   def +(w: Workflow) = {
     // Compute the actions needed to merge the two workflows
     val actions = Algo.merge(this, w)
-    // Build an intermediate workflow : W1 union W2
-    val merge = new Workflow(this.elements ++ w.elements, this.links ++ w.links)
     // Apply the actions and return the new workflow
-    VirtualMachine(merge, actions)
+    VirtualMachine(this, actions)
   }
 }

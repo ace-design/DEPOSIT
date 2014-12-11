@@ -9,8 +9,7 @@ import fr.unice.modalis.cosmic.workflow.core.{WFElement, DataType, Workflow}
  */
 trait Instruction {
 
-  val component:Any
-  /**+
+  /**
    * Apply the action on a workflow
    * @param w Workflow
    * @return A new workflow

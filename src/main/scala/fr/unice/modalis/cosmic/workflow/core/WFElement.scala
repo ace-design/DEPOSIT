@@ -14,7 +14,7 @@ trait WFElement {
   val outputs:List[Output[_<:DataType]]
 
   // Unique identifier
-  val id:String = scala.util.Random.alphanumeric.take(5).mkString
+  var id:String = scala.util.Random.alphanumeric.take(5).mkString
 
   // Merge operator
   def +(e : WFElement):WFElement // Naive implementation = Set(this, e)
@@ -23,4 +23,5 @@ trait WFElement {
   def ~(x: WFElement):Boolean
 
   override def equals(x:Any) = x.isInstanceOf[WFElement] && x.asInstanceOf[WFElement].id == id
+
 }

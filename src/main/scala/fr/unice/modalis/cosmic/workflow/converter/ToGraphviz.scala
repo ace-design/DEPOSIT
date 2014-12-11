@@ -8,7 +8,7 @@ import fr.unice.modalis.cosmic.workflow.core._
  */
 object ToGraphviz {
 
-  /*def apply[T<:DataType](w: Workflow): String = generateCode(w)
+  def apply(w: Workflow): String = generateCode(w)
 
   def generateCode[T<:DataType](w: Workflow): String = {
     val s = new StringBuilder
@@ -25,12 +25,8 @@ object ToGraphviz {
   def generateHeader() = {
     "digraph finite_state_machine { rankdir=TB; size=\"12\"\n"
   }
-  def generateLinkCode[T<:DataType](t: WFLink[T]) = {
-
-    t.source.id + "->" + t.destination.id + (t.source match {
-      case Filter(_,_,_) => printlabel(t.source_output.name)
-      case _ => ""
-    }) + "\n"
+  def generateLinkCode[T<:DataType](t: WFLink) = {
+    t.source.id + "->" + t.destination.id + printlabel(t.source_output.name) + "\n"
   }
 
 
@@ -40,5 +36,5 @@ object ToGraphviz {
 
   def generateFooter() = "}"
 
-  def printlabel(str:String) = "[label=\"" + str + "\"]" */
+  def printlabel(str:String) = "[label=\"" + str + "\"]"
 }
