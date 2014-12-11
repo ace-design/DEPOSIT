@@ -1,5 +1,8 @@
 package fr.unice.modalis.cosmic.workflow.core
 
+import fr.unice.modalis.cosmic.workflow.algo.Algo
+import fr.unice.modalis.cosmic.workflow.algo.vm.VirtualMachine
+
 /**
  * Workflow definition
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
@@ -18,9 +21,9 @@ case class Workflow(val elements:Set[WFElement], val links:Set[WFLink]) {
   def addElement(c:WFElement):Workflow  = new Workflow(elements + c, links)
 
   /**
-   * Delete an element in the current workflow (/!\ Delete also all links refering this element)
+   * Delete an element in the current workflow (/!\ Delete also all links referring this element)
    * @param c Workflow element
-   * @return A workflow without this element and links refering this element
+   * @return A workflow without this element and links referring this element
    */
   def deleteElement(c:WFElement):Workflow = new Workflow(elements - c, links.filterNot(p => (p.destination == c) || (p.source == c)))
 
@@ -69,4 +72,17 @@ case class Workflow(val elements:Set[WFElement], val links:Set[WFLink]) {
     case _ => throw new ClassCastException
   }
 
+  /**
+   * Merge two workflows
+   * @param w Workflow to be merged with
+   * @return Merged workflow
+   */
+  def +(w: Workflow) = {
+    // Compute the actions needed to merge the two workflows
+    val actions = Algo.merge(this, w)
+    // Build an intermediate workflow : W1 union W2
+    val merge = new Workflow(this.elements ++ w.elements, this.links ++ w.links)
+    // Apply the actions and return the new workflow
+    VirtualMachine(merge, actions)
+  }
 }
