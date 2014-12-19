@@ -36,11 +36,12 @@ object GenericScenarios {
     val l4 = new WFLink(filter_value.output, sink.input)
 
 
-    new Workflow(Set(sourceSensor, clock, filter_clock, filter_value, sink), Set(l1,l2,l3,l4))
+    new Workflow(Set(sourceSensor, clock, filter_clock, filter_value, sink), Set(l1, l2, l3, l4))
   }
 
 
-  val error1 = { // Missing link
+  val error1 = {
+    // Missing link
     val sourceSensor = new Source[IntegerType]("TEMP")
     val clock = new Source[IntegerType]("CLK")
     val filter_clock = new IntegerLongFilter(new ValueConstraint("==", new IntegerType(1)))
@@ -53,7 +54,7 @@ object GenericScenarios {
     val l4 = new WFLink(filter_value.output, sink.input)
 
 
-    new Workflow(Set(sourceSensor, clock, filter_clock, filter_value, sink), Set(l1,l2,l4))
+    new Workflow(Set(sourceSensor, clock, filter_clock, filter_value, sink), Set(l1, l2, l4))
   }
 
   val noSink = {
@@ -68,10 +69,8 @@ object GenericScenarios {
     val l3 = new WFLink(filter_clock.output, filter_value.input)
 
 
-    new Workflow(Set(sourceSensor, clock, filter_clock, filter_value), Set(l1,l2,l3))
+    new Workflow(Set(sourceSensor, clock, filter_clock, filter_value), Set(l1, l2, l3))
   }
-
-
 
 
 }

@@ -1,6 +1,5 @@
 package fr.unice.modalis.cosmic.workflow
 
-import fr.unice.modalis.cosmic.actions.guard.constraint.ValueConstraint
 import fr.unice.modalis.cosmic.workflow.algo.exception.NonMergeableException
 import fr.unice.modalis.cosmic.workflow.core._
 import org.specs2.mutable.SpecificationWithJUnit
@@ -8,7 +7,7 @@ import org.specs2.mutable.SpecificationWithJUnit
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 13/11/14.
  */
-class ComponentTest extends SpecificationWithJUnit{
+class ComponentTest extends SpecificationWithJUnit {
 
   /* MERGING TESTS */
   val s1 = new Source[IntegerType]("TEMP")
@@ -16,13 +15,12 @@ class ComponentTest extends SpecificationWithJUnit{
   val s3 = new Source[IntegerType]("TEMP")
 
 
-
   val c1 = new Sink[IntegerType]("alice")
   val c2 = new Sink[IntegerType]("bob")
 
 
   "Different elements are not equal" in {
-    s1.equals(s2) must_==  false
+    s1.equals(s2) must_== false
   }
 
   "Same elements are equals" in {
@@ -38,7 +36,7 @@ class ComponentTest extends SpecificationWithJUnit{
   }
 
   "The merge of two different sources must raise an exception" in {
-    (s1 + s2) must throwA (new NonMergeableException)
+    (s1 + s2) must throwA(new NonMergeableException)
 
   }
 

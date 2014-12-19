@@ -10,7 +10,7 @@ object ToGraphviz {
 
   def apply(w: Workflow): String = generateCode(w)
 
-  def generateCode[T<:DataType](w: Workflow): String = {
+  def generateCode[T <: DataType](w: Workflow): String = {
     val s = new StringBuilder
     s.append(generateHeader)
     s.append(generateNodeShape("box"))
@@ -25,16 +25,16 @@ object ToGraphviz {
   def generateHeader() = {
     "digraph finite_state_machine { rankdir=TB; size=\"12\"\n"
   }
-  def generateLinkCode[T<:DataType](t: WFLink) = {
+
+  def generateLinkCode[T <: DataType](t: WFLink) = {
     t.source.id + "->" + t.destination.id + printlabel(t.source_output.name) + "\n"
   }
 
+  def printlabel(str: String) = "[label=\"" + str + "\"]"
 
-  def generateElementCode[T<:DataType](n: WFElement) = {
+  def generateElementCode[T <: DataType](n: WFElement) = {
     n.id + printlabel(n.toString)
   }
 
   def generateFooter() = "}"
-
-  def printlabel(str:String) = "[label=\"" + str + "\"]"
 }

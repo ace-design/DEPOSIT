@@ -16,17 +16,17 @@ object Verify {
    * @param wf Workflow
    * @return Connectivity of the workflow
    */
-  def connectivity(wf:Workflow) = {
+  def connectivity(wf: Workflow) = {
 
-    def BFS(l:List[WFLink], s:Source[DataType]) = {
+    def BFS(l: List[WFLink], s: Source[DataType]) = {
       val f = scala.collection.mutable.Queue[WFElement]()
       var visited = List[WFElement]()
       f.enqueue(s)
       visited = s :: visited
-      while (f.size > 0){
+      while (f.size > 0) {
         val current = f.dequeue()
         l.filter(link => link.source == current).foreach(
-          e => if (!visited.contains(e.destination)){
+          e => if (!visited.contains(e.destination)) {
             f.enqueue(e.destination)
             visited = current :: visited
           }
@@ -44,21 +44,24 @@ object Verify {
    * @param wf Workflow
    * @return All sinks are collectors
    */
-  def collectorSink(wf:Workflow) = {
+  def collectorSink(wf: Workflow) = {
 
     // Destination of all links is the source of an other link.
     var res = Set.empty[WFLink]
     for (i <- wf.links.iterator) {
-      res = res ++  wf.links.filter(p => (p.destination == i.source))
+      res = res ++ wf.links.filter(p => (p.destination == i.source))
     }
 
     // Get elements from the links
-    val remaining = res.foldLeft(Set.empty[WFElement]){(acc, e) => acc ++ Set(e.source, e.destination)}
+    val remaining = res.foldLeft(Set.empty[WFElement]) { (acc, e) => acc ++ Set(e.source, e.destination)}
 
     // The only remaining elements must be collectors
     val result = wf.elements -- remaining
 
-    result.forall(p=> p match {case Sink(_) => true; case _ => false})
+    result.forall(p => p match {
+      case Sink(_) => true;
+      case _ => false
+    })
   }
 
 

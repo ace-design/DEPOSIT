@@ -8,7 +8,7 @@ import org.specs2.mutable.SpecificationWithJUnit
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 19/12/14.
  */
-class AlgoTest extends SpecificationWithJUnit{
+class AlgoTest extends SpecificationWithJUnit {
 
   "The similar algorithm identify the same level similar elements in a workflow" in {
     val sourceSensor = new Source[IntegerType]("TEMP442")

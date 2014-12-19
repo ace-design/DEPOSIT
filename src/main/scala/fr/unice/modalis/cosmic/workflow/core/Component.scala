@@ -7,7 +7,7 @@ import scala.util.Random
  * Workflow component trait
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
  */
-trait Component extends WFElement{
+trait Component extends WFElement {
 
 }
 
@@ -24,8 +24,8 @@ object IO extends Enumeration {
  * @tparam T Supported datatype
  */
 trait ComponentIO[T <: DataType] {
-  val way:IO.ComponentIO
-  val parent:WFElement
+  val way: IO.ComponentIO
+  val parent: WFElement
 
 }
 
@@ -34,10 +34,11 @@ trait ComponentIO[T <: DataType] {
  * @param parent Reference to component
  * @tparam T Data type
  */
-case class Input[T <: DataType](parent:WFElement, var name:String) extends ComponentIO[T] {
-  def this(parent:WFElement) = this(parent,  "in_" + Random.alphanumeric.take(5).mkString)
-
+case class Input[T <: DataType](parent: WFElement, var name: String) extends ComponentIO[T] {
   val way = IO.IN
+
+  def this(parent: WFElement) = this(parent, "in_" + Random.alphanumeric.take(5).mkString)
+
   def setName(n: String) = name = n
 
 }
@@ -47,10 +48,11 @@ case class Input[T <: DataType](parent:WFElement, var name:String) extends Compo
  * @param parent Reference to component
  * @tparam T Data type
  */
-case class Output[T <: DataType](parent:WFElement, var name:String) extends ComponentIO[T] {
-  def this(parent:WFElement) = this(parent, "out_" + Random.alphanumeric.take(5).mkString)
-
+case class Output[T <: DataType](parent: WFElement, var name: String) extends ComponentIO[T] {
   val way = IO.OUT
+
+  def this(parent: WFElement) = this(parent, "out_" + Random.alphanumeric.take(5).mkString)
+
   def setName(n: String) = name = n
 
 }

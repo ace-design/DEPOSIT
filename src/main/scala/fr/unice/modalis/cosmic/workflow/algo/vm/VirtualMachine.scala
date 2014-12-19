@@ -1,6 +1,6 @@
 package fr.unice.modalis.cosmic.workflow.algo.vm
 
-import fr.unice.modalis.cosmic.workflow.core.{DataType, Workflow}
+import fr.unice.modalis.cosmic.workflow.core.Workflow
 
 /**
  * Compute new Workflows
@@ -14,7 +14,7 @@ object VirtualMachine {
    * @param arr Action list
    * @return A new workflow with the actions list applied
    */
-  def apply(w: Workflow, arr:List[Instruction]):Workflow = arr match {
+  def apply(w: Workflow, arr: List[Instruction]): Workflow = arr match {
     case x :: tail => apply(x.make(w), tail)
     case Nil => w
   }

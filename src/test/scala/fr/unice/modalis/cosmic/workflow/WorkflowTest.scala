@@ -7,7 +7,7 @@ import org.specs2.mutable.SpecificationWithJUnit
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 04/11/14.
  */
-class WorkflowTest extends SpecificationWithJUnit{
+class WorkflowTest extends SpecificationWithJUnit {
 
   "An element should be added in a given workflow" in {
     val toAdd = new Sink[DoubleType]("test")

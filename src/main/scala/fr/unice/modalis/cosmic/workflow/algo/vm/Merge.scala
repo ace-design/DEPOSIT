@@ -1,14 +1,15 @@
 package fr.unice.modalis.cosmic.workflow.algo.vm
 
-import fr.unice.modalis.cosmic.workflow.core.{WFLink, WFElement, Workflow}
+import fr.unice.modalis.cosmic.workflow.core.{WFElement, WFLink, Workflow}
 
 /**
  * Merge two elements in a given Workflow
  * Pre-requisite : two similar elements already present in the workflow
  * Created by Cyril Cecchinel - I3S Laboratory on 19/12/14.
  */
-case class Merge(e1:WFElement, e2:WFElement) extends Instruction{
+case class Merge(e1: WFElement, e2: WFElement) extends Instruction {
   require(e1 ~ e2)
+
   /**
    * Apply the action on a workflow
    * @param w Workflow

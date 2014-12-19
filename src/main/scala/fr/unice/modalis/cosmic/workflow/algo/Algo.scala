@@ -1,12 +1,9 @@
 package fr.unice.modalis.cosmic.workflow.algo
 
-import java.util.NoSuchElementException
-
 import fr.unice.modalis.cosmic.workflow.algo.vm._
 import fr.unice.modalis.cosmic.workflow.core._
 
-import scala.collection.mutable
-import scala.collection.mutable.{ArrayBuffer, Stack, HashMap}
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * Algorithms on Workflows
@@ -15,13 +12,13 @@ import scala.collection.mutable.{ArrayBuffer, Stack, HashMap}
 object Algo {
 
 
-  def similar(wf:Workflow) = {
+  def similar(wf: Workflow) = {
     val similarSet = scala.collection.mutable.Set.empty[WFElement]
     wf.links.foreach(l => wf.links.filterNot(_ == l).map(p => if (p.source == l.source && p.destination ~ l.destination) similarSet.add(l.destination)))
     similarSet.toSet
   }
 
-  def merge(wf1:Workflow, wf2:Workflow):List[Instruction] = {
+  def merge(wf1: Workflow, wf2: Workflow): List[Instruction] = {
 
     val setActions = ArrayBuffer[Instruction]()
 
@@ -43,7 +40,7 @@ object Algo {
         val e2Next = wf2.nextElements(e2)
 
         // Step1b: Combine left elements with right elements
-        val combination = e1Next.flatMap(e => e2Next.map(f => (e,f)))
+        val combination = e1Next.flatMap(e => e2Next.map(f => (e, f)))
 
         // Step1c : Create pairs of next elements
         val pairs = combination.map(p => ((p._1)._1, (p._2)._1))
@@ -53,7 +50,8 @@ object Algo {
 
         // DONE :)
 
-      } else { //step1 : ... else
+      } else {
+        //step1 : ... else
         println("\tDEBUG: " + e1 + " !~ " + e2)
         //Step 2a: Add e2 into left workflow ...
         setActions += new AddElement(e2)
@@ -73,11 +71,6 @@ object Algo {
     setActions.toList
 
   }
-
-
-
-
-
 
 
 }
