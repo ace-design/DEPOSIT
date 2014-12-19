@@ -19,6 +19,7 @@ trait DataIO[T<:DataType] extends WFElement{
 case class Source[T<:DataType](sensor:String) extends DataIO[T]{
   val output = new Output[T](this)
 
+
   override val inputs: List[Input[T]] = List()
   override val outputs: List[Output[T]] = List(output)
 

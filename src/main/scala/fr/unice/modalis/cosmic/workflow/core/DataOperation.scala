@@ -35,11 +35,11 @@ trait IFilter extends DataOperation {
 }
 
 case class IntegerFilter(val p:GuardAction) extends IFilter {
-  override val inputs: List[Input[_ <: DataType]] = List(new Input[IntegerType](this))
-  override val outputs: List[Output[_ <: DataType]] = List(new Output[IntegerType](this))
+  override val inputs: List[Input[IntegerType]] = List(new Input(this))
+  override val outputs: List[Output[IntegerType]] = List(new Output(this))
 
-  val input:Input[IntegerType] = (inputs collect { case x:Input[IntegerType] => x}).head
-  val output:Output[IntegerType] = (outputs collect { case x:Output[IntegerType] => x}).head
+  val input:Input[IntegerType] = inputs.head
+  val output:Output[IntegerType] = outputs.head
 
   def ~(x: WFElement):Boolean = x.isInstanceOf[IntegerFilter] && x.asInstanceOf[IntegerFilter].p.equals(p)
 

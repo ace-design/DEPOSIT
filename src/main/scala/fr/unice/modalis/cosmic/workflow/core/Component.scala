@@ -34,10 +34,12 @@ trait ComponentIO[T <: DataType] {
  * @param parent Reference to component
  * @tparam T Data type
  */
-case class Input[T <: DataType](parent:WFElement, name:String) extends ComponentIO[T] {
+case class Input[T <: DataType](parent:WFElement, var name:String) extends ComponentIO[T] {
   def this(parent:WFElement) = this(parent,  "in_" + Random.alphanumeric.take(5).mkString)
 
   val way = IO.IN
+  def setName(n: String) = name = n
+
 }
 
 /**
@@ -45,9 +47,10 @@ case class Input[T <: DataType](parent:WFElement, name:String) extends Component
  * @param parent Reference to component
  * @tparam T Data type
  */
-case class Output[T <: DataType](parent:WFElement, name:String) extends ComponentIO[T] {
+case class Output[T <: DataType](parent:WFElement, var name:String) extends ComponentIO[T] {
   def this(parent:WFElement) = this(parent, "out_" + Random.alphanumeric.take(5).mkString)
 
   val way = IO.OUT
+  def setName(n: String) = name = n
 
 }

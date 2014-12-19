@@ -1,7 +1,7 @@
 package fr.unice.modalis.cosmic.workflow.core
 
 import fr.unice.modalis.cosmic.workflow.algo.Algo
-import fr.unice.modalis.cosmic.workflow.algo.vm.VirtualMachine
+import fr.unice.modalis.cosmic.workflow.algo.vm.{Instruction, Merge, VirtualMachine}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -82,6 +82,8 @@ case class Workflow(val elements:Set[WFElement], val links:Set[WFLink]) {
     val elements = new ArrayBuffer[WFElement]()
     val links = new ArrayBuffer[WFLink]()
 
+    // Add root into the elements
+    elements += root
     def internal(e:WFElement):Unit = {
       val next = nextElements(e)
       next.foreach(e => {elements += e._1; links += e._2; if (e != Set.empty) internal(e._1)})
@@ -97,9 +99,31 @@ case class Workflow(val elements:Set[WFElement], val links:Set[WFLink]) {
    * @return Merged workflow
    */
   def +(w: Workflow) = {
+
+    def mergeInternal(l:List[WFElement]):List[Instruction] = {
+      l.sortWith(_ ~ _) match {
+        case a :: b :: l if a ~ b => Merge(a,b) :: mergeInternal(l)
+        case a :: b :: l => mergeInternal(b :: l)
+        case a => Nil
+      }
+    }
     // Compute the actions needed to merge the two workflows
     val actions = Algo.merge(this, w)
-    // Apply the actions and return the new workflow
-    VirtualMachine(this, actions)
+
+    // Apply the actions and produce a new workflow
+    var intermediateWF = VirtualMachine(this, actions)
+
+    // Identify if similar elements can be merged into the workflow
+    var needMerging = Algo.similar(intermediateWF)
+
+    // Loop until there is no more possibility of merging
+    while(needMerging != Set.empty){
+      val actions = mergeInternal(needMerging.toList)
+      intermediateWF = VirtualMachine(intermediateWF, actions)
+      needMerging = Algo.similar(intermediateWF)
+    }
+
+    intermediateWF
+
   }
 }
