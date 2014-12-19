@@ -9,8 +9,45 @@
         <maven.compiler.target>1.6</maven.compiler.target>
         <encoding>UTF-8</encoding>
         <scala.tools.version>2.11</scala.tools.version>
-        <scala.version>2.11.0</scala.version>
+        <scala.version>2.11.1</scala.version>
     </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>nexus-releases</id>
+            <name>Nexus Release Repository</name>
+            <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
+    <developers>
+        <developer>
+            <id>mosser</id>
+            <name>Sebastien Mosser</name>
+            <email>mosser@i3s.unice.fr</email>
+            <url>http://www.i3s.unice.fr/~mosser</url>
+            <timezone>+2</timezone>
+            <roles>
+                <role>Architect</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>cecchinel</id>
+            <name>Cyril Ceccinel</name>
+            <email>cecchine@3s.unice.fr</email>
+            <timezone>+2</timezone>
+            <roles>
+                <role>Main Developer</role>
+            </roles>
+        </developer>
+    </developers>
+    <licenses>
+        <license>
+            <name>LGPL 3.0</name>
+            <url>http://www.gnu.org/licenses/lgpl-3.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <repositories>
         <repository>
@@ -45,10 +82,11 @@
             <version>${scala.version}</version>
         </dependency>
         <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>2.3</version>
+            <groupId>org.scala-lang.modules</groupId>
+            <artifactId>scala-xml_2.11</artifactId>
+            <version>1.0.2</version>
         </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>junit</groupId>
@@ -62,11 +100,6 @@
             <version>2.3.12</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.scala-lang.modules</groupId>
-            <artifactId>scala-xml_2.11</artifactId>
-            <version>1.0.2</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -78,6 +111,7 @@
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
                 <version>3.1.3</version>
+
                 <executions>
                     <execution>
                         <goals>
@@ -85,6 +119,7 @@
                             <goal>testCompile</goal>
                         </goals>
                         <configuration>
+
                             <args>
                                 <arg>-dependencyfile</arg>
                                 <arg>${project.build.directory}/.scala_dependencies</arg>
