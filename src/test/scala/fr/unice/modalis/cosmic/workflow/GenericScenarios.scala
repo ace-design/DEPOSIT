@@ -71,6 +71,66 @@ object GenericScenarios {
     new Workflow(Set(sourceSensor, clock, filter_clock, filter_value), Set(l1,l2,l3))
   }
 
+  val wf1 = {
+    val sourceSensor = new Source[IntegerType]("TEMP442");
+    sourceSensor.id = "TEMP442_1";
+    sourceSensor.output.name = "TEMP"
+    val filter_value = new IntegerFilter(new ValueConstraint("<", new IntegerType(15)));
+    filter_value.id = "FilterInf15_1"
+    val sink = new Sink[IntegerType]("smartcampus");
+    sink.id = "SinkSmartCampus_1";
+    sink.input.setName("smartcampus1")
+
+
+    val l1 = new WFLink(sourceSensor.output, filter_value.input)
+    val l2 = new WFLink(filter_value.output, sink.input)
+
+    new Workflow(Set(sourceSensor, filter_value, sink), Set(l1, l2))
+  }
+
+  val wf1bis = {
+    val sourceSensor = new Source[IntegerType]("TEMP442");
+    sourceSensor.id = "TEMP442_1Bis";
+    sourceSensor.output.name = "TEMP"
+    val filter_value = new IntegerFilter(new ValueConstraint("==", new IntegerType(24)));
+    filter_value.id = "FilterEq15_1Bis"
+    val sink = new Sink[IntegerType]("smartcampus");
+    sink.id = "SinkSmartCampus_1Bis";
+    sink.input.setName("smartcampus1bis")
+
+    val l1 = new WFLink(sourceSensor.output, filter_value.input)
+    val l2 = new WFLink(filter_value.output, sink.input)
+
+    new Workflow(Set(sourceSensor, filter_value, sink), Set(l1, l2))
+
+  }
+
+  val wf1wf1bis = {
+    // TEST is WF1+WF1BIS
+    val sourceSensor = new Source[IntegerType]("TEMP442");
+    sourceSensor.id = "TEMP442_TEST";
+    sourceSensor.output.name = "TEMP"
+    val filter_value1 = new IntegerFilter(new ValueConstraint("<", new IntegerType(15)));
+    filter_value1.id = "FilterInf15_TEST"
+    val filter_value2 = new IntegerFilter(new ValueConstraint("==", new IntegerType(15)));
+    filter_value2.id = "FilterEq15_TEST"
+    val sink1 = new Sink[IntegerType]("smartcampus");
+    sink1.id = "SinkSmartCampus1_TEST";
+    ;
+    sink1.input.setName("smartcampus1")
+    val sink2 = new Sink[IntegerType]("smartcampus");
+    sink2.id = "SinkSmartCampus2_TEST";
+    ;
+    sink2.input.setName("smartcampus1bis")
+
+    val l1 = new WFLink(sourceSensor.output, filter_value1.input)
+    val l2 = new WFLink(sourceSensor.output, filter_value2.input)
+    val l3 = new WFLink(filter_value1.output, sink1.input)
+    val l4 = new WFLink(filter_value2.output, sink2.input)
+
+    new Workflow(Set(sourceSensor, filter_value1, filter_value2, sink1, sink2), Set(l1, l2, l3, l4))
+
+  }
 
 
 

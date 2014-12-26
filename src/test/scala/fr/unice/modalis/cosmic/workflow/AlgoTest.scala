@@ -26,5 +26,11 @@ class AlgoTest extends SpecificationWithJUnit{
     Algo.similar(wf) must_== Set(filter_value1, filter_value2)
   }
 
+  "Neutral merging" in {
+    GenericScenarios.easy + GenericScenarios.easy must_== GenericScenarios.easy
+  }
 
+  "Merge two workflows" in {
+    ((GenericScenarios.wf1 + GenericScenarios.wf1bis) ~ GenericScenarios.wf1wf1bis) must beTrue
+  }
 }

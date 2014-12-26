@@ -95,10 +95,10 @@ case class Workflow(val elements:Set[WFElement], val links:Set[WFLink]) {
 
   /**
    * Merge two workflows
-   * @param w Workflow to be merged with
+   * @param other Workflow to be merged with
    * @return Merged workflow
    */
-  def +(w: Workflow) = {
+  def +(other: Workflow) = {
 
     def mergeInternal(l:List[WFElement]):List[Instruction] = {
       l.sortWith(_ ~ _) match {
@@ -108,7 +108,7 @@ case class Workflow(val elements:Set[WFElement], val links:Set[WFLink]) {
       }
     }
     // Compute the actions needed to merge the two workflows
-    val actions = Algo.merge(this, w)
+    val actions = Algo.merge(this, other)
 
     // Apply the actions and produce a new workflow
     var intermediateWF = VirtualMachine(this, actions)
@@ -125,5 +125,9 @@ case class Workflow(val elements:Set[WFElement], val links:Set[WFLink]) {
 
     intermediateWF
 
+  }
+  
+  def ~(other: Workflow) = {
+    Algo.similar(other) == Set.empty
   }
 }
