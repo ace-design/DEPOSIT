@@ -23,7 +23,7 @@ class AlgoTest extends SpecificationWithJUnit{
     val l4 = new WFLink(filter_value2.output, sink2.input)
 
     val wf = new Workflow(Set(sourceSensor, filter_value1, filter_value2, sink1, sink2), Set(l1, l2, l3, l4))
-    Algo.similar(wf) must_== Set(filter_value1, filter_value2)
+    Algo.similarElements(wf) must_== Set(filter_value1, filter_value2)
   }
 
   "Neutral merging" in {
@@ -33,4 +33,6 @@ class AlgoTest extends SpecificationWithJUnit{
   "Merge two workflows" in {
     ((GenericScenarios.wf1 + GenericScenarios.wf1bis) ~ GenericScenarios.wf1wf1bis) must beTrue
   }
+
+
 }

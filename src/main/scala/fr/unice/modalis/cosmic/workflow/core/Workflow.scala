@@ -44,6 +44,12 @@ case class Workflow(val elements:Set[WFElement], val links:Set[WFLink]) {
   def deleteLink(l:WFLink):Workflow  = new Workflow(elements, links - l)
 
   /**
+   *
+   * Simplification process
+   */
+
+
+  /**
    * Find the next workflow elements
    * @param e Current workflow element
    * @return Immediate next elements
@@ -114,20 +120,31 @@ case class Workflow(val elements:Set[WFElement], val links:Set[WFLink]) {
     var intermediateWF = VirtualMachine(this, actions)
 
     // Identify if similar elements can be merged into the workflow
-    var needMerging = Algo.similar(intermediateWF)
+    var needMerging = Algo.similarElements(intermediateWF)
 
     // Loop until there is no more possibility of merging
-    while(needMerging != Set.empty){
+    while((needMerging != Set.empty) && (needMerging.size > 1)){
       val actions = mergeInternal(needMerging.toList)
       intermediateWF = VirtualMachine(intermediateWF, actions)
-      needMerging = Algo.similar(intermediateWF)
+      needMerging = Algo.similarElements(intermediateWF)
     }
+
+    // Merge sinks if needed
+    val similarSinks = Algo.similarSinks(intermediateWF)
+    val actions_sinks = similarSinks.map(e => new Merge(e._1, e._2))
+
+    intermediateWF = VirtualMachine(intermediateWF, actions_sinks.toList)
 
     intermediateWF
 
   }
-  
+
+  /**
+   * Check if this workflow is similar to an other
+   * @param other Other workflow
+   * @return A boolean refering if this workflow is similar to an other
+   */
   def ~(other: Workflow) = {
-    Algo.similar(other) == Set.empty
+    Algo.areSimilarWorkflows(this,other)
   }
 }

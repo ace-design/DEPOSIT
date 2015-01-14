@@ -35,6 +35,14 @@ class WorkflowTest extends SpecificationWithJUnit{
     wf.elements.size must_== 1
   }
 
+  "Similarity between workflows" in {
+    GenericScenarios.wf1 ~ GenericScenarios.wf2 must beTrue
+  }
+
+  "Similarity between workflows" in {
+    GenericScenarios.wf1 ~ GenericScenarios.wf1wf1bis must beFalse
+  }
+
   /* DELETION TESTS */
   val sourceSensor = new Source[IntegerType]("TEMP")
   val clock = new Source[LongType]("CLK")

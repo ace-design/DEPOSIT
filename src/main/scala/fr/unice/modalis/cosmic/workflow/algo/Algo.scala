@@ -14,17 +14,58 @@ import scala.collection.mutable.{ArrayBuffer, Stack, HashMap}
  */
 object Algo {
 
+  /**
+   * Check if two workflow are similar
+   * @param wf1 Workflow 1
+   * @param wf2 Workflow 2
+   * @return A boolean : Workflow1 is similar to workflow2?
+   */
+  def areSimilarWorkflows(wf1:Workflow, wf2:Workflow) = {
+    (wf1.links.size == wf2.links.size) && wf1.links.forall(l => wf2.links.exists(p => l.source ~ p.source && l.destination ~ p.destination))
+  }
 
-  def similar(wf:Workflow) = {
+  /**
+   * Identify similar elements in a given workflow
+   * @param wf Workflow
+   * @return A set of pair of similar elements
+   */
+  def similarElements(wf:Workflow) = {
     val similarSet = scala.collection.mutable.Set.empty[WFElement]
     wf.links.foreach(l => wf.links.filterNot(_ == l).map(p => if (p.source == l.source && p.destination ~ l.destination) similarSet.add(l.destination)))
     similarSet.toSet
   }
 
+  /**
+   * Identify similar sinks in a given workflow
+   * @param wf Workflow
+   * @return A set of pair of similar sinks
+   */
+  def similarSinks(wf:Workflow) = {
+    val similarSet = scala.collection.mutable.Set.empty[(WFElement, WFElement)]
+    wf.sinks.foreach(e => wf.sinks.filterNot(_ == e).map(p => if ((p ~ e) && (!similarSet.contains((p,e)) && (!similarSet.contains((e,p))))) similarSet.add((p, e))))
+    similarSet.toSet
+  }
+
+  /**
+   * Identify similar sources in a given workflow
+   * @param wf Workflow
+   * @return A set of pair of similar sources
+   */
+  def similarSources(wf:Workflow) = {
+    val similarSet = scala.collection.mutable.Set.empty[(WFElement, WFElement)]
+    wf.sources.foreach(e => wf.sources.filterNot(_ == e).map(p => if ((p ~ e) && (!similarSet.contains((p,e)) && (!similarSet.contains((e,p))))) similarSet.add((p, e))))
+    similarSet.toSet
+  }
+
+  /**
+   * Merge two workflow
+   * @param wf1 Workflow left
+   * @param wf2 Workflow right
+   * @return A merged workflow : wf1+wf2
+   */
   def merge(wf1:Workflow, wf2:Workflow):List[Instruction] = {
 
     val setActions = ArrayBuffer[Instruction]()
-
 
     /**
      * @param currentRoot Current left root
@@ -57,7 +98,9 @@ object Algo {
         println("\tDEBUG: " + e1 + " !~ " + e2)
         //Step 2a: Add e2 into left workflow ...
         setActions += new AddElement(e2)
-        setActions += new AddLink(new WFLink(currentRoot.outputs.head, e2.inputs.head))
+
+        if (e2.inputs.headOption.nonEmpty)
+          setActions += new AddLink(new WFLink(currentRoot.outputs.head, e2.inputs.head))
 
         //Step 2b: Get right subworkflow with e2 as root and and it into left
         val subworkflow = wf2.subWorkflow(e2)
@@ -73,11 +116,5 @@ object Algo {
     setActions.toList
 
   }
-
-
-
-
-
-
 
 }
