@@ -1,8 +1,6 @@
 package fr.unice.modalis.cosmic.workflow
 
-import fr.unice.modalis.cosmic.actions.guard.constraint.ValueConstraint
 import fr.unice.modalis.cosmic.workflow.algo.Verify
-import fr.unice.modalis.cosmic.workflow.core._
 import org.specs2.mutable.SpecificationWithJUnit
 
 /**

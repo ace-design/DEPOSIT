@@ -1,6 +1,6 @@
 package fr.unice.modalis.cosmic.workflow.algo.vm
 
-import fr.unice.modalis.cosmic.workflow.core.{WFElement, DataType, Workflow}
+import fr.unice.modalis.cosmic.workflow.core.Workflow
 
 /**
  * Instruction trait

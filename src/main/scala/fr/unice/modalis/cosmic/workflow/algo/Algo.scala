@@ -1,12 +1,9 @@
 package fr.unice.modalis.cosmic.workflow.algo
 
-import java.util.NoSuchElementException
-
 import fr.unice.modalis.cosmic.workflow.algo.vm._
 import fr.unice.modalis.cosmic.workflow.core._
 
-import scala.collection.mutable
-import scala.collection.mutable.{ArrayBuffer, Stack, HashMap}
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * Algorithms on Workflows

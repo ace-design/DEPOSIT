@@ -1,6 +1,6 @@
 package fr.unice.modalis.cosmic.workflow.algo.vm
 
-import fr.unice.modalis.cosmic.workflow.core.{WFLink, Workflow, WFElement, DataType}
+import fr.unice.modalis.cosmic.workflow.core.{WFElement, WFLink, Workflow}
 
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 04/11/14.

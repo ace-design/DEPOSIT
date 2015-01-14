@@ -1,7 +1,5 @@
 package fr.unice.modalis.cosmic.workflow.core
 
-import fr.unice.modalis.cosmic.workflow.algo.exception.NonMergeableException
-
 /**
  * Represent a WorkFlow Element
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.

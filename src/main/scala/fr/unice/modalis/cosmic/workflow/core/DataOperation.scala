@@ -1,7 +1,6 @@
 package fr.unice.modalis.cosmic.workflow.core
 
 import fr.unice.modalis.cosmic.actions.guard.GuardAction
-import fr.unice.modalis.cosmic.actions.guard.predicate.Predicate
 import fr.unice.modalis.cosmic.workflow.algo.exception.NonMergeableException
 
 /**

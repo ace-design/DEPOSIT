@@ -1,6 +1,6 @@
 package fr.unice.modalis.cosmic.workflow.algo.vm
 
-import fr.unice.modalis.cosmic.workflow.core.{DataType, Workflow}
+import fr.unice.modalis.cosmic.workflow.core.Workflow
 
 /**
  * Compute new Workflows

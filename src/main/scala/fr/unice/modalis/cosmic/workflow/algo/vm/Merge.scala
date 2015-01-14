@@ -1,6 +1,6 @@
 package fr.unice.modalis.cosmic.workflow.algo.vm
 
-import fr.unice.modalis.cosmic.workflow.core.{WFLink, WFElement, Workflow}
+import fr.unice.modalis.cosmic.workflow.core.{WFElement, WFLink, Workflow}
 
 /**
  * Merge two elements in a given Workflow
