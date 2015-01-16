@@ -29,6 +29,7 @@ object Algo {
   def similarElements(wf:Workflow) = {
     val similarSet = scala.collection.mutable.Set.empty[WFElement]
     wf.links.foreach(l => wf.links.filterNot(_ == l).map(p => if (p.source == l.source && p.destination ~ l.destination) similarSet.add(l.destination)))
+    println("Similar elements found: " + similarSet)
     similarSet.toSet
   }
 
@@ -40,6 +41,7 @@ object Algo {
   def similarSinks(wf:Workflow) = {
     val similarSet = scala.collection.mutable.Set.empty[(WFElement, WFElement)]
     wf.sinks.foreach(e => wf.sinks.filterNot(_ == e).map(p => if ((p ~ e) && (!similarSet.contains((p,e)) && (!similarSet.contains((e,p))))) similarSet.add((p, e))))
+    println("Similar sinks found: " + similarSet)
     similarSet.toSet
   }
 
@@ -51,6 +53,7 @@ object Algo {
   def similarSources(wf:Workflow) = {
     val similarSet = scala.collection.mutable.Set.empty[(WFElement, WFElement)]
     wf.sources.foreach(e => wf.sources.filterNot(_ == e).map(p => if ((p ~ e) && (!similarSet.contains((p,e)) && (!similarSet.contains((e,p))))) similarSet.add((p, e))))
+    println("Similar sources found: " + similarSet)
     similarSet.toSet
   }
 

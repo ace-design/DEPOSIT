@@ -14,8 +14,11 @@ object VirtualMachine {
    * @param arr Action list
    * @return A new workflow with the actions list applied
    */
-  def apply(w: Workflow, arr:List[Instruction]):Workflow = arr match {
-    case x :: tail => apply(x.make(w), tail)
-    case Nil => w
+  def apply(w: Workflow, arr:List[Instruction]):Workflow = {
+    println("Call VM with: " + arr + " on " + w)
+    arr match {
+      case x :: tail => println("Applying " + x); apply(x.make(w), tail)
+      case Nil => w
+    }
   }
 }

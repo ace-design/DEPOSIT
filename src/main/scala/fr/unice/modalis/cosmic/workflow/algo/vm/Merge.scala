@@ -32,7 +32,7 @@ case class Merge(e1:WFElement, e2:WFElement) extends Instruction{
 
     newLinksAsSource.foreach(l => tempWorkflow = tempWorkflow.addLink(l))
     newLinksAsDestination.foreach(l => tempWorkflow = tempWorkflow.addLink(l))
-
+    println("New workflow after merging: " + tempWorkflow)
     tempWorkflow
   }
 }
