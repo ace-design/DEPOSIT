@@ -85,7 +85,7 @@ object GenericScenarios {
     val l1 = new WFLink(sourceSensor.output, filter_value.input)
     val l2 = new WFLink(filter_value.output, sink.input)
 
-    new Workflow(Set(sourceSensor, filter_value, sink), Set(l1, l2))
+    new Workflow().addElement(sourceSensor).addElement(filter_value).addElement(sink).addLink(l1).addLink(l2)
   }
 
   val wf2 = {
@@ -112,7 +112,7 @@ object GenericScenarios {
     val l1 = new WFLink(sourceSensor.output, filter_value.input)
     val l2 = new WFLink(filter_value.output, sink.input)
 
-    new Workflow(Set(sourceSensor, filter_value, sink), Set(l1, l2))
+    new Workflow().addElement(sourceSensor).addElement(filter_value).addElement(sink).addLink(l1).addLink(l2)
 
   }
 
@@ -133,6 +133,8 @@ object GenericScenarios {
     val l2 = new WFLink(sourceSensor.output, filter_value2.input)
     val l3 = new WFLink(filter_value1.output, sink1.input)
     val l4 = new WFLink(filter_value2.output, sink1.input)
+
+    new Workflow().addElement(sourceSensor).addElement(filter_value1).addElement(filter_value2).addElement(sink1).addLink(l1).addLink(l2).addLink(l3).addLink(l4)
 
     new Workflow(Set(sourceSensor, filter_value1, filter_value2, sink1), Set(l1, l2, l3, l4))
 

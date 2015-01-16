@@ -20,33 +20,45 @@ case class Workflow(val elements:Set[WFElement], val links:Set[WFLink]) {
    * @param c Workflow Element
    * @return A new workflow with the element added
    */
-  def addElement(c:WFElement):Workflow  = new Workflow(elements + c, links)
+  def addElement(c:WFElement):Workflow  = {
+    val newWF = new Workflow(elements + c, links)
+    newWF.optimize
+  }
 
   /**
    * Delete an element in the current workflow (/!\ Delete also all links referring this element)
    * @param c Workflow element
    * @return A workflow without this element and links referring this element
    */
-  def deleteElement(c:WFElement):Workflow = new Workflow(elements - c, links.filterNot(p => (p.destination == c) || (p.source == c)))
+  def deleteElement(c:WFElement):Workflow = {
+    val linksToDelete = links.filter(p => (p.destination == c) || (p.source == c))
+    println("Delete [" + c + "] and links:" + linksToDelete)
+    val newWF = new Workflow(elements - c, links -- linksToDelete)
+    newWF.optimize
+  }
 
   /**
    * Add a link in the current workflow
    * @param l Link
    * @return A new workflow with the link added
    */
-  def addLink(l:WFLink):Workflow  = new Workflow(elements, links + l)
+  def addLink(l:WFLink):Workflow  = {
+    val newWF = new Workflow(elements, links + l)
+    newWF.optimize
+  }
 
   /**
    * Delete a link in the current workflow
    * @param l Link
    * @return A workflow with the linked removed
    */
-  def deleteLink(l:WFLink):Workflow  = new Workflow(elements, links - l)
+  def deleteLink(l:WFLink):Workflow  = {
+    println("Delete [" + l + "]")
+    val newWF = new Workflow(elements, links - l)
+    newWF.optimize
+  }
 
-  /**
-   *
-   * Simplification process
-   */
+
 
 
   /**
@@ -104,8 +116,23 @@ case class Workflow(val elements:Set[WFElement], val links:Set[WFLink]) {
    * @param other Workflow to be merged with
    * @return Merged workflow
    */
-  def +(other: Workflow) = {
+  def +(other: Workflow):Workflow = {
+    println("*** Beginning merging ... ***")
 
+    // Compute the actions needed to merge the two workflows
+    val actions = Algo.merge(this, other)
+
+    // Apply the actions and produce a new workflow
+    val result = VirtualMachine(this, actions)
+
+    println("*** End merging ... ***")
+
+    result
+  }
+
+  def optimize():Workflow = {
+
+    // Inner function that identify if there are elements that can be merged
     def mergeInternal(l:List[WFElement]):List[Instruction] = {
       l.sortWith(_ ~ _) match {
         case a :: b :: l if a ~ b => Merge(a,b) :: mergeInternal(l)
@@ -113,11 +140,11 @@ case class Workflow(val elements:Set[WFElement], val links:Set[WFLink]) {
         case a => Nil
       }
     }
-    // Compute the actions needed to merge the two workflows
-    val actions = Algo.merge(this, other)
 
-    // Apply the actions and produce a new workflow
-    var intermediateWF = VirtualMachine(this, actions)
+    var intermediateWF = this
+
+    println("*** Beginning optimization ... ***")
+    println("[INFO] Find similar elements ...")
 
     // Identify if similar elements can be merged into the workflow
     var needMerging = Algo.similarElements(intermediateWF)
@@ -128,15 +155,16 @@ case class Workflow(val elements:Set[WFElement], val links:Set[WFLink]) {
       intermediateWF = VirtualMachine(intermediateWF, actions)
       needMerging = Algo.similarElements(intermediateWF)
     }
-
+    println("[INFO] Find similar sinks ...")
     // Merge sinks if needed
     val similarSinks = Algo.similarSinks(intermediateWF)
     val actions_sinks = similarSinks.map(e => new Merge(e._1, e._2))
 
     intermediateWF = VirtualMachine(intermediateWF, actions_sinks.toList)
 
-    intermediateWF
+    println("*** End optimization ... ***")
 
+    intermediateWF
   }
 
   /**
@@ -147,4 +175,6 @@ case class Workflow(val elements:Set[WFElement], val links:Set[WFLink]) {
   def ~(other: Workflow) = {
     Algo.areSimilarWorkflows(this,other)
   }
+
+
 }
