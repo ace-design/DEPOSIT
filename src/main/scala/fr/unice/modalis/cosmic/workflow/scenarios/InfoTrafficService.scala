@@ -38,32 +38,32 @@ object InfoTrafficService extends App{
    * A1. Determine the less congested toll (motorway entrance)
    */
 
-  val lessCongestedToll = new Min[SensorDataType](Set(new Input[SensorDataType]("e1"), new Input[SensorDataType]("e2"), new Input[SensorDataType]("e3")))
+  val lessCongestedToll = new Min[SensorDataType](Set("e1","e2","e3"))
 
   /**
    * A2. Compute the average speed on the RN7 road (multi-entrance)
    */
 
-  val avgSpeedRN7 = new Average[SensorDataType](Set(new Input[SensorDataType]("e1"), new Input[SensorDataType]("e2")))
+  val avgSpeedRN7 = new Average[SensorDataType](Set("e1","e2"))
 
 
   /**
    * A3. Compute the average speed on the Seefront road (mutli-entrance)
    */
 
-  val avgSpeedSeeFront = new Average[SensorDataType](Set(new Input[SensorDataType]("e1"), new Input[SensorDataType]("e2")))
+  val avgSpeedSeeFront = new Average[SensorDataType](Set("e1","e2"))
 
   /**
    * A4. Determine the less congested road between RN7 and Seefront
    */
 
-  val lessCongestedRoad = new Min[SensorDataType](Set(new Input[SensorDataType]("e1"), new Input[SensorDataType]("e2")))
+  val lessCongestedRoad = new Min[SensorDataType](Set("e1","e2"))
 
   /**
    * A5. Determine the less congested road
    */
 
-  val lessCongested= new Min[SensorDataType](Set(new Input[SensorDataType]("e1"), new Input[SensorDataType]("e2")))
+  val lessCongested= new Min[SensorDataType](Set("e1","e2"))
 
 
   /**

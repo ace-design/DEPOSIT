@@ -7,9 +7,11 @@ import scala.collection.immutable.Set
  */
 trait WFActivity[I<:DataType, O<:DataType] extends WFElement{
 
-  var inputs:Set[Input[I]]
-  var outputs:Set[Output[O]]
+  val inputsNames:Set[String]
+  val outputsNames:Set[String]
 
+  lazy val inputs = inputsNames.foldLeft(Set[Input[I]]()){(acc, e) => acc + new Input[I](e, this)}
+  lazy val outputs = outputsNames.foldLeft(Set[Output[O]]()){(acc, e) => acc + new Output[O](e, this)}
 
   /**
    * Find an input with its name
@@ -32,55 +34,44 @@ trait WFActivity[I<:DataType, O<:DataType] extends WFElement{
 }
 
 
-case class Script[I<:DataType, O<:DataType](val pathToScript:String, var inputs:Set[Input[I]], var outputs:Set[Output[O]]) extends WFActivity[I,O] {
-
+case class Script[I<:DataType, O<:DataType](val pathToScript:String, val inputsNames:Set[String], val outputsNames:Set[String]) extends WFActivity[I,O] {
   def this(pathToScript:String) = this(pathToScript, Set(), Set())
-
-
-
   override def toString:String = "SCRIPT[" + pathToScript + "]{" + id + "}"
-
 
 }
 
-case class IfThenElse[I<:DataType, O<:DataType](val ifStatement: String, val thenStatement:String, val elseStatement: String, var inputs:Set[Input[I]], var outputs:Set[Output[O]]) extends WFActivity[I,O] {
-
+case class IfThenElse[I<:DataType, O<:DataType](val ifStatement: String, val thenStatement:String, val elseStatement:String, val inputsNames:Set[String], val outputsNames:Set[String]) extends WFActivity[I,O] {
   def this(ifStatement:String, thenStatement:String, elseStatement:String) = this(ifStatement, thenStatement, elseStatement, Set(), Set())
-
-
   override def toString:String = "IFTHENELSE{" + id + "}"
 
 }
 
-case class Average[I<:DataType](var inputs:Set[Input[I]]) extends WFActivity[I,I] {
-
+case class Average[I<:DataType](val inputsNames:Set[String]) extends WFActivity[I,I] {
   def this() = this(Set())
 
-  var outputs = Set(Output[I]("output"))
-
-  val output = getOutput("output").get
-
-
+  lazy val output = getOutput("output").get
 
   override def toString:String = "AVERAGE{" + id + "}"
 
+  override val outputsNames: Set[String] = Set("output")
 }
 
-case class Min[I<:DataType](var inputs:Set[Input[I]]) extends WFActivity[I,I] {
+case class Min[I<:DataType](val inputsNames:Set[String]) extends WFActivity[I,I] {
   def this() = this(Set())
-  var outputs = Set(Output[I]("output"))
-  val output = getOutput("output").get
+
+  lazy val output = getOutput("output").get
 
   override def toString:String = "MIN{" + id + "}"
 
+  override val outputsNames: Set[String] = Set("output")
 }
 
-case class Max[I<:DataType](var inputs:Set[Input[I]]) extends WFActivity[I,I] {
+case class Max[I<:DataType](val inputsNames:Set[String]) extends WFActivity[I,I] {
   def this() = this(Set())
-  var outputs = Set(Output[I]("output"))
-  val output = getOutput("output").get
 
+  lazy val output = getOutput("output").get
 
   override def toString:String = "MAX{" + id + "}"
 
+  override val outputsNames: Set[String] = Set("output")
 }

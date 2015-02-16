@@ -15,7 +15,7 @@ trait DataIO[T<:DataType] extends WFElement{
  * @tparam T Data type
  */
 case class Sensor[T<:DataType](url:String) extends DataIO[T]{
-  val output = new Output[T](url)
+  val output = new Output[T](url, this)
 
 
   override def toString:String = "SENSOR[" + url + "]{" + id + "}"
@@ -30,7 +30,7 @@ class EventSensor[T<:DataType](override val url:String) extends Sensor[T](url)
  * @tparam T Data type
  */
 case class Collector[T<:DataType](endpoint:String) extends DataIO[T] {
-  val input = new Input[T](endpoint)
+  val input = new Input[T](endpoint, this)
 
   override def toString:String = "COLLECTOR[" + endpoint + "]{" + id + "}"
 }
