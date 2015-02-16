@@ -1,7 +1,7 @@
 package fr.unice.modalis.cosmic.workflow.core
 
 import fr.unice.modalis.cosmic.workflow.algo.Algo
-import fr.unice.modalis.cosmic.workflow.algo.vm.{Instruction, Merge, VirtualMachine}
+import fr.unice.modalis.cosmic.workflow.algo.vm._
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -23,6 +23,28 @@ case class Workflow(val elements:Set[WFElement], val links:Set[WFLink]) {
   def addElement(c:WFElement):Workflow  = {
     val newWF = new Workflow(elements + c, links)
     newWF.optimize
+  }
+
+  def addElementBefore(e:WFElement, before:WFElement) = {
+    require(elements.contains(before))
+
+    val actionsList = ArrayBuffer[Instruction]()
+    // Retrieve all the links coming on before
+    val linksToBefore = links.filter(p => p.destination == before)
+
+    // Delete those links
+    linksToBefore.foreach(actionsList += new DeleteLink(_))
+
+    // Add new element
+    actionsList += new AddElement(e)
+
+    // Build links
+    linksToBefore.map(l => new WFLink(l.source_output, e.inputs.head)).foreach(actionsList += new AddLink(_))
+
+    linksToBefore.map(l => new WFLink(e.outputs.head, l.destination_input)).foreach(actionsList += new AddLink(_))
+
+    // Compute new workflow
+    VirtualMachine(this, actionsList.toList)
   }
 
   /**
@@ -161,6 +183,9 @@ case class Workflow(val elements:Set[WFElement], val links:Set[WFLink]) {
     val actions_sinks = similarSinks.map(e => new Merge(e._1, e._2))
 
     intermediateWF = VirtualMachine(intermediateWF, actions_sinks.toList)
+
+
+    links.filterNot(p => p.source.isInstanceOf[ISynchronizer] || p.destination.isInstanceOf[ISynchronizer]).groupBy(l => l.destination).map(t => (t._1, t._2.size)).filter(_._2 > 1).foreach(e => println("[WARNING] You may use a synchronizer before " + e._1))
 
     println("*** End optimization ... ***")
 
