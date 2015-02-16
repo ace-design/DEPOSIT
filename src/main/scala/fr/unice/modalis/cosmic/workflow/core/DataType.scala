@@ -19,7 +19,7 @@ class IntegerType(val value:Int) extends DataType
 class DoubleType(val value:Double) extends DataType
 
 /**
- * Repesent Long values
+ * Represent Long values
  */
 class LongType(val value:Long) extends DataType
 
@@ -27,3 +27,8 @@ class LongType(val value:Long) extends DataType
  * Represent String values
  */
 class StringType(val value:String) extends DataType
+
+/**
+ * Represent Sensor Data
+ */
+class SensorDataType(val value:(String, Int, Long)) extends DataType

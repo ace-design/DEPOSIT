@@ -9,10 +9,9 @@ package fr.unice.modalis.cosmic.workflow.core
 case class WFLink(source_output:Output[_<:DataType], destination_input:Input[_<:DataType])
 {
 
-  val source = source_output.parent
-  val destination = destination_input.parent
 
-  override def toString:String = source + "-->" + destination
+
+  override def toString:String = source_output + "-->" + source_output
 
   override def equals(a:Any):Boolean = a match {
     case WFLink(a, b) if (a == source_output) && (b == destination_input) => true
