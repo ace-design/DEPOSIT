@@ -1,6 +1,6 @@
 package fr.unice.modalis.cosmic.workflow.converter
 
-import fr.unice.modalis.cosmic.workflow.core._
+import fr.unice.modalis.cosmic.workflow.core.{WFElement, WFLink, Workflow}
 
 /**
  * Graphviz generator. Useful for debug purposes
@@ -8,13 +8,13 @@ import fr.unice.modalis.cosmic.workflow.core._
  */
 object ToGraphviz {
 
-  def apply(w: Workflow): String = generateCode(w)
+ /* def apply(w: Workflow): String = generateCode(w)
 
-  def generateCode[T<:DataType](w: Workflow): String = {
+  def generateCode(w: Workflow): String = {
     val s = new StringBuilder
     s.append(generateHeader)
     s.append(generateNodeShape("box"))
-    w.elements.foreach(e => s.append(generateElementCode(e) + ";\n"))
+    w.activities.foreach(e => s.append(generateElementCode(e) + ";\n"))
     w.links.foreach(l => s.append(generateLinkCode(l)))
     s.append(generateFooter())
     s.toString()
@@ -25,16 +25,17 @@ object ToGraphviz {
   def generateHeader() = {
     "digraph finite_state_machine { rankdir=TB; size=\"12\"\n"
   }
-  def generateLinkCode[T<:DataType](t: WFLink) = {
-    t.source.id + "->" + t.destination.id + printlabel(t.source_output.name) + "\n"
+  def generateLinkCode(t: WFLink) = {
+    t.source_output + "->" + t.destination_input + printlabel(t.source_output.name) + "\n"
   }
 
 
-  def generateElementCode[T<:DataType](n: WFElement) = {
+  def generateElementCode(n: WFElement) = {
     n.id + printlabel(n.toString)
   }
 
   def generateFooter() = "}"
 
-  def printlabel(str:String) = "[label=\"" + str + "\"]"
+  def printlabel(str:String) = "[label=\"" + str + "\"]" */
+
 }

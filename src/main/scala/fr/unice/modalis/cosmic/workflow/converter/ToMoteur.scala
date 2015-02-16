@@ -1,19 +1,17 @@
 package fr.unice.modalis.cosmic.workflow.converter
 
-import fr.unice.modalis.cosmic.workflow.core._
-
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 02/12/14.
  */
 object ToMoteur {
-  def apply[T<:DataType](w: Workflow): String = generateCode(w)
+  /*def apply[T<:DataType](w: Workflow): String = generateCode(w)
 
-  def generateElementCode(e: WFElement) = {
+  def generateElementCode(e: WFActivity) = {
 
-    def generateElementIOCode[T<:DataType](io: ComponentIO[T]) = {
+    def generateElementIOCode[T<:DataType](io: Port[T]) = {
       io match {
-        case Input(_, name) => <in name={name} type="integer" depth="0"/>
-        case Output(_, name) => <out name={name} type="integer" depth="0"/>
+        case Input(name) => <in name={name} type="integer" depth="0"/>
+        case Output(name) => <out name={name} type="integer" depth="0"/>
       }
     }
 
@@ -24,13 +22,13 @@ object ToMoteur {
   }
 
   def generateLinkCode(l: WFLink) = {
-    <link from={(l.source) match {case Source(_) => l.source_output.name; case _ => (l.source.id + ":" + l.source_output.name)}} to={(l.destination) match {case Sink(_) => l.destination_input.name; case _ => (l.destination.id + ":" + l.destination_input.name)}}/>
+    <link from={(l.source) match {case Sensor(_) => l.source_output.name; case _ => (l.source.id + ":" + l.source_output.name)}} to={(l.destination) match {case Collector(_) => l.destination_input.name; case _ => (l.destination.id + ":" + l.destination_input.name)}}/>
   }
 
   def generateInterfaceCode[T<:DataType](i: DataIO[T]) = {
     i match {
-      case Source(_) => <source name={i.outputs.head.name} type="integer"></source>
-      case Sink(_) => <sink name={i.inputs.head.name} type="integer"></sink>
+      case a:Sensor[_] => <source name={a.output.name} type="integer"></source>
+      case a:Collector[_] => <sink name={a.input.name} type="integer"></sink>
     }
   }
 
@@ -47,7 +45,7 @@ object ToMoteur {
         </interface>
         <processors>
           {
-          (w.elements -- (w.sources ++ w.sinks)).map(generateElementCode(_))
+          (w.elements -- (w.sources ++ w.sinks)).map(a => generateElementCode(a.asInstanceOf[WFActivity]))
           }
         </processors>
         <links>
@@ -57,5 +55,5 @@ object ToMoteur {
         </links>
       </workflow>.toString()
 
-  }
+  }*/
 }
