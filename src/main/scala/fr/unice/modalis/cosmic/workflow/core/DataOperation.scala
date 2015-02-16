@@ -30,6 +30,26 @@ trait DataOperation extends Component{
 
 trait IFilter extends DataOperation {
   val p:GuardAction
+}
+
+trait ISynchronizer extends DataOperation
+
+case class Synchronizer2to1() extends ISynchronizer {
+  override val inputs: List[Input[IntegerType]] = List(new Input(this), new Input(this))
+  override val outputs: List[Output[IntegerType]] = List(new Output(this))
+
+  // Merge operator
+  override def +(e: WFElement): WFElement = new Synchronizer2to1
+
+  val input1 = inputs.head
+  val input2 = inputs.last
+
+  val output = outputs.head
+
+  // Similar operator
+  override def ~(x: WFElement): Boolean = true
+
+  override def toString:String = "Synchronizer2to1_" + id
 
 }
 
