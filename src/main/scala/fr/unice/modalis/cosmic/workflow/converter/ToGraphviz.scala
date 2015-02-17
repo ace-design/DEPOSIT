@@ -1,6 +1,6 @@
 package fr.unice.modalis.cosmic.workflow.converter
 
-import fr.unice.modalis.cosmic.workflow.core.{WFElement, WFLink, Workflow}
+import fr.unice.modalis.cosmic.workflow.core._
 
 /**
  * Graphviz generator. Useful for debug purposes
@@ -8,27 +8,41 @@ import fr.unice.modalis.cosmic.workflow.core.{WFElement, WFLink, Workflow}
  */
 object ToGraphviz {
 
- /* def apply(w: Workflow): String = generateCode(w)
+  def generateIO(io:DataIO[_<:DataType]) = {
+    io match {
+      case Collector(n) => generateNodeShape("triangle", "crimson") + io.id + printlabel(n) + ";"
+      case PeriodicSensor(_,n) => generateNodeShape("invtriangle", "blue") + io.id + printlabel(n) + ";"
+      case EventSensor(n) => generateNodeShape("invtriangle", "green") + io.id + printlabel(n) + ";"
+    }
+  }
+
+def apply(w: Workflow): String = generateCode(w)
 
   def generateCode(w: Workflow): String = {
     val s = new StringBuilder
     s.append(generateHeader)
+
+    w.ios.foreach(e => s.append(generateIO(e) + "\n"))
     s.append(generateNodeShape("box"))
+
     w.activities.foreach(e => s.append(generateElementCode(e) + ";\n"))
     w.links.foreach(l => s.append(generateLinkCode(l)))
     s.append(generateFooter())
     s.toString()
   }
 
-  def generateNodeShape(shape: String) = "node [shape = " + shape + "]; \n"
-
   def generateHeader() = {
-    "digraph finite_state_machine { rankdir=TB; size=\"12\"\n"
-  }
-  def generateLinkCode(t: WFLink) = {
-    t.source_output + "->" + t.destination_input + printlabel(t.source_output.name) + "\n"
+    "digraph finite_state_machine { rankdir=TB; size=\"20\"\n"
   }
 
+ def generateNodeShape(shape: String):String = generateNodeShape(shape, "aquamarine")
+
+  def generateNodeShape(shape: String, color:String):String = "node [shape=" + shape + ",color=" + color + ",style = filled]; \n"
+
+
+  def generateLinkCode(t: WFLink) = {
+    t.source_output.parent.id + "->" + t.destination_input.parent.id + printlabel("o:" + t.source_output.name + " i:" + t.destination_input.name) + "\n"
+  }
 
   def generateElementCode(n: WFElement) = {
     n.id + printlabel(n.toString)
@@ -36,6 +50,6 @@ object ToGraphviz {
 
   def generateFooter() = "}"
 
-  def printlabel(str:String) = "[label=\"" + str + "\"]" */
+  def printlabel(str:String) = "[label=\"" + str + "\"]"
 
 }
