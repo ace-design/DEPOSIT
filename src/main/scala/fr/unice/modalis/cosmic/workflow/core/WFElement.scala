@@ -7,7 +7,7 @@ package fr.unice.modalis.cosmic.workflow.core
 trait WFElement {
 
   // Unique identifier
-  var id:String = scala.util.Random.alphanumeric.take(5).mkString
+  val id:String = scala.util.Random.alphanumeric.take(5).mkString
 
 
   override def equals(x:Any) = x.isInstanceOf[WFElement] && x.asInstanceOf[WFElement].id == id

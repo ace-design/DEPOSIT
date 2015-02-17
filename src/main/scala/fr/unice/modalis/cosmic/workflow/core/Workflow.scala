@@ -7,7 +7,7 @@ package fr.unice.modalis.cosmic.workflow.core
  * @param links Link list
 
  */
-case class Workflow(val ios:Set[DataIO[_<:DataType]], val activities:Set[WFElement], val links:Set[WFLink]) {
+case class Workflow(val ios:Set[DataIO[_<:DataType]], val activities:Set[WFActivity[_<:DataType,_<:DataType]], val links:Set[WFLink]) {
 
   def this() = this(Set.empty, Set.empty, Set.empty)
   
@@ -43,5 +43,5 @@ case class Workflow(val ios:Set[DataIO[_<:DataType]], val activities:Set[WFEleme
   }
 
 
-  override def toString = "Workflow[elements={" + activities + "};links={" + links + "}]"
+  override def toString = "Workflow[ios={" + ios + "};activites={" + activities + "};links={" + links + "}]"
 }
