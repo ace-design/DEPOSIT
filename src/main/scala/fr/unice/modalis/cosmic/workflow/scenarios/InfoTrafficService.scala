@@ -1,5 +1,6 @@
 package fr.unice.modalis.cosmic.workflow.scenarios
 
+import fr.unice.modalis.cosmic.workflow.converter.ToGraphviz
 import fr.unice.modalis.cosmic.workflow.core._
 
 /**
@@ -89,8 +90,8 @@ object InfoTrafficService extends App{
    * L3. Compute the average speed on the Seefront road (mutli-entrance)
    */
 
-  val l3a = new WFLink(avgspeed_SeefrontMarina.output, avgSpeedRN7.getInput("e1").get)
-  val l3b = new WFLink(avgspeed_SeefrontSiesta.output, avgSpeedRN7.getInput("e2").get)
+  val l3a = new WFLink(avgspeed_SeefrontMarina.output, avgSpeedSeeFront.getInput("e1").get)
+  val l3b = new WFLink(avgspeed_SeefrontSiesta.output, avgSpeedSeeFront.getInput("e2").get)
 
   /**
    * L4. Determine the less congested road between RN7 and Seefront
@@ -114,9 +115,9 @@ object InfoTrafficService extends App{
   /**
    * Add activities & links in the workflow
    */
-  val workflow = new Workflow().addIO(avgspeed_AntibesBarriere).addIO(avgspeed_AntibesCarrefour).addIO(avgspeed_AntibesSophia).addIO(avgspeed_RN7MarineLand).addIO(avgspeed_RN7Villeneuve).addIO(avgspeed_SeefrontMarina).addIO(avgspeed_SeefrontSiesta)
-    .addActivity(lessCongestedRoad).addActivity(avgSpeedRN7).addActivity(avgSpeedSeeFront).addActivity(lessCongestedToll).addLink(l1a).addLink(l1b).addLink(l1c).addLink(l2a).addLink(l2b).addLink(l3a).addLink(l3b).addLink(l4a).addLink(l4b).addLink(l5a).addLink(l5b).addLink(l6)
+  val workflow = new Workflow().addIO(avgspeed_AntibesBarriere).addIO(avgspeed_AntibesCarrefour).addIO(avgspeed_AntibesSophia).addIO(avgspeed_RN7MarineLand).addIO(avgspeed_RN7Villeneuve).addIO(avgspeed_SeefrontMarina).addIO(avgspeed_SeefrontSiesta).addIO(userApplication)
+    .addActivity(lessCongestedRoad).addActivity(avgSpeedRN7).addActivity(avgSpeedSeeFront).addActivity(lessCongestedToll).addActivity(lessCongested).addLink(l1a).addLink(l1b).addLink(l1c).addLink(l2a).addLink(l2b).addLink(l3a).addLink(l3b).addLink(l4a).addLink(l4b).addLink(l5a).addLink(l5b).addLink(l6)
 
-  println(workflow)
+  println(ToGraphviz(workflow))
 
 }
