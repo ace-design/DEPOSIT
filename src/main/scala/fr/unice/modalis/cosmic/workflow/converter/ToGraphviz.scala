@@ -40,7 +40,7 @@ def apply(w: Workflow): String = generateCode(w)
   def generateNodeShape(shape: String, color:String):String = "node [shape=" + shape + ",color=" + color + ",style = filled]; \n"
 
 
-  def generateLinkCode(t: WFLink) = {
+  def generateLinkCode(t: WFLink[_<:DataType]) = {
     t.source_output.parent.id + "->" + t.destination_input.parent.id + printlabel("o:" + t.source_output.name + " i:" + t.destination_input.name) + "\n"
   }
 
