@@ -33,6 +33,24 @@ case class Workflow(val ios:Set[DataIO[_<:DataType]], val activities:Set[WFActiv
   }
 
   /**
+   * Delete an activity in the current workflow (/!\ Delete also all links referring this activity)
+   * @param c Workflow activity
+   * @return A workflow without this activity and links referring this activity
+   */
+  def deleteActivity(c:WFActivity[_<:DataType,_<:DataType]):Workflow = {
+    new Workflow(ios, activities - c, links.filterNot(p => (p.destination == c) || (p.source == c)))
+  }
+
+  /**
+   * Delete an IO in the current workflow (/!\ Delete also all links referring this IO)
+   * @param c Workflow IO
+   * @return A workflow without this IO and links referring this IO
+   */
+  def deleteIO(c:DataIO[_<:DataType]):Workflow = {
+    new Workflow(ios - c, activities, links.filterNot(p => (p.destination == c) || (p.source == c)))
+  }
+
+  /**
    * Delete a link in the current workflow
    * @param l Link
    * @return A workflow with the linked removed
