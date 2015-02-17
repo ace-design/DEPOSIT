@@ -48,6 +48,15 @@ case class IfThenElse[I<:DataType, O<:DataType](val ifStatement: String, val the
 
 }
 
+case class Add[I<:DataType](val inputsNames:Set[String]) extends WFActivity[I,I] {
+  override val outputsNames: Set[String] = Set("output")
+
+  lazy val output = getOutput("output").get
+
+  override def toString:String = "ADD"
+
+}
+
 case class Average[I<:DataType](val inputsNames:Set[String]) extends WFActivity[I,I] {
   def this() = this(Set())
 
