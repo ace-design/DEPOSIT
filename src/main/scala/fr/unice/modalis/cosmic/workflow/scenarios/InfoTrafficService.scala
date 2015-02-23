@@ -4,8 +4,8 @@ import fr.unice.modalis.cosmic.workflow.converter.ToGraphviz
 import fr.unice.modalis.cosmic.workflow.core._
 
 /**
- * Info Trafic Service
- * "As an info trafic service
+ * Info Traffic Service
+ * "As an info traffic service
  * I want to know the less congested road
  * in order to help car drivers"
  *
@@ -87,7 +87,7 @@ object InfoTrafficService extends App{
   val l2b = new WFLink(avgspeed_RN7Villeneuve.output, avgSpeedRN7.getInput("e2").get)
 
   /**
-   * L3. Compute the average speed on the Seefront road (mutli-entrance)
+   * L3. Compute the average speed on the Seefront road (multi-entrance)
    */
 
   val l3a = new WFLink(avgspeed_SeefrontMarina.output, avgSpeedSeeFront.getInput("e1").get)
