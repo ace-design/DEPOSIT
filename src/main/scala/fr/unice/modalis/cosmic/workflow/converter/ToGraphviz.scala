@@ -23,7 +23,6 @@ def apply(w: Workflow): String = generateCode(w)
     s.append(generateHeader)
 
     w.ios.foreach(e => s.append(generateIO(e) + "\n"))
-    s.append(generateNodeShape("box"))
 
     w.activities.foreach(e => s.append(generateElementCode(e) + ";\n"))
     w.links.foreach(l => s.append(generateLinkCode(l)))
@@ -45,6 +44,10 @@ def apply(w: Workflow): String = generateCode(w)
   }
 
   def generateElementCode(n: WFElement) = {
+    (n match {
+      case Process(_) => generateNodeShape("doubleoctagon", "gold")
+      case _ => generateNodeShape("box")
+    }) +
     n.id + printlabel(n.toString)
   }
 

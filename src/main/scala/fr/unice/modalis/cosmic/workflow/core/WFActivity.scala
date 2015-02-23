@@ -108,3 +108,12 @@ case class Sum[I<:DataType](val inputsNames:Set[String]) extends WFActivity[I,I]
 
   override def toString:String = "SUM"
 }
+
+case class Process[I<:DataType, O<:DataType](val workflow:Workflow) extends WFActivity[I,O]{
+
+  override val inputsNames: Set[String] = workflow.sources.map(_.url)
+  override val outputsNames: Set[String] = workflow.collectors.map(_.endpoint)
+
+  override def toString:String = "PROCESS[" + workflow.name + "]"
+
+}
