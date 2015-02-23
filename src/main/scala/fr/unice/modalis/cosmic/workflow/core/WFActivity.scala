@@ -99,3 +99,13 @@ case class Max[I<:DataType](val inputsNames:Set[String]) extends WFActivity[I,I]
   override def toString:String = "MAX"
 
 }
+
+case class Sum[I<:DataType](val inputsNames:Set[String]) extends WFActivity[I,I] {
+  def this() = this(Set())
+
+  override val outputsNames: Set[String] = Set("output")
+
+  lazy val output = getOutput("output").get
+
+  override def toString:String = "SUM"
+}
