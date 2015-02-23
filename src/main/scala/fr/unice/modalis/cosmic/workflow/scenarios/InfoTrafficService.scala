@@ -75,37 +75,37 @@ object InfoTrafficService extends App{
    * L1. Determine the less congested toll (motorway entrance)
    */
 
-  val l1a = new WFLink(avgspeed_AntibesBarriere.output, lessCongestedToll.getInput("e1").get)
-  val l1b = new WFLink(avgspeed_AntibesCarrefour.output, lessCongestedToll.getInput("e2").get)
-  val l1c = new WFLink(avgspeed_AntibesSophia.output, lessCongestedToll.getInput("e3").get)
+  val l1a = new WFLink(avgspeed_AntibesBarriere.output, lessCongestedToll.getInput("e1"))
+  val l1b = new WFLink(avgspeed_AntibesCarrefour.output, lessCongestedToll.getInput("e2"))
+  val l1c = new WFLink(avgspeed_AntibesSophia.output, lessCongestedToll.getInput("e3"))
 
   /**
    * L2. Compute the average speed on the RN7 road (multi-entrance)
    */
 
-  val l2a = new WFLink(avgspeed_RN7MarineLand.output, avgSpeedRN7.getInput("e1").get)
-  val l2b = new WFLink(avgspeed_RN7Villeneuve.output, avgSpeedRN7.getInput("e2").get)
+  val l2a = new WFLink(avgspeed_RN7MarineLand.output, avgSpeedRN7.getInput("e1"))
+  val l2b = new WFLink(avgspeed_RN7Villeneuve.output, avgSpeedRN7.getInput("e2"))
 
   /**
    * L3. Compute the average speed on the Seefront road (multi-entrance)
    */
 
-  val l3a = new WFLink(avgspeed_SeefrontMarina.output, avgSpeedSeeFront.getInput("e1").get)
-  val l3b = new WFLink(avgspeed_SeefrontSiesta.output, avgSpeedSeeFront.getInput("e2").get)
+  val l3a = new WFLink(avgspeed_SeefrontMarina.output, avgSpeedSeeFront.getInput("e1"))
+  val l3b = new WFLink(avgspeed_SeefrontSiesta.output, avgSpeedSeeFront.getInput("e2"))
 
   /**
    * L4. Determine the less congested road between RN7 and Seefront
    */
 
-  val l4a = new WFLink(avgSpeedRN7.output, lessCongestedRoad.getInput("e1").get)
-  val l4b = new WFLink(avgSpeedSeeFront.output, lessCongestedRoad.getInput("e2").get)
+  val l4a = new WFLink(avgSpeedRN7.output, lessCongestedRoad.getInput("e1"))
+  val l4b = new WFLink(avgSpeedSeeFront.output, lessCongestedRoad.getInput("e2"))
 
   /**
    * L5. Determine the less congested road
    */
 
-  val l5a = new WFLink(lessCongestedRoad.output, lessCongested.getInput("e1").get)
-  val l5b = new WFLink(lessCongestedToll.output, lessCongested.getInput("e2").get)
+  val l5a = new WFLink(lessCongestedRoad.output, lessCongested.getInput("e1"))
+  val l5b = new WFLink(lessCongestedToll.output, lessCongested.getInput("e2"))
 
   /**
    * L6. Send data to user
