@@ -1,5 +1,7 @@
 package fr.unice.modalis.cosmic.workflow.core
 
+import scala.collection.mutable.ArrayBuffer
+
 
 /**
  * Workflow definition
@@ -25,7 +27,11 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
    * @return A new workflow with the element added
    */
   def addActivity(c:WFActivity[_<:DataType,_<:DataType]):Workflow  = {
-    new Workflow(name, ios, activities + c, links)
+    c match {
+      case Process(wf) => new Workflow(name, ios, activities + c, links ++ autoConnectProcess(c.asInstanceOf[Process[_<:DataType, _<:DataType]]))
+      case _ => new Workflow(name, ios, activities + c, links)
+    }
+
   }
 
   /**
@@ -65,6 +71,26 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
     new Workflow(name, ios, activities, links - l)
   }
 
+  /**
+   * Generate WFLinks to connect a process with current known sensors in a workflow
+   * @param p Process
+   * @tparam I Input Data type
+   * @tparam O Output Data type
+   * @return A set ok links needed to connect the process with the current known sensors
+   */
+  private def autoConnectProcess[I<:DataType, O<:DataType](p:Process[I,O]) = {
+    var links = new ArrayBuffer[WFLink[_<:DataType]]()
+    p.inputsNames.foreach(i => {
+      val possibleSensor = ios.filter(p => p.isInstanceOf[Sensor[I]]).find(s => s.asInstanceOf[Sensor[I]].url == i)
+      possibleSensor match {
+        case Some(n) => links += new WFLink(n.asInstanceOf[Sensor[I]].output, p.getInput(i))
+        case None => /* Nop */
+
+      }
+    }
+    )
+    links.toSet
+  }
 
   override def toString = "Workflow[name=" + name + ";ios={" + ios + "};activites={" + activities + "};links={" + links + "}]"
 }
