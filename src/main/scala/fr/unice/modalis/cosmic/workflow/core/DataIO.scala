@@ -22,11 +22,22 @@ trait Sensor[T<:DataType] extends DataIO[T]{
   override def toString:String = "SENSOR[" + url + "]"
 }
 
-case class PeriodicSensor[T<:DataType](val period:Int, override val url: String) extends Sensor[T] {
-  override def toString:String = "PERIODIC_SENSOR[" + period + ";" + url + "]"
+/**
+ * Periodic sensors
+ * @param wishedPeriod Sensor period
+ * @param url Sensor URL
+ * @tparam T Data type
+ */
+case class PeriodicSensor[T<:DataType](val wishedPeriod:Int, override val url: String) extends Sensor[T] {
+  override def toString:String = "PERIODIC_SENSOR[" + wishedPeriod + ";" + url + "]"
 
 }
 
+/**
+ * Event based sensor
+ * @param url Sensor URL
+ * @tparam T Data type
+ */
 case class EventSensor[T<:DataType](override val url:String) extends Sensor[T] {
   override def toString:String = "EVENT_SENSOR[" + url + "]{" + id + "}"
 }
