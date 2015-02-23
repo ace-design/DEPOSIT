@@ -1,6 +1,5 @@
 package fr.unice.modalis.cosmic.workflow.core
 
-import fr.unice.modalis.cosmic.workflow.core.DataType
 
 /**
  * Workflow definition
@@ -9,12 +8,16 @@ import fr.unice.modalis.cosmic.workflow.core.DataType
  * @param links Link list
 
  */
-case class Workflow(val ios:Set[DataIO[_<:DataType]], val activities:Set[WFActivity[_<:DataType,_<:DataType]], val links:Set[WFLink[_<:DataType]]) {
+case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activities:Set[WFActivity[_<:DataType,_<:DataType]], val links:Set[WFLink[_<:DataType]]) {
 
-  def this() = this(Set.empty, Set.empty, Set.empty)
-  
+  def this(name:String) = this(name, Set.empty, Set.empty, Set.empty)
+  def this() = this("wf" + scala.util.Random.alphanumeric.take(5).mkString, Set.empty, Set.empty, Set.empty)
+
+  lazy val sources = ios.filter(_.isInstanceOf[Sensor[_<:DataType]]).asInstanceOf[Set[Sensor[_<:DataType]]]
+  lazy val collectors = ios.filter(_.isInstanceOf[Collector[_<:DataType]]).asInstanceOf[Set[Collector[_<:DataType]]]
+
   def addIO(o:DataIO[_<:DataType]):Workflow = {
-    new Workflow(ios + o, activities, links)
+    new Workflow(name, ios + o, activities, links)
   }
   /**
    * Add an element in the current workflow
@@ -22,7 +25,7 @@ case class Workflow(val ios:Set[DataIO[_<:DataType]], val activities:Set[WFActiv
    * @return A new workflow with the element added
    */
   def addActivity(c:WFActivity[_<:DataType,_<:DataType]):Workflow  = {
-    new Workflow(ios, activities + c, links)
+    new Workflow(name, ios, activities + c, links)
   }
 
   /**
@@ -31,7 +34,7 @@ case class Workflow(val ios:Set[DataIO[_<:DataType]], val activities:Set[WFActiv
    * @return A new workflow with the link added
    */
   def addLink(l:WFLink[_<:DataType]):Workflow  = {
-     new Workflow(ios, activities, links + l)
+     new Workflow(name, ios, activities, links + l)
   }
 
   /**
@@ -40,7 +43,7 @@ case class Workflow(val ios:Set[DataIO[_<:DataType]], val activities:Set[WFActiv
    * @return A workflow without this activity and links referring this activity
    */
   def deleteActivity(c:WFActivity[_<:DataType,_<:DataType]):Workflow = {
-    new Workflow(ios, activities - c, links.filterNot(p => (p.destination == c) || (p.source == c)))
+    new Workflow(name, ios, activities - c, links.filterNot(p => (p.destination == c) || (p.source == c)))
   }
 
   /**
@@ -49,7 +52,7 @@ case class Workflow(val ios:Set[DataIO[_<:DataType]], val activities:Set[WFActiv
    * @return A workflow without this IO and links referring this IO
    */
   def deleteIO(c:DataIO[_<:DataType]):Workflow = {
-    new Workflow(ios - c, activities, links.filterNot(p => (p.destination == c) || (p.source == c)))
+    new Workflow(name, ios - c, activities, links.filterNot(p => (p.destination == c) || (p.source == c)))
   }
 
   /**
@@ -59,9 +62,9 @@ case class Workflow(val ios:Set[DataIO[_<:DataType]], val activities:Set[WFActiv
    */
   def deleteLink(l:WFLink[_<:DataType]):Workflow  = {
     println("Delete [" + l + "]")
-    new Workflow(ios, activities, links - l)
+    new Workflow(name, ios, activities, links - l)
   }
 
 
-  override def toString = "Workflow[ios={" + ios + "};activites={" + activities + "};links={" + links + "}]"
+  override def toString = "Workflow[name=" + name + ";ios={" + ios + "};activites={" + activities + "};links={" + links + "}]"
 }
