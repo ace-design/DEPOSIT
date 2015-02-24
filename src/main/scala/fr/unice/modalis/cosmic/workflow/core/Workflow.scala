@@ -62,6 +62,48 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
   }
 
   /**
+   * Return sub Workflow
+   * @param root Root element
+   */
+  def subWorkflow(root:WFElement, last:Option[WFElement] = None):Workflow = {
+    val ios = new ArrayBuffer[DataIO[_<:DataType]]()
+    val activities = new ArrayBuffer[WFActivity[_<:DataType, _<:DataType]]()
+    val links = new ArrayBuffer[WFLink[_<:DataType]]()
+    // Add root into the activities/ios
+
+    root match {
+      case elem:DataIO[DataType] => ios += elem
+      case elem:WFActivity[DataType, DataType] => activities += elem
+    }
+
+    def internal(e:WFElement):Unit = {
+      val next = nextElements(e)
+      next.foreach(e => e._1 match {
+        case elem:Collector[DataType]  => ios += elem; links += e._2
+        case elem:Sensor[DataType] =>  ios += elem; links += e._2; if (e != Set.empty && !last.isDefined || last.get != e._1) internal(e._1)
+        case elem:WFActivity[DataType, DataType] => activities += elem; links += e._2; if (e != Set.empty && !last.isDefined || last.get != e._1) internal(e._1)
+      }
+      )
+    }
+    internal(root)
+    new Workflow("sub" + name, ios.toSet, activities.toSet, links.toSet)
+  }
+
+  /**
+   * Find the next workflow elements
+   * @param e Current workflow element
+   * @return Immediate next elements
+   */
+  def nextElements(e:WFElement):Set[(WFElement, WFLink[_<:DataType])] = {
+    var res = Set[(WFElement, WFLink[_<:DataType])]()
+    for (l <- links) {
+      if (l.source == e)
+        res = res ++ links.filter(l => l.source == e).foldLeft(Set.empty[(WFElement, WFLink[_<:DataType])]){(acc, e) => acc.+((e.destination, l))}
+    }
+    res
+  }
+
+  /**
    * Delete a link in the current workflow
    * @param l Link
    * @return A workflow with the linked removed
@@ -91,6 +133,8 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
     )
     links.toSet
   }
+
+  def +(w:Workflow):Workflow = new Workflow(this.name + "_" + w.name, this.ios ++ w.ios, this.activities ++ w.activities, this.links ++ w.links)
 
   override def toString = "Workflow[name=" + name + ";ios={" + ios + "};activites={" + activities + "};links={" + links + "}]"
 }
