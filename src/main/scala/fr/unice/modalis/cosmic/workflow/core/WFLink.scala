@@ -12,7 +12,7 @@ case class WFLink[T<:DataType](source_output:Output[T], destination_input:Input[
   val source = source_output.parent
   val destination = destination_input.parent
 
-  override def toString:String = source_output + "-->" + source_output
+  override def toString:String = source_output + "-->" + destination_input
 
   override def equals(a:Any):Boolean = a match {
     case WFLink(a, b) if (a == source_output) && (b == destination_input) => true
