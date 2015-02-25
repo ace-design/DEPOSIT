@@ -1,5 +1,8 @@
 package fr.unice.modalis.cosmic.workflow.core
 
+import fr.unice.modalis.cosmic.workflow.algo.Verify
+import fr.unice.modalis.cosmic.workflow.core.WFElement
+
 import scala.collection.mutable.ArrayBuffer
 
 
@@ -134,7 +137,32 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
     links.toSet
   }
 
+  def partition(selected:Set[WFElement]) = {
+    val pairs = for(x <- selected; y <- selected) yield (x,y)
+    val partition = (selected, links.filter(p => pairs.contains((p.source, p.destination))))
+    val intermediateWF = new Workflow("partition", partition._1 collect {case x:DataIO[_] => x}, partition._1 collect {case x:WFActivity[_,_] => x}, partition._2)
+
+    intermediateWF
+
+
+  }
+
+  val allInputs = {
+    val array = ArrayBuffer[Input[_]]()
+    ios.collect{case x:Collector[_] => x}.foreach(c => array += c.input)
+    activities.foreach(a => array ++= a.inputs)
+    array.toSet
+  }
+
+  val allOutputs = {
+    val array = ArrayBuffer[Output[_]]()
+    ios.collect{case x:Sensor[_] => x}.foreach(c => array += c.output)
+    activities.foreach(a => array ++= a.outputs)
+    array.toSet
+  }
+
   def +(w:Workflow):Workflow = new Workflow(this.name + "_" + w.name, this.ios ++ w.ios, this.activities ++ w.activities, this.links ++ w.links)
 
   override def toString = "Workflow[name=" + name + ";ios={" + ios + "};activites={" + activities + "};links={" + links + "}]"
+
 }
