@@ -140,23 +140,47 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
   def partition(selected:Set[WFElement]) = {
     val pairs = for(x <- selected; y <- selected) yield (x,y)
     val partition = (selected, links.filter(p => pairs.contains((p.source, p.destination))))
-    val intermediateWF = new Workflow("partition", partition._1 collect {case x:DataIO[_] => x}, partition._1 collect {case x:WFActivity[_,_] => x}, partition._2)
+    var intermediateWF = new Workflow("partition", partition._1 collect {case x:DataIO[_] => x}, partition._1 collect {case x:WFActivity[_,_] => x}, partition._2)
+
+    // Add stubs for all disconnected inputs, outputs
+    val linksToAdd = new ArrayBuffer[WFLink[_<:DataType]]()
+    val iosToAdd = new ArrayBuffer[DataIO[_<:DataType]]()
+
+    val dOutputs = Verify.getDisconnectedOutputs(intermediateWF)
+    val dInputs = Verify.getDisconnectedInputs(intermediateWF)
+
+    dOutputs.foreach(o => {
+      val l = new WFLink(o, new WorkflowStubOutput().input)
+      val s = l.destination
+      linksToAdd += l
+      iosToAdd += s.asInstanceOf[WorkflowStubOutput[_<:DataType]]
+    })
+
+    dInputs.foreach(i => {
+      val l = new WFLink(new WorkflowStubInput().output, i)
+      val s = l.source
+      linksToAdd += l
+      iosToAdd += s.asInstanceOf[WorkflowStubInput[_<:DataType]]
+    })
+
+    iosToAdd.foreach(o => intermediateWF = intermediateWF.addIO(o))
+    linksToAdd.foreach(l => intermediateWF = intermediateWF.addLink(l))
 
     intermediateWF
 
 
   }
 
-  val allInputs = {
-    val array = ArrayBuffer[Input[_]]()
-    ios.collect{case x:Collector[_] => x}.foreach(c => array += c.input)
+  def allInputs[T<:DataType] = {
+    val array = ArrayBuffer[Input[_<:DataType]]()
+    ios.collect{case x:Collector[T] => x}.foreach(c => array += c.input)
     activities.foreach(a => array ++= a.inputs)
     array.toSet
   }
 
-  val allOutputs = {
-    val array = ArrayBuffer[Output[_]]()
-    ios.collect{case x:Sensor[_] => x}.foreach(c => array += c.output)
+  def allOutputs[T<:DataType] = {
+    val array = ArrayBuffer[Output[_<:DataType]]()
+    ios.collect{case x:Sensor[T] => x}.foreach(c => array += c.output)
     activities.foreach(a => array ++= a.outputs)
     array.toSet
   }

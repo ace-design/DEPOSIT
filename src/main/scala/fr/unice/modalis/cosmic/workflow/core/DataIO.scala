@@ -10,6 +10,18 @@ trait DataIO[T<:DataType] extends WFElement{
 
 }
 
+trait WorkflowStub[T<:DataType] extends DataIO[T]
+
+case class WorkflowStubInput[T<:DataType]() extends WorkflowStub[T]{
+  val output = new Output[T](this)
+  override def toString:String = "WFSTUB_INPUT"
+}
+
+case class WorkflowStubOutput[T<:DataType]() extends WorkflowStub[T]{
+  val input = new Input[T](this)
+  override def toString:String = "WFSTUB_OUTPUT"
+}
+
 /**
  * Workflow source
  * @tparam T Data type
