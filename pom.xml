@@ -86,6 +86,12 @@
             <artifactId>scala-xml_2.11</artifactId>
             <version>1.0.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.assembla.scala-incubator</groupId>
+            <artifactId>graph-core_2.11</artifactId>
+            <version>1.9.1</version>
+        </dependency>
+
 
         <!-- Test -->
         <dependency>

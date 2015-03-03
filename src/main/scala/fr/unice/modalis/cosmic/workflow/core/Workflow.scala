@@ -1,6 +1,7 @@
 package fr.unice.modalis.cosmic.workflow.core
 
 import fr.unice.modalis.cosmic.workflow.algo.Verify
+import fr.unice.modalis.cosmic.workflow.converter.ToGraph
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -14,11 +15,18 @@ import scala.collection.mutable.ArrayBuffer
  */
 case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activities:Set[WFActivity[_<:DataType,_<:DataType]], val links:Set[WFLink[_<:DataType]]) {
 
+
   def this(name:String) = this(name, Set.empty, Set.empty, Set.empty)
   def this() = this("wf" + scala.util.Random.alphanumeric.take(5).mkString, Set.empty, Set.empty, Set.empty)
 
   lazy val sources = ios.filter(_.isInstanceOf[Sensor[_<:DataType]]).asInstanceOf[Set[Sensor[_<:DataType]]]
   lazy val collectors = ios.filter(_.isInstanceOf[Collector[_<:DataType]]).asInstanceOf[Set[Collector[_<:DataType]]]
+
+  /**
+   * Graph representation
+   * @return A Graph representation of this workflow
+   */
+  def graph = ToGraph(this)
 
   def addIO(o:DataIO[_<:DataType]):Workflow = {
     new Workflow(name, ios + o, activities, links)
