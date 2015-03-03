@@ -1,7 +1,6 @@
 package fr.unice.modalis.cosmic.workflow.core
 
 import fr.unice.modalis.cosmic.workflow.algo.Verify
-import fr.unice.modalis.cosmic.workflow.core.WFElement
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -29,12 +28,38 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
    * @param c Workflow Element
    * @return A new workflow with the element added
    */
-  def addActivity(c:WFActivity[_<:DataType,_<:DataType]):Workflow  = {
+  def addActivity[T<:DataType, O<:DataType](c:WFActivity[T,O]):Workflow  = {
+    var newWF = new Workflow()
     c match {
-      case Process(wf) => new Workflow(name, ios, activities + c, links ++ autoConnectProcess(c.asInstanceOf[Process[_<:DataType, _<:DataType]]))
-      case _ => new Workflow(name, ios, activities + c, links)
+      case Process(wf) => newWF = new Workflow(name, ios, activities + c, links ++ autoConnectProcess(c.asInstanceOf[Process[_<:DataType, _<:DataType]]))
+      case _ => newWF = new Workflow(name, ios, activities + c, links)
     }
 
+    // Add stubs for all disconnected inputs, outputs
+    val linksToAdd = new ArrayBuffer[WFLink[_<:DataType]]()
+    val iosToAdd = new ArrayBuffer[DataIO[_<:DataType]]()
+
+    val dOutputs = Verify.getDisconnectedOutputs(newWF)
+    val dInputs = Verify.getDisconnectedInputs(newWF)
+
+    dOutputs.foreach(o => {
+      val l = new WFLink(o, new WorkflowStubOutput().input)
+      val s = l.destination
+      linksToAdd += l
+      iosToAdd += s.asInstanceOf[WorkflowStubOutput[_<:DataType]]
+    })
+
+    dInputs.foreach(i => {
+      val l = new WFLink(new WorkflowStubInput().output, i)
+      val s = l.source
+      linksToAdd += l
+      iosToAdd += s.asInstanceOf[WorkflowStubInput[_<:DataType]]
+    })
+
+    iosToAdd.foreach(o => newWF = newWF.addIO(o))
+    linksToAdd.foreach(l => newWF = newWF.addLink(l))
+
+    newWF
   }
 
   /**
@@ -43,7 +68,18 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
    * @return A new workflow with the link added
    */
   def addLink(l:WFLink[_<:DataType]):Workflow  = {
-     new Workflow(name, ios, activities, links + l)
+    // It can be a link between :
+
+    (l.source, l.destination) match {
+      // Output Stub -> Activity : Link between OutputStub predecessor and activity + delete the output stub
+      //case (x:WorkflowStubOutput[_], y:WFActivity[_,_]) => this.addLink(new WFLink(x.predecessor, l.destination_input)).deleteIO(x)
+      // Output Stub -> Input Stub : Link between OutputStub predecessor and InputStub successor + delete the output and input stubs
+      //case (x:WorkflowStubOutput[_], y:WorkflowStubInput[_]) => this.addLink(new WFLink(x.predecessor, y.successor)).deleteIO(x).deleteIO(y)
+
+      // Anything else : Activity -> Activity (nothing to do)
+      case (_,_) => new Workflow(name, ios, activities, links + l)
+    }
+
   }
 
   /**
@@ -150,14 +186,16 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
     val dInputs = Verify.getDisconnectedInputs(intermediateWF)
 
     dOutputs.foreach(o => {
-      val l = new WFLink(o, new WorkflowStubOutput().input)
+     // val l = new WFLink(o, new WorkflowStubOutput(o).input)
+     val l = new WFLink(o, new WorkflowStubOutput().input)
       val s = l.destination
       linksToAdd += l
       iosToAdd += s.asInstanceOf[WorkflowStubOutput[_<:DataType]]
     })
 
     dInputs.foreach(i => {
-      val l = new WFLink(new WorkflowStubInput().output, i)
+     // val l = new WFLink(new WorkflowStubInput(i).output, i)
+     val l = new WFLink(new WorkflowStubInput().output, i)
       val s = l.source
       linksToAdd += l
       iosToAdd += s.asInstanceOf[WorkflowStubInput[_<:DataType]]
@@ -184,6 +222,11 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
     activities.foreach(a => array ++= a.outputs)
     array.toSet
   }
+
+
+  def linksTo(a:WFElement) = links.filter(l => l.destination == a)
+
+  def linksFrom(a:WFElement) = links.filter(l => l.source == a)
 
   def +(w:Workflow):Workflow = new Workflow(this.name + "_" + w.name, this.ios ++ w.ios, this.activities ++ w.activities, this.links ++ w.links)
 
