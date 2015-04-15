@@ -4,20 +4,20 @@ package fr.unice.modalis.cosmic.workflow.core
  * Data Input/Output trait
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
  */
-trait DataIO[T<:DataType] extends WFElement{
+trait DataIO[T<:DataType] extends Element{
   override val id:String = "io" + scala.util.Random.alphanumeric.take(5).mkString
-
 
 }
 
-trait WorkflowStub[T<:DataType] extends DataIO[T]
 
-case class WorkflowStubInput[T<:DataType]() extends WorkflowStub[T]{
+trait Stub[T<:DataType] extends DataIO[T]
+
+case class StubInput[T<:DataType]() extends Stub[T]{
   val output = new Output[T](this)
   override def toString:String = "WFSTUB_INPUT"
 }
 
-case class WorkflowStubOutput[T<:DataType]() extends WorkflowStub[T]{
+case class StubOutput[T<:DataType]() extends Stub[T]{
   val input = new Input[T](this)
   override def toString:String = "WFSTUB_OUTPUT"
 }

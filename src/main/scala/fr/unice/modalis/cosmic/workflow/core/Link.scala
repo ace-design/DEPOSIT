@@ -6,7 +6,7 @@ package fr.unice.modalis.cosmic.workflow.core
  * @param source_output Link source (component output)
  * @param destination_input Link destination (component input)
  */
-case class WFLink[T<:DataType](source_output:Output[T], destination_input:Input[T])
+case class Link[T<:DataType](source_output:Output[T], destination_input:Input[T])
 {
 
   val source = source_output.parent
@@ -15,7 +15,7 @@ case class WFLink[T<:DataType](source_output:Output[T], destination_input:Input[
   override def toString:String = source_output + "-->" + destination_input
 
   override def equals(a:Any):Boolean = a match {
-    case WFLink(a, b) if (a == source_output) && (b == destination_input) => true
+    case Link(a, b) if (a == source_output) && (b == destination_input) => true
     case _ => false
   }
 

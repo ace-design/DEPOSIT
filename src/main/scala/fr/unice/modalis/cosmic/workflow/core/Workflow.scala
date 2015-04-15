@@ -13,7 +13,7 @@ import scala.collection.mutable.ArrayBuffer
  * @param links Link list
 
  */
-case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activities:Set[WFActivity[_<:DataType,_<:DataType]], val links:Set[WFLink[_<:DataType]]) {
+case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activities:Set[Activity[_<:DataType,_<:DataType]], val links:Set[Link[_<:DataType]]) {
 
 
   def this(name:String) = this(name, Set.empty, Set.empty, Set.empty)
@@ -36,7 +36,7 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
    * @param c Workflow Element
    * @return A new workflow with the element added
    */
-  def addActivity[T<:DataType, O<:DataType](c:WFActivity[T,O]):Workflow  = {
+  def addActivity[T<:DataType, O<:DataType](c:Activity[T,O]):Workflow  = {
     var newWF = new Workflow()
     c match {
       case Process(wf) => newWF = new Workflow(name, ios, activities + c, links ++ autoConnectProcess(c.asInstanceOf[Process[_<:DataType, _<:DataType]]))
@@ -44,24 +44,24 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
     }
 
     // Add stubs for all disconnected inputs, outputs
-    val linksToAdd = new ArrayBuffer[WFLink[_<:DataType]]()
+    val linksToAdd = new ArrayBuffer[Link[_<:DataType]]()
     val iosToAdd = new ArrayBuffer[DataIO[_<:DataType]]()
 
     val dOutputs = Verify.getDisconnectedOutputs(newWF)
     val dInputs = Verify.getDisconnectedInputs(newWF)
 
     dOutputs.foreach(o => {
-      val l = new WFLink(o, new WorkflowStubOutput().input)
+      val l = new Link(o, new StubOutput().input)
       val s = l.destination
       linksToAdd += l
-      iosToAdd += s.asInstanceOf[WorkflowStubOutput[_<:DataType]]
+      iosToAdd += s.asInstanceOf[StubOutput[_<:DataType]]
     })
 
     dInputs.foreach(i => {
-      val l = new WFLink(new WorkflowStubInput().output, i)
+      val l = new Link(new StubInput().output, i)
       val s = l.source
       linksToAdd += l
-      iosToAdd += s.asInstanceOf[WorkflowStubInput[_<:DataType]]
+      iosToAdd += s.asInstanceOf[StubInput[_<:DataType]]
     })
 
     iosToAdd.foreach(o => newWF = newWF.addIO(o))
@@ -75,7 +75,7 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
    * @param l Link
    * @return A new workflow with the link added
    */
-  def addLink(l:WFLink[_<:DataType]):Workflow  = {
+  def addLink(l:Link[_<:DataType]):Workflow  = {
     // It can be a link between :
 
     (l.source, l.destination) match {
@@ -95,7 +95,7 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
    * @param c Workflow activity
    * @return A workflow without this activity and links referring this activity
    */
-  def deleteActivity(c:WFActivity[_<:DataType,_<:DataType]):Workflow = {
+  def deleteActivity(c:Activity[_<:DataType,_<:DataType]):Workflow = {
     new Workflow(name, ios, activities - c, links.filterNot(p => (p.destination == c) || (p.source == c)))
   }
 
@@ -112,23 +112,23 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
    * Return sub Workflow
    * @param root Root element
    */
-  def subWorkflow(root:WFElement, last:Option[WFElement] = None):Workflow = {
+  def subWorkflow(root:Element, last:Option[Element] = None):Workflow = {
     val ios = new ArrayBuffer[DataIO[_<:DataType]]()
-    val activities = new ArrayBuffer[WFActivity[_<:DataType, _<:DataType]]()
-    val links = new ArrayBuffer[WFLink[_<:DataType]]()
+    val activities = new ArrayBuffer[Activity[_<:DataType, _<:DataType]]()
+    val links = new ArrayBuffer[Link[_<:DataType]]()
     // Add root into the activities/ios
 
     root match {
       case elem:DataIO[DataType] => ios += elem
-      case elem:WFActivity[DataType, DataType] => activities += elem
+      case elem:Activity[DataType, DataType] => activities += elem
     }
 
-    def internal(e:WFElement):Unit = {
+    def internal(e:Element):Unit = {
       val next = nextElements(e)
       next.foreach(e => e._1 match {
         case elem:Collector[DataType]  => ios += elem; links += e._2
         case elem:Sensor[DataType] =>  ios += elem; links += e._2; if (e != Set.empty && !last.isDefined || last.get != e._1) internal(e._1)
-        case elem:WFActivity[DataType, DataType] => activities += elem; links += e._2; if (e != Set.empty && !last.isDefined || last.get != e._1) internal(e._1)
+        case elem:Activity[DataType, DataType] => activities += elem; links += e._2; if (e != Set.empty && !last.isDefined || last.get != e._1) internal(e._1)
       }
       )
     }
@@ -141,11 +141,11 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
    * @param e Current workflow element
    * @return Immediate next elements
    */
-  def nextElements(e:WFElement):Set[(WFElement, WFLink[_<:DataType])] = {
-    var res = Set[(WFElement, WFLink[_<:DataType])]()
+  def nextElements(e:Element):Set[(Element, Link[_<:DataType])] = {
+    var res = Set[(Element, Link[_<:DataType])]()
     for (l <- links) {
       if (l.source == e)
-        res = res ++ links.filter(l => l.source == e).foldLeft(Set.empty[(WFElement, WFLink[_<:DataType])]){(acc, e) => acc.+((e.destination, l))}
+        res = res ++ links.filter(l => l.source == e).foldLeft(Set.empty[(Element, Link[_<:DataType])]){(acc, e) => acc.+((e.destination, l))}
     }
     res
   }
@@ -155,7 +155,7 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
    * @param l Link
    * @return A workflow with the linked removed
    */
-  def deleteLink(l:WFLink[_<:DataType]):Workflow  = {
+  def deleteLink(l:Link[_<:DataType]):Workflow  = {
     println("Delete [" + l + "]")
     new Workflow(name, ios, activities, links - l)
   }
@@ -168,11 +168,11 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
    * @return A set ok links needed to connect the process with the current known sensors
    */
   private def autoConnectProcess[I<:DataType, O<:DataType](p:Process[I,O]) = {
-    var links = new ArrayBuffer[WFLink[_<:DataType]]()
+    var links = new ArrayBuffer[Link[_<:DataType]]()
     p.inputsNames.foreach(i => {
       val possibleSensor = ios.filter(p => p.isInstanceOf[Sensor[I]]).find(s => s.asInstanceOf[Sensor[I]].url == i)
       possibleSensor match {
-        case Some(n) => links += new WFLink(n.asInstanceOf[Sensor[I]].output, p.getInput(i))
+        case Some(n) => links += new Link(n.asInstanceOf[Sensor[I]].output, p.getInput(i))
         case None => /* Nop */
 
       }
@@ -181,13 +181,13 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
     links.toSet
   }
 
-  def partition(selected:Set[WFElement]) = {
+  def partition(selected:Set[Element]) = {
     val pairs = for(x <- selected; y <- selected) yield (x,y)
     val partition = (selected, links.filter(p => pairs.contains((p.source, p.destination))))
-    var intermediateWF = new Workflow("partition", partition._1 collect {case x:DataIO[_] => x}, partition._1 collect {case x:WFActivity[_,_] => x}, partition._2)
+    var intermediateWF = new Workflow("partition", partition._1 collect {case x:DataIO[_] => x}, partition._1 collect {case x:Activity[_,_] => x}, partition._2)
 
     // Add stubs for all disconnected inputs, outputs
-    val linksToAdd = new ArrayBuffer[WFLink[_<:DataType]]()
+    val linksToAdd = new ArrayBuffer[Link[_<:DataType]]()
     val iosToAdd = new ArrayBuffer[DataIO[_<:DataType]]()
 
     val dOutputs = Verify.getDisconnectedOutputs(intermediateWF)
@@ -195,18 +195,18 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
 
     dOutputs.foreach(o => {
      // val l = new WFLink(o, new WorkflowStubOutput(o).input)
-     val l = new WFLink(o, new WorkflowStubOutput().input)
+     val l = new Link(o, new StubOutput().input)
       val s = l.destination
       linksToAdd += l
-      iosToAdd += s.asInstanceOf[WorkflowStubOutput[_<:DataType]]
+      iosToAdd += s.asInstanceOf[StubOutput[_<:DataType]]
     })
 
     dInputs.foreach(i => {
      // val l = new WFLink(new WorkflowStubInput(i).output, i)
-     val l = new WFLink(new WorkflowStubInput().output, i)
+     val l = new Link(new StubInput().output, i)
       val s = l.source
       linksToAdd += l
-      iosToAdd += s.asInstanceOf[WorkflowStubInput[_<:DataType]]
+      iosToAdd += s.asInstanceOf[StubInput[_<:DataType]]
     })
 
     iosToAdd.foreach(o => intermediateWF = intermediateWF.addIO(o))
@@ -232,9 +232,9 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
   }
 
 
-  def linksTo(a:WFElement) = links.filter(l => l.destination == a)
+  def linksTo(a:Element) = links.filter(l => l.destination == a)
 
-  def linksFrom(a:WFElement) = links.filter(l => l.source == a)
+  def linksFrom(a:Element) = links.filter(l => l.source == a)
 
   def +(w:Workflow):Workflow = new Workflow(this.name + "_" + w.name, this.ios ++ w.ios, this.activities ++ w.activities, this.links ++ w.links)
 

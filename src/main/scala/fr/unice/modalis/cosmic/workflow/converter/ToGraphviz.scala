@@ -13,8 +13,8 @@ object ToGraphviz {
       case Collector(n) => generateNodeShape("triangle", "crimson") + io.id + printlabel(n) + ";"
       case PeriodicSensor(_,n) => generateNodeShape("invtriangle", "blue") + io.id + printlabel(n) + ";"
       case EventSensor(n) => generateNodeShape("invtriangle", "green") + io.id + printlabel(n) + ";"
-      case WorkflowStubInput() => generateNodeShape("doublecircle", "green") + io.id + ";"
-      case WorkflowStubOutput() => generateNodeShape("doublecircle", "crimson") + io.id + ";"
+      case StubInput() => generateNodeShape("doublecircle", "green") + io.id + ";"
+      case StubOutput() => generateNodeShape("doublecircle", "crimson") + io.id + ";"
     }
   }
 
@@ -41,11 +41,11 @@ def apply(w: Workflow): String = generateCode(w)
   def generateNodeShape(shape: String, color:String):String = "node [shape=" + shape + ",color=" + color + ",style = filled]; \n"
 
 
-  def generateLinkCode(t: WFLink[_<:DataType]) = {
+  def generateLinkCode(t: Link[_<:DataType]) = {
     t.source_output.parent.id + "->" + t.destination_input.parent.id + printlabel("o:" + t.source_output.name + " i:" + t.destination_input.name) + "\n"
   }
 
-  def generateElementCode(n: WFElement) = {
+  def generateElementCode(n: Element) = {
     (n match {
       case Process(_) => generateNodeShape("doubleoctagon", "gold")
       case _ => generateNodeShape("box")
