@@ -89,8 +89,8 @@ case class Conditional[T<:DataType](val predicate:String) extends Filtering[T] {
   override val outputsNames: Set[String] = Set("then", "else")
 
   lazy val input = getInput("input")
-  lazy val elseOutput = getOutput("then")
-  lazy val thenOutput = getOutput("else")
+  lazy val elseOutput = getOutput("else")
+  lazy val thenOutput = getOutput("then")
 
   override def toString:String = "CONDITIONAL(p={"+predicate+"})"
 
