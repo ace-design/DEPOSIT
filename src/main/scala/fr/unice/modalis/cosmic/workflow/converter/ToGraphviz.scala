@@ -8,13 +8,16 @@ import fr.unice.modalis.cosmic.workflow.core._
  */
 object ToGraphviz {
 
+  var showStubs = true
+
   def generateIO(io:DataIO[_<:DataType]) = {
     io match {
       case Collector(n) => generateNodeShape("triangle", "crimson") + io.id + printlabel(n) + ";"
       case PeriodicSensor(_,n) => generateNodeShape("invtriangle", "blue") + io.id + printlabel(n) + ";"
       case EventSensor(n) => generateNodeShape("invtriangle", "green") + io.id + printlabel(n) + ";"
-      case StubInput() => generateNodeShape("doublecircle", "green") + io.id + ";"
-      case StubOutput() => generateNodeShape("doublecircle", "crimson") + io.id + ";"
+      case StubInput() if showStubs => generateNodeShape("doublecircle", "green") + io.id + ";"
+      case StubOutput() if showStubs =>  generateNodeShape("doublecircle", "crimson") + io.id + ";"
+      case _ => ""
     }
   }
 
@@ -42,7 +45,10 @@ def apply(w: Workflow): String = generateCode(w)
 
 
   def generateLinkCode(t: Link[_<:DataType]) = {
-    t.source_output.parent.id + "->" + t.destination_input.parent.id + printlabel("o:" + t.source_output.name + " i:" + t.destination_input.name) + "\n"
+//    if (t.source.isInstanceOf[Stub[_]] || t.destination.isInstanceOf[Stub[_]] && !showStubs)
+//      ""
+//    else
+      t.source_output.parent.id + "->" + t.destination_input.parent.id + printlabel("o:" + t.source_output.name + " i:" + t.destination_input.name) + "\n"
   }
 
   def generateElementCode(n: Element) = {
