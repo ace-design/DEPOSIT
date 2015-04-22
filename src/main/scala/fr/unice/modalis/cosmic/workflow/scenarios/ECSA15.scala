@@ -10,18 +10,13 @@ object ECSA15 extends App{
 
   // City of Santander - Smart Parking sensors
 
-  
+
   val caleHernan = Set(EventSensor[SantanderParkingType]("caleHernan-p1"), EventSensor[SantanderParkingType]("caleHernan-p2"), EventSensor[SantanderParkingType]("caleHernan-p3"), EventSensor[SantanderParkingType]("caleHernan-p4"), EventSensor[SantanderParkingType]("caleHernan-p5"),
-    EventSensor[SantanderParkingType]("caleHernan-p6"),EventSensor[SantanderParkingType]("caleHernan-p7"), EventSensor[SantanderParkingType]("caleHernan-p8"), EventSensor[SantanderParkingType]("caleHernan-p9"), EventSensor[SantanderParkingType]("caleHernan-p10"), EventSensor[SantanderParkingType]("caleHernan-p11"))
+    EventSensor[SantanderParkingType]("caleHernan-p6-res"),EventSensor[SantanderParkingType]("caleHernan-p7"), EventSensor[SantanderParkingType]("caleHernan-p8"), EventSensor[SantanderParkingType]("caleHernan-p9"), EventSensor[SantanderParkingType]("caleHernan-p10-res"), EventSensor[SantanderParkingType]("caleHernan-p11"))
 
-  val plaza = Set(EventSensor[SantanderParkingType]("plaza-p1"), EventSensor[SantanderParkingType]("plaza-p2"), EventSensor[SantanderParkingType]("plaza-p3"), EventSensor[SantanderParkingType]("plaza-p4"), EventSensor[SantanderParkingType]("plaza-p5"),
-    EventSensor[SantanderParkingType]("plaza-p6"),EventSensor[SantanderParkingType]("plaza-p7"), EventSensor[SantanderParkingType]("plaza-p8"), EventSensor[SantanderParkingType]("plaza-p9"), EventSensor[SantanderParkingType]("plaza-p10"), 
-    EventSensor[SantanderParkingType]("plaza-p11"), EventSensor[SantanderParkingType]("plaza-p12"))
+  val plaza = Set(EventSensor[SantanderParkingType]("plaza-p1"), EventSensor[SantanderParkingType]("plaza-p2-res"), EventSensor[SantanderParkingType]("plaza-p3"))
 
-  val caleLopeVega = Set(EventSensor[SantanderParkingType]("caleLopeVega-p1"), EventSensor[SantanderParkingType]("caleLopeVega-p2"), EventSensor[SantanderParkingType]("caleLopeVega-p3"), EventSensor[SantanderParkingType]("caleLopeVega-p4"), EventSensor[SantanderParkingType]("caleLopeVega-p5"),
-    EventSensor[SantanderParkingType]("caleLopeVega-p6"),EventSensor[SantanderParkingType]("caleLopeVega-p7"), EventSensor[SantanderParkingType]("caleLopeVega-p8"), EventSensor[SantanderParkingType]("caleLopeVega-p9"), EventSensor[SantanderParkingType]("caleLopeVega-p10"),
-    EventSensor[SantanderParkingType]("caleLopeVega-p11"), EventSensor[SantanderParkingType]("caleLopeVega-p12"), EventSensor[SantanderParkingType]("caleLopeVega-p13"), EventSensor[SantanderParkingType]("caleLopeVega-p14"), EventSensor[SantanderParkingType]("caleLopeVega-p15"))
-
+  val caleLopeVega = Set(EventSensor[SantanderParkingType]("caleLopeVega-p1"), EventSensor[SantanderParkingType]("caleLopeVega-p2"), EventSensor[SantanderParkingType]("caleLopeVega-p3-res"), EventSensor[SantanderParkingType]("caleLopeVega-p4"))
 
 
   val convert_workflow = {
@@ -50,34 +45,60 @@ object ECSA15 extends App{
 
   }
 
-  val santanderConverter = Process[SantanderParkingType, IntegerType](convert_workflow)
+  // Application A: Count number of free places
+  val dcpA = {
+    val collectorA = Collector[IntegerType]("applicationA")
 
-  // Application A : Count number of free places
-  val collectorA = Collector[IntegerType]("applicationA")
+    val sensors = caleHernan ++ plaza ++ caleLopeVega
+    val converters = for (x <- sensors) yield Process[SantanderParkingType, IntegerType](convert_workflow)
+    val linksToProcess = (sensors zip converters).map(x => new Link[SantanderParkingType](x._1.output, x._2.getInput("parking_sensor")))
 
-  val sensors = caleHernan ++ plaza ++ caleLopeVega
-  val converters = for (x <- sensors) yield Process[SantanderParkingType, IntegerType](convert_workflow)
-  val linksToProcess = (sensors zip converters).map(x => new Link[SantanderParkingType](x._1.output, x._2.getInput("parking_sensor")))
+    val adder = Add[IntegerType]((for (i <- 1 to sensors.size) yield "i" + i).toSet)
 
-  val adder = Add[IntegerType]((for (i <- 1 to sensors.size) yield "i" + i).toSet)
+    val linksToAdd = (converters zip adder.inputsNames).map(x => Link[IntegerType](x._1.getOutput("place_status"), adder.getInput(x._2)))
 
-  val linksToAdd = (converters zip adder.inputsNames).map(x => Link[IntegerType](x._1.getOutput("place_status"), adder.getInput(x._2)))
+    val l = Link[IntegerType](adder.output, collectorA.input)
 
-  val l = Link[IntegerType](adder.output, collectorA.input)
+    var dcp = new Workflow("DCPA")
 
-  var dcp1 = new Workflow("DCP1")
+    val ios = sensors ++ Set(collectorA)
+    val activities: Set[Activity[_ <: DataType, _ <: DataType]] = (converters ++ List(adder)).toSet
+    val links = (linksToProcess ++ linksToAdd ++ List(l))
 
-  val ios = sensors ++ Set(collectorA)
-  val activities:Set[Activity[_<:DataType, _<:DataType]] = (converters ++ List(adder)).toSet
-  val links = (linksToProcess ++ linksToAdd ++ List(l)).toSet
+    ios.foreach(x => dcp = dcp.addIO(x))
+    activities.foreach(x => dcp = dcp.addActivity(x))
+    links.foreach(x => dcp = dcp.addLink(x))
 
-  ios.foreach(x => dcp1 = dcp1.addIO(x))
-  activities.foreach(x => dcp1 = dcp1.addActivity(x))
-  links.foreach(x => dcp1 = dcp1.addLink(x))
+    dcp
+  }
+
+  val dcpD = {
+    // Application D: Monitor illegal parking
+
+    val sensors = (caleHernan ++ plaza ++ caleLopeVega).filter(_.output.name.contains("res"))
+
+    val collectorD = Collector[SantanderParkingType]("applicationD")
+
+    val a = Filter[SantanderParkingType]("i.status == 1")
+    val linksToConditional = sensors.map(x => new Link[SantanderParkingType](x.output, a.input))
+    val l = Link[SantanderParkingType](a.output, collectorD.input)
+
+    var dcp = new Workflow("DCPD")
+    val ios = sensors ++ Set(collectorD)
+    val activities = Set(a)
+    val links = (linksToConditional ++ List(l))
+
+    ios.foreach(x => dcp = dcp.addIO(x))
+    activities.foreach(x => dcp = dcp.addActivity(x))
+    links.foreach(x => dcp = dcp.addLink(x))
+
+    dcp
+
+  }
 
 
-  println(ToGraphviz(dcp1))
-
+  //println(dcpD.ios)
+  println(ToGraphviz(convert_workflow))
 
 
 }
