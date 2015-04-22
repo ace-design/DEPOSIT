@@ -1,4 +1,4 @@
-workflow
+DEPOSIT Language
 ========
 
-Workflow / COSmIC
+A data collection policy modeling language for domain experts
