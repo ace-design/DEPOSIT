@@ -51,17 +51,17 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
     val dInputs = Verify.getDisconnectedInputs(newWF)
 
     dOutputs.foreach(o => {
-      val l = new Link(o, new StubOutput().input)
+      val l = new Link(o, new JointPointOutput().input)
       val s = l.destination
       linksToAdd += l
-      iosToAdd += s.asInstanceOf[StubOutput[_<:DataType]]
+      iosToAdd += s.asInstanceOf[JointPointOutput[_<:DataType]]
     })
 
     dInputs.foreach(i => {
-      val l = new Link(new StubInput().output, i)
+      val l = new Link(new JointPointInput().output, i)
       val s = l.source
       linksToAdd += l
-      iosToAdd += s.asInstanceOf[StubInput[_<:DataType]]
+      iosToAdd += s.asInstanceOf[JointPointInput[_<:DataType]]
     })
 
     iosToAdd.foreach(o => newWF = newWF.addIO(o))
@@ -195,18 +195,18 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
 
     dOutputs.foreach(o => {
      // val l = new WFLink(o, new WorkflowStubOutput(o).input)
-     val l = new Link(o, new StubOutput().input)
+     val l = new Link(o, new JointPointOutput().input)
       val s = l.destination
       linksToAdd += l
-      iosToAdd += s.asInstanceOf[StubOutput[_<:DataType]]
+      iosToAdd += s.asInstanceOf[JointPointOutput[_<:DataType]]
     })
 
     dInputs.foreach(i => {
      // val l = new WFLink(new WorkflowStubInput(i).output, i)
-     val l = new Link(new StubInput().output, i)
+     val l = new Link(new JointPointInput().output, i)
       val s = l.source
       linksToAdd += l
-      iosToAdd += s.asInstanceOf[StubInput[_<:DataType]]
+      iosToAdd += s.asInstanceOf[JointPointInput[_<:DataType]]
     })
 
     iosToAdd.foreach(o => intermediateWF = intermediateWF.addIO(o))

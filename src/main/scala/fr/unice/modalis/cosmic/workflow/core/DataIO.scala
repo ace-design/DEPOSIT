@@ -10,16 +10,16 @@ trait DataIO[T<:DataType] extends Element{
 }
 
 
-trait Stub[T<:DataType] extends DataIO[T]
+trait JointPoint[T<:DataType] extends DataIO[T]
 
-case class StubInput[T<:DataType]() extends Stub[T]{
+case class JointPointInput[T<:DataType]() extends JointPoint[T]{
   val output = new Output[T](this)
-  override def toString:String = "WFSTUB_INPUT"
+  override def toString:String = "JOINT_POINT_INPUT"
 }
 
-case class StubOutput[T<:DataType]() extends Stub[T]{
+case class JointPointOutput[T<:DataType]() extends JointPoint[T]{
   val input = new Input[T](this)
-  override def toString:String = "WFSTUB_OUTPUT"
+  override def toString:String = "JOIN_POINT_OUTPUT"
 }
 
 /**
