@@ -13,7 +13,7 @@ import scala.collection.mutable.ArrayBuffer
  * @param links Link list
 
  */
-case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activities:Set[Activity[_<:DataType,_<:DataType]], val links:Set[Link[_<:DataType]]) {
+case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activities:Set[Operation[_<:DataType,_<:DataType]], val links:Set[Link[_<:DataType]]) {
 
 
   def this(name:String) = this(name, Set.empty, Set.empty, Set.empty)
@@ -36,7 +36,7 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
    * @param c Workflow Element
    * @return A new workflow with the element added
    */
-  def addActivity[T<:DataType, O<:DataType](c:Activity[T,O]):Workflow  = {
+  def addActivity[T<:DataType, O<:DataType](c:Operation[T,O]):Workflow  = {
     var newWF = new Workflow()
     c match {
       case Process(wf) => newWF = new Workflow(name, ios, activities + c, links ++ autoConnectProcess(c.asInstanceOf[Process[_<:DataType, _<:DataType]]))
@@ -95,7 +95,7 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
    * @param c Workflow activity
    * @return A workflow without this activity and links referring this activity
    */
-  def deleteActivity(c:Activity[_<:DataType,_<:DataType]):Workflow = {
+  def deleteActivity(c:Operation[_<:DataType,_<:DataType]):Workflow = {
     new Workflow(name, ios, activities - c, links.filterNot(p => (p.destination == c) || (p.source == c)))
   }
 
@@ -114,13 +114,13 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
    */
   def subWorkflow(root:Element, last:Option[Element] = None):Workflow = {
     val ios = new ArrayBuffer[DataIO[_<:DataType]]()
-    val activities = new ArrayBuffer[Activity[_<:DataType, _<:DataType]]()
+    val activities = new ArrayBuffer[Operation[_<:DataType, _<:DataType]]()
     val links = new ArrayBuffer[Link[_<:DataType]]()
     // Add root into the activities/ios
 
     root match {
       case elem:DataIO[DataType] => ios += elem
-      case elem:Activity[DataType, DataType] => activities += elem
+      case elem:Operation[DataType, DataType] => activities += elem
     }
 
     def internal(e:Element):Unit = {
@@ -128,7 +128,7 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
       next.foreach(e => e._1 match {
         case elem:Collector[DataType]  => ios += elem; links += e._2
         case elem:Sensor[DataType] =>  ios += elem; links += e._2; if (e != Set.empty && !last.isDefined || last.get != e._1) internal(e._1)
-        case elem:Activity[DataType, DataType] => activities += elem; links += e._2; if (e != Set.empty && !last.isDefined || last.get != e._1) internal(e._1)
+        case elem:Operation[DataType, DataType] => activities += elem; links += e._2; if (e != Set.empty && !last.isDefined || last.get != e._1) internal(e._1)
       }
       )
     }
@@ -184,7 +184,7 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
   def partition(selected:Set[Element]) = {
     val pairs = for(x <- selected; y <- selected) yield (x,y)
     val partition = (selected, links.filter(p => pairs.contains((p.source, p.destination))))
-    var intermediateWF = new Workflow("partition", partition._1 collect {case x:DataIO[_] => x}, partition._1 collect {case x:Activity[_,_] => x}, partition._2)
+    var intermediateWF = new Workflow("partition", partition._1 collect {case x:DataIO[_] => x}, partition._1 collect {case x:Operation[_,_] => x}, partition._2)
 
     // Add stubs for all disconnected inputs, outputs
     val linksToAdd = new ArrayBuffer[Link[_<:DataType]]()

@@ -62,7 +62,7 @@ object ECSA15 extends App{
     var dcp = new Workflow("DCPA")
 
     val ios = sensors ++ Set(collectorA)
-    val activities: Set[Activity[_ <: DataType, _ <: DataType]] = (converters ++ List(adder)).toSet
+    val activities: Set[Operation[_ <: DataType, _ <: DataType]] = (converters ++ List(adder)).toSet
     val links = (linksToProcess ++ linksToAdd ++ List(l))
 
     ios.foreach(x => dcp = dcp.addIO(x))
@@ -79,9 +79,9 @@ object ECSA15 extends App{
 
     val collectorD = Collector[SantanderParkingType]("applicationD")
 
-    val a = Filter[SantanderParkingType]("i.status == 1")
+    val a = Conditional[SantanderParkingType]("i.status == 1")
     val linksToConditional = sensors.map(x => new Link[SantanderParkingType](x.output, a.input))
-    val l = Link[SantanderParkingType](a.output, collectorD.input)
+    val l = Link[SantanderParkingType](a.thenOutput, collectorD.input)
 
     var dcp = new Workflow("DCPD")
     val ios = sensors ++ Set(collectorD)
