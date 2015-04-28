@@ -7,7 +7,7 @@ import scala.collection.mutable.ArrayBuffer
 
 
 /**
- * Workflow definition
+ * Policy definition
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
  * @param activities Workflow element list
  * @param links Link list
@@ -35,7 +35,13 @@ case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activit
    */
   def graph = ToGraph(this)
 
-
+  def add(c:Concept):Policy = {
+    c match {
+      case n:DataIO[_] => addIO(n)
+      case n:Operation[_, _] => addActivity(n)
+      case _ => throw new Exception(c + " is not handled by method add")
+    }
+  }
 
   def addIO(o:DataIO[_<:DataType]):Policy = {
     new Policy(name, ios + o, activities, links)

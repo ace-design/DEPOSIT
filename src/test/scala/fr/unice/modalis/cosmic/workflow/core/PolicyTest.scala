@@ -23,6 +23,21 @@ class PolicyTest extends SpecificationWithJUnit {
       DCPTest.dcpA.addActivity(a).activities must contain(a)
     }
 
+    "add an input with generic add in the policy" in {
+      val s = PeriodicSensor[IntegerType](3, "test")
+      DCPTest.dcpA.add(s).ios must contain(s)
+    }
+
+    "add an input with generic add in the policy" in {
+      val s = PeriodicSensor[IntegerType](3, "test")
+      DCPTest.dcpA.add(s).ios must contain(s)
+    }
+
+    "add an concept with generic add in the policy" in {
+      val a = Sub[IntegerType](Set())
+      DCPTest.dcpA.add(a).activities must contain(a)
+    }
+
     "add a link in the policy" in {
       val l = Link[IntegerType](Constant[IntegerType](new IntegerType(3)).output, DCPTest.collectorA.input)
       DCPTest.dcpA.addLink(l).links must contain(l)
@@ -59,10 +74,23 @@ class PolicyTest extends SpecificationWithJUnit {
       pending
     }
     "allow the reuse (process)" in {
-      pending
+      val process = Process[SantanderParkingType, IntegerType](DCPTest.convert_workflow)
+      process.workflow must beEqualTo(DCPTest.convert_workflow)
     }
     "weave a policy" in {
       pending
+    }
+  }
+
+  "A Process" should {
+    "have the same number of inputs as sensors" in {
+      val process = Process[SantanderParkingType, IntegerType](DCPTest.convert_workflow)
+      process.inputs must haveSize(DCPTest.convert_workflow.ios.collect({case n:Sensor[_] => n}).size)
+    }
+
+    "have the same number of outputs as collectors" in {
+      val process = Process[SantanderParkingType, IntegerType](DCPTest.convert_workflow)
+      process.outputs must haveSize(DCPTest.convert_workflow.ios.collect({case n:Collector[_] => n}).size)
     }
   }
 
