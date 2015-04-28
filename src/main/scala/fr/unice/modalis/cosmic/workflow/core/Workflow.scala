@@ -24,6 +24,11 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
   lazy val sources = ios.filter(_.isInstanceOf[Sensor[_<:DataType]]).asInstanceOf[Set[Sensor[_<:DataType]]]
   lazy val collectors = ios.filter(_.isInstanceOf[Collector[_<:DataType]]).asInstanceOf[Set[Collector[_<:DataType]]]
 
+
+  // Policy properties (mutable)
+  val properties = scala.collection.mutable.Set[Property[_]]()
+  properties += new Property[String]("name", name) //Add name as a property
+
   /**
    * Graph representation
    * @return A Graph representation of this workflow
