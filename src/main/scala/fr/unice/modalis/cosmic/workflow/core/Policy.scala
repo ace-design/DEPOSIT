@@ -28,6 +28,12 @@ case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activit
   // Policy properties (mutable)
   val properties = scala.collection.mutable.Set[Property[_]]()
   properties += new Property[String]("name", name) //Add name as a property
+  properties += new Property[Boolean]("stubs", false)
+
+  def readProperty(s:String) = properties.find(_.name.equalsIgnoreCase(s)) match {
+    case Some(p) => p.value
+    case None => throw new NoSuchFieldException
+  }
 
   /**
    * Graph representation

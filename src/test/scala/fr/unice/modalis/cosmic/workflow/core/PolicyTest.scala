@@ -9,7 +9,23 @@ class PolicyTest extends SpecificationWithJUnit {
 
   "Policy#name" should {
     "return the name of the policy" in { DCPTest.dcpA.name must beEqualTo("DCPA")}
+  }
 
+  "Properties" should {
+    val testPolicy = DCPTest.dcpA
+    "can be add in a policy" in {
+
+      testPolicy.properties += new Property[String]("foo", "bar")
+      testPolicy.readProperty("foo") must_== "bar"
+    }
+
+    "can be readen" in {
+      testPolicy.readProperty("name") must_== testPolicy.name
+    }
+
+    "throw exception when not found" in {
+      testPolicy.readProperty("foo2") must throwA[NoSuchFieldException]
+    }
   }
 
   "Adding methods in a Policy" should {
