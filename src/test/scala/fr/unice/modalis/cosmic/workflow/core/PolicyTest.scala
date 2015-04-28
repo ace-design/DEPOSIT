@@ -5,7 +5,7 @@ import org.specs2.mutable.{SpecificationWithJUnit, Specification}
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 28/04/15.
  */
-class WorkflowTest extends SpecificationWithJUnit {
+class PolicyTest extends SpecificationWithJUnit {
 
   "Policy#name" should {
     "return the name of the policy" in { DCPTest.dcpA.name must beEqualTo("DCPA")}

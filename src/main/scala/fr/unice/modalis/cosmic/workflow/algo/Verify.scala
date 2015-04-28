@@ -12,14 +12,14 @@ object Verify {
    * @param wf Workflow
    * @return A set of all disconnected outputs
    */
- def getDisconnectedOutputs(wf:Workflow) = wf.allOutputs -- wf.links.map(_.source_output)
+ def getDisconnectedOutputs(wf:Policy) = wf.allOutputs -- wf.links.map(_.source_output)
 
   /**
    * Get disconnected inputs in a workflow
    * @param wf Workflow
    * @return A set of all disconnected inputs
    */
-  def getDisconnectedInputs(wf:Workflow) = wf.allInputs -- wf.links.map(_.destination_input)
+  def getDisconnectedInputs(wf:Policy) = wf.allInputs -- wf.links.map(_.destination_input)
 
 
 }

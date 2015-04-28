@@ -13,7 +13,7 @@ import scala.collection.mutable.ArrayBuffer
  * @param links Link list
 
  */
-case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activities:Set[Operation[_<:DataType,_<:DataType]], val links:Set[Link[_<:DataType]]) {
+case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activities:Set[Operation[_<:DataType,_<:DataType]], val links:Set[Link[_<:DataType]]) {
 
 
   // Constructors
@@ -35,19 +35,19 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
    */
   def graph = ToGraph(this)
 
-  def addIO(o:DataIO[_<:DataType]):Workflow = {
-    new Workflow(name, ios + o, activities, links)
+  def addIO(o:DataIO[_<:DataType]):Policy = {
+    new Policy(name, ios + o, activities, links)
   }
   /**
    * Add an element in the current workflow
    * @param c Workflow Element
    * @return A new workflow with the element added
    */
-  def addActivity[T<:DataType, O<:DataType](c:Operation[T,O]):Workflow  = {
-    var newWF = new Workflow()
+  def addActivity[T<:DataType, O<:DataType](c:Operation[T,O]):Policy  = {
+    var newWF = new Policy()
     c match {
-      case Process(wf) => newWF = new Workflow(name, ios, activities + c, links ++ autoConnectProcess(c.asInstanceOf[Process[_<:DataType, _<:DataType]]))
-      case _ => newWF = new Workflow(name, ios, activities + c, links)
+      case Process(wf) => newWF = new Policy(name, ios, activities + c, links ++ autoConnectProcess(c.asInstanceOf[Process[_<:DataType, _<:DataType]]))
+      case _ => newWF = new Policy(name, ios, activities + c, links)
     }
 
     // Add stubs for all disconnected inputs, outputs
@@ -82,7 +82,7 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
    * @param l Link
    * @return A new workflow with the link added
    */
-  def addLink(l:Link[_<:DataType]):Workflow  = {
+  def addLink(l:Link[_<:DataType]):Policy  = {
     // It can be a link between :
 
     (l.source, l.destination) match {
@@ -92,7 +92,7 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
       //case (x:WorkflowStubOutput[_], y:WorkflowStubInput[_]) => this.addLink(new WFLink(x.predecessor, y.successor)).deleteIO(x).deleteIO(y)
 
       // Anything else : Activity -> Activity (nothing to do)
-      case (_,_) => new Workflow(name, ios, activities, links + l)
+      case (_,_) => new Policy(name, ios, activities, links + l)
     }
 
   }
@@ -102,8 +102,8 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
    * @param c Workflow activity
    * @return A workflow without this activity and links referring this activity
    */
-  def deleteActivity(c:Operation[_<:DataType,_<:DataType]):Workflow = {
-    new Workflow(name, ios, activities - c, links.filterNot(p => (p.destination == c) || (p.source == c)))
+  def deleteActivity(c:Operation[_<:DataType,_<:DataType]):Policy = {
+    new Policy(name, ios, activities - c, links.filterNot(p => (p.destination == c) || (p.source == c)))
   }
 
   /**
@@ -111,15 +111,15 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
    * @param c Workflow IO
    * @return A workflow without this IO and links referring this IO
    */
-  def deleteIO(c:DataIO[_<:DataType]):Workflow = {
-    new Workflow(name, ios - c, activities, links.filterNot(p => (p.destination == c) || (p.source == c)))
+  def deleteIO(c:DataIO[_<:DataType]):Policy = {
+    new Policy(name, ios - c, activities, links.filterNot(p => (p.destination == c) || (p.source == c)))
   }
 
   /**
    * Return sub Workflow
    * @param root Root element
    */
-  def subWorkflow(root:Element, last:Option[Element] = None):Workflow = {
+  def subWorkflow(root:Element, last:Option[Element] = None):Policy = {
     val ios = new ArrayBuffer[DataIO[_<:DataType]]()
     val activities = new ArrayBuffer[Operation[_<:DataType, _<:DataType]]()
     val links = new ArrayBuffer[Link[_<:DataType]]()
@@ -140,7 +140,7 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
       )
     }
     internal(root)
-    new Workflow("sub" + name, ios.toSet, activities.toSet, links.toSet)
+    new Policy("sub" + name, ios.toSet, activities.toSet, links.toSet)
   }
 
   /**
@@ -162,9 +162,8 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
    * @param l Link
    * @return A workflow with the linked removed
    */
-  def deleteLink(l:Link[_<:DataType]):Workflow  = {
-    println("Delete [" + l + "]")
-    new Workflow(name, ios, activities, links - l)
+  def deleteLink(l:Link[_<:DataType]):Policy  = {
+    new Policy(name, ios, activities, links - l)
   }
 
   /**
@@ -191,7 +190,7 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
   def partition(selected:Set[Element]) = {
     val pairs = for(x <- selected; y <- selected) yield (x,y)
     val partition = (selected, links.filter(p => pairs.contains((p.source, p.destination))))
-    var intermediateWF = new Workflow("partition", partition._1 collect {case x:DataIO[_] => x}, partition._1 collect {case x:Operation[_,_] => x}, partition._2)
+    var intermediateWF = new Policy("partition", partition._1 collect {case x:DataIO[_] => x}, partition._1 collect {case x:Operation[_,_] => x}, partition._2)
 
     // Add stubs for all disconnected inputs, outputs
     val linksToAdd = new ArrayBuffer[Link[_<:DataType]]()
@@ -243,7 +242,7 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
 
   def linksFrom(a:Element) = links.filter(l => l.source == a)
 
-  def +(w:Workflow):Workflow = new Workflow(this.name + "_" + w.name, this.ios ++ w.ios, this.activities ++ w.activities, this.links ++ w.links)
+  def +(w:Policy):Policy = new Policy(this.name + "_" + w.name, this.ios ++ w.ios, this.activities ++ w.activities, this.links ++ w.links)
 
   override def toString = "Workflow[name=" + name + ";ios={" + ios + "};activites={" + activities + "};links={" + links + "}]"
 

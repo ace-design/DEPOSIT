@@ -34,7 +34,7 @@ object DCPTest {
     val l5a = new Link[IntegerType](a3a.output, place_status.input)
     val l5b = new Link[IntegerType](a3b.output, place_status.input)
 
-    new Workflow("convert", Set(s,place_status), Set(a1, a2, a3a, a3b, constant), Set(l1, l2, l3a, l3b, l4a, l4b, l5a, l5b))
+    new Policy("convert", Set(s,place_status), Set(a1, a2, a3a, a3b, constant), Set(l1, l2, l3a, l3b, l4a, l4b, l5a, l5b))
 
   }
 
@@ -54,7 +54,7 @@ object DCPTest {
 
 
   val dcpA = {
-    var dcp = new Workflow("DCPA")
+    var dcp = new Policy("DCPA")
 
     val ios = sensors ++ Set(collectorA)
     val activities: Set[Operation[_ <: DataType, _ <: DataType]] = (converters ++ List(adder)).toSet

@@ -1,6 +1,6 @@
 package fr.unice.modalis.cosmic.workflow.converter
 
-import fr.unice.modalis.cosmic.workflow.core.{Workflow, Element}
+import fr.unice.modalis.cosmic.workflow.core.{Policy, Element}
 import scalax.collection.Graph
 import scalax.collection.GraphPredef._, scalax.collection.GraphEdge._
 /**
@@ -9,9 +9,9 @@ import scalax.collection.GraphPredef._, scalax.collection.GraphEdge._
  */
 object ToGraph {
 
-  def apply(w:Workflow) = generateGraph(w)
+  def apply(w:Policy) = generateGraph(w)
 
-  def generateGraph(w:Workflow) = {
+  def generateGraph(w:Policy) = {
     val nodes = w.ios ++ w.activities
     val edges = w.links.map(l => l.source ~> l.destination)
 

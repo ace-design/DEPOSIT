@@ -21,9 +21,9 @@ object ToGraphviz {
     }
   }
 
-def apply(w: Workflow): String = generateCode(w)
+def apply(w: Policy): String = generateCode(w)
 
-  def generateCode(w: Workflow): String = {
+  def generateCode(w: Policy): String = {
     val s = new StringBuilder
     s.append(generateHeader)
 
