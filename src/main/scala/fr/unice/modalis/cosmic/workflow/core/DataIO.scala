@@ -4,7 +4,7 @@ package fr.unice.modalis.cosmic.workflow.core
  * Data Input/Output trait
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
  */
-trait DataIO[T<:DataType] extends Element{
+trait DataIO[T<:DataType] extends Concept{
   override val id:String = "io" + scala.util.Random.alphanumeric.take(5).mkString
 
 }
@@ -12,12 +12,12 @@ trait DataIO[T<:DataType] extends Element{
 
 trait JointPoint[T<:DataType] extends DataIO[T]
 
-case class JointPointInput[T<:DataType](val toConcept:Element) extends JointPoint[T]{
+case class JointPointInput[T<:DataType](val toConcept:Concept) extends JointPoint[T]{
   val output = new Output[T](this)
   override def toString:String = "JOINT_POINT_INPUT[to=" + toConcept + "]"
 }
 
-case class JointPointOutput[T<:DataType](val fromConcept:Element) extends JointPoint[T]{
+case class JointPointOutput[T<:DataType](val fromConcept:Concept) extends JointPoint[T]{
   val input = new Input[T](this)
   override def toString:String = "JOIN_POINT_OUTPUT[from=" + fromConcept + "]"
 }

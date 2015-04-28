@@ -1,6 +1,6 @@
 package fr.unice.modalis.cosmic.workflow.converter
 
-import fr.unice.modalis.cosmic.workflow.core.{Policy, Element}
+import fr.unice.modalis.cosmic.workflow.core.{Policy, Concept}
 import scalax.collection.Graph
 import scalax.collection.GraphPredef._, scalax.collection.GraphEdge._
 /**

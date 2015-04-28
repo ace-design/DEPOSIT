@@ -5,7 +5,7 @@ import scala.collection.immutable.Set
  * Represents domain expert business operations
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
  */
-trait Operation[I<:DataType, O<:DataType] extends Element{
+trait Operation[I<:DataType, O<:DataType] extends Concept{
 
   val inputsNames:Set[String]
   val outputsNames:Set[String]

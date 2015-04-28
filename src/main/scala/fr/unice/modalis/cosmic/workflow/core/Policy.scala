@@ -35,6 +35,8 @@ case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activit
    */
   def graph = ToGraph(this)
 
+
+
   def addIO(o:DataIO[_<:DataType]):Policy = {
     new Policy(name, ios + o, activities, links)
   }
@@ -119,7 +121,7 @@ case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activit
    * Return sub Workflow
    * @param root Root element
    */
-  def subWorkflow(root:Element, last:Option[Element] = None):Policy = {
+  def subWorkflow(root:Concept, last:Option[Concept] = None):Policy = {
     val ios = new ArrayBuffer[DataIO[_<:DataType]]()
     val activities = new ArrayBuffer[Operation[_<:DataType, _<:DataType]]()
     val links = new ArrayBuffer[Link[_<:DataType]]()
@@ -130,7 +132,7 @@ case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activit
       case elem:Operation[DataType, DataType] => activities += elem
     }
 
-    def internal(e:Element):Unit = {
+    def internal(e:Concept):Unit = {
       val next = nextElements(e)
       next.foreach(e => e._1 match {
         case elem:Collector[DataType]  => ios += elem; links += e._2
@@ -148,11 +150,11 @@ case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activit
    * @param e Current workflow element
    * @return Immediate next elements
    */
-  def nextElements(e:Element):Set[(Element, Link[_<:DataType])] = {
-    var res = Set[(Element, Link[_<:DataType])]()
+  def nextElements(e:Concept):Set[(Concept, Link[_<:DataType])] = {
+    var res = Set[(Concept, Link[_<:DataType])]()
     for (l <- links) {
       if (l.source == e)
-        res = res ++ links.filter(l => l.source == e).foldLeft(Set.empty[(Element, Link[_<:DataType])]){(acc, e) => acc.+((e.destination, l))}
+        res = res ++ links.filter(l => l.source == e).foldLeft(Set.empty[(Concept, Link[_<:DataType])]){(acc, e) => acc.+((e.destination, l))}
     }
     res
   }
@@ -187,7 +189,7 @@ case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activit
     links.toSet
   }
 
-  def partition(selected:Set[Element]) = {
+  def partition(selected:Set[Concept]) = {
     val pairs = for(x <- selected; y <- selected) yield (x,y)
     val partition = (selected, links.filter(p => pairs.contains((p.source, p.destination))))
     var intermediateWF = new Policy("partition", partition._1 collect {case x:DataIO[_] => x}, partition._1 collect {case x:Operation[_,_] => x}, partition._2)
@@ -238,9 +240,9 @@ case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activit
   }
 
 
-  def linksTo(a:Element) = links.filter(l => l.destination == a)
+  def linksTo(a:Concept) = links.filter(l => l.destination == a)
 
-  def linksFrom(a:Element) = links.filter(l => l.source == a)
+  def linksFrom(a:Concept) = links.filter(l => l.source == a)
 
   def +(w:Policy):Policy = new Policy(this.name + "_" + w.name, this.ios ++ w.ios, this.activities ++ w.activities, this.links ++ w.links)
 

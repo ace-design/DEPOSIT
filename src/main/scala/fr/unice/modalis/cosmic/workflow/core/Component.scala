@@ -19,16 +19,16 @@ object IO extends Enumeration {
  */
 trait Port[T <: DataType] {
   val way:IO.ComponentIO
-  val parent:Element
+  val parent:Concept
 }
 
 /**
  * Workflow component input
  * @tparam T Data type
  */
-case class Input[T <: DataType](var name:String, val parent:Element) extends Port[T] {
+case class Input[T <: DataType](var name:String, val parent:Concept) extends Port[T] {
 
-  def this(parent:Element) = this("input_" + scala.util.Random.alphanumeric.take(5).mkString, parent)
+  def this(parent:Concept) = this("input_" + scala.util.Random.alphanumeric.take(5).mkString, parent)
   val way = IO.IN
   def setName(n: String) = name = n // /!\ Mutable field, PoC Only
 }
@@ -37,8 +37,8 @@ case class Input[T <: DataType](var name:String, val parent:Element) extends Por
  * Workflow component output
  * @tparam T Data type
  */
-case class Output[T <: DataType](var name:String, val parent:Element) extends Port[T] {
-  def this(parent:Element) = this("output_" + scala.util.Random.alphanumeric.take(5).mkString, parent)
+case class Output[T <: DataType](var name:String, val parent:Concept) extends Port[T] {
+  def this(parent:Concept) = this("output_" + scala.util.Random.alphanumeric.take(5).mkString, parent)
   val way = IO.OUT
   def setName(n: String) = name = n // /!\ Mutable field, PoC Only
 
