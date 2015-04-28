@@ -12,14 +12,14 @@ trait DataIO[T<:DataType] extends Element{
 
 trait JointPoint[T<:DataType] extends DataIO[T]
 
-case class JointPointInput[T<:DataType]() extends JointPoint[T]{
+case class JointPointInput[T<:DataType](val toConcept:Element) extends JointPoint[T]{
   val output = new Output[T](this)
-  override def toString:String = "JOINT_POINT_INPUT"
+  override def toString:String = "JOINT_POINT_INPUT[to=" + toConcept + "]"
 }
 
-case class JointPointOutput[T<:DataType]() extends JointPoint[T]{
+case class JointPointOutput[T<:DataType](val fromConcept:Element) extends JointPoint[T]{
   val input = new Input[T](this)
-  override def toString:String = "JOIN_POINT_OUTPUT"
+  override def toString:String = "JOIN_POINT_OUTPUT[from=" + fromConcept + "]"
 }
 
 /**

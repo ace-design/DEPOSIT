@@ -16,9 +16,11 @@ import scala.collection.mutable.ArrayBuffer
 case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activities:Set[Operation[_<:DataType,_<:DataType]], val links:Set[Link[_<:DataType]]) {
 
 
+  // Constructors
   def this(name:String) = this(name, Set.empty, Set.empty, Set.empty)
   def this() = this("wf" + scala.util.Random.alphanumeric.take(5).mkString, Set.empty, Set.empty, Set.empty)
 
+  // Sources and Collectors (lazy computation)
   lazy val sources = ios.filter(_.isInstanceOf[Sensor[_<:DataType]]).asInstanceOf[Set[Sensor[_<:DataType]]]
   lazy val collectors = ios.filter(_.isInstanceOf[Collector[_<:DataType]]).asInstanceOf[Set[Collector[_<:DataType]]]
 
@@ -51,14 +53,14 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
     val dInputs = Verify.getDisconnectedInputs(newWF)
 
     dOutputs.foreach(o => {
-      val l = new Link(o, new JointPointOutput().input)
+      val l = new Link(o, new JointPointOutput(o.parent).input)
       val s = l.destination
       linksToAdd += l
       iosToAdd += s.asInstanceOf[JointPointOutput[_<:DataType]]
     })
 
     dInputs.foreach(i => {
-      val l = new Link(new JointPointInput().output, i)
+      val l = new Link(new JointPointInput(i.parent).output, i)
       val s = l.source
       linksToAdd += l
       iosToAdd += s.asInstanceOf[JointPointInput[_<:DataType]]
@@ -195,7 +197,7 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
 
     dOutputs.foreach(o => {
      // val l = new WFLink(o, new WorkflowStubOutput(o).input)
-     val l = new Link(o, new JointPointOutput().input)
+     val l = new Link(o, new JointPointOutput(o.parent).input)
       val s = l.destination
       linksToAdd += l
       iosToAdd += s.asInstanceOf[JointPointOutput[_<:DataType]]
@@ -203,7 +205,7 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
 
     dInputs.foreach(i => {
      // val l = new WFLink(new WorkflowStubInput(i).output, i)
-     val l = new Link(new JointPointInput().output, i)
+     val l = new Link(new JointPointInput(i.parent).output, i)
       val s = l.source
       linksToAdd += l
       iosToAdd += s.asInstanceOf[JointPointInput[_<:DataType]]
@@ -241,3 +243,5 @@ case class Workflow(val name:String, val ios:Set[DataIO[_<:DataType]], val activ
   override def toString = "Workflow[name=" + name + ";ios={" + ios + "};activites={" + activities + "};links={" + links + "}]"
 
 }
+
+class Property[T](val name:String, val value:T)
