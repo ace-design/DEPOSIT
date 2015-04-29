@@ -59,10 +59,6 @@ class PolicyTest extends SpecificationWithJUnit {
       DCPTest.dcpA.addLink(l).links must contain(l)
     }
 
-    "add join points to a concept" in {
-      val a = Sub[IntegerType](Set("i1", "i2"))
-      DCPTest.dcpA.addActivity(a).ios.count {case JointPointInput(e) if a == e => true; case JointPointOutput(e) if a == e => true; case _ => false} must_== 3
-    }
   }
 
   "Deleting methods in a Policy" should {

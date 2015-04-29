@@ -10,16 +10,16 @@ trait DataIO[T<:DataType] extends Concept{
 }
 
 
-trait JointPoint[T<:DataType] extends DataIO[T]
+trait JoinPoint[T<:DataType] extends DataIO[T]
 
-case class JointPointInput[T<:DataType](val toConcept:Concept) extends JointPoint[T]{
-  val output = new Output[T](this)
-  override def toString:String = "JOINT_POINT_INPUT[to=" + toConcept + "]"
+case class JoinPointInput[I<:DataType](val toConceptInput:Input[I]) extends JoinPoint[I]{
+  val output = new Output[I](this)
+  override def toString:String = "JOIN_POINT_INPUT[to=" + toConceptInput + "]"
 }
 
-case class JointPointOutput[T<:DataType](val fromConcept:Concept) extends JointPoint[T]{
-  val input = new Input[T](this)
-  override def toString:String = "JOIN_POINT_OUTPUT[from=" + fromConcept + "]"
+case class JoinPointOutput[O<:DataType](val fromConceptOutput:Output[O]) extends JoinPoint[O]{
+  val input = new Input[O](this)
+  override def toString:String = "JOIN_POINT_OUTPUT[from=" + fromConceptOutput + "]"
 }
 
 /**

@@ -1,6 +1,5 @@
 package fr.unice.modalis.cosmic.workflow.core
 
-import fr.unice.modalis.cosmic.workflow.algo.Verify
 import fr.unice.modalis.cosmic.workflow.converter.ToGraph
 
 import scala.collection.mutable.ArrayBuffer
@@ -28,7 +27,7 @@ case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activit
   // Policy properties (mutable)
   val properties = scala.collection.mutable.Set[Property[_]]()
   properties += new Property[String]("name", name) //Add name as a property
-  properties += new Property[Boolean]("stubs", false)
+
 
   def readProperty(s:String) = properties.find(_.name.equalsIgnoreCase(s)) match {
     case Some(p) => p.value
@@ -58,37 +57,10 @@ case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activit
    * @return A new workflow with the element added
    */
   def addActivity[T<:DataType, O<:DataType](c:Operation[T,O]):Policy  = {
-    var newWF = new Policy()
     c match {
-      case Process(wf) => newWF = new Policy(name, ios, activities + c, links ++ autoConnectProcess(c.asInstanceOf[Process[_<:DataType, _<:DataType]]))
-      case _ => newWF = new Policy(name, ios, activities + c, links)
+      case Process(wf) => new Policy(name, ios, activities + c, links ++ autoConnectProcess(c.asInstanceOf[Process[_<:DataType, _<:DataType]]))
+      case _ => new Policy(name, ios, activities + c, links)
     }
-
-    // Add stubs for all disconnected inputs, outputs
-    val linksToAdd = new ArrayBuffer[Link[_<:DataType]]()
-    val iosToAdd = new ArrayBuffer[DataIO[_<:DataType]]()
-
-    val dOutputs = Verify.getDisconnectedOutputs(newWF)
-    val dInputs = Verify.getDisconnectedInputs(newWF)
-
-    dOutputs.foreach(o => {
-      val l = new Link(o, new JointPointOutput(o.parent).input)
-      val s = l.destination
-      linksToAdd += l
-      iosToAdd += s.asInstanceOf[JointPointOutput[_<:DataType]]
-    })
-
-    dInputs.foreach(i => {
-      val l = new Link(new JointPointInput(i.parent).output, i)
-      val s = l.source
-      linksToAdd += l
-      iosToAdd += s.asInstanceOf[JointPointInput[_<:DataType]]
-    })
-
-    iosToAdd.foreach(o => newWF = newWF.addIO(o))
-    linksToAdd.foreach(l => newWF = newWF.addLink(l))
-
-    newWF
   }
 
   /**
@@ -97,18 +69,7 @@ case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activit
    * @return A new workflow with the link added
    */
   def addLink(l:Link[_<:DataType]):Policy  = {
-    // It can be a link between :
-
-    (l.source, l.destination) match {
-      // Output Stub -> Activity : Link between OutputStub predecessor and activity + delete the output stub
-      //case (x:WorkflowStubOutput[_], y:WFActivity[_,_]) => this.addLink(new WFLink(x.predecessor, l.destination_input)).deleteIO(x)
-      // Output Stub -> Input Stub : Link between OutputStub predecessor and InputStub successor + delete the output and input stubs
-      //case (x:WorkflowStubOutput[_], y:WorkflowStubInput[_]) => this.addLink(new WFLink(x.predecessor, y.successor)).deleteIO(x).deleteIO(y)
-
-      // Anything else : Activity -> Activity (nothing to do)
-      case (_,_) => new Policy(name, ios, activities, links + l)
-    }
-
+   new Policy(name, ios, activities, links + l)
   }
 
   /**
@@ -204,37 +165,7 @@ case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activit
   def partition(selected:Set[Concept]) = {
     val pairs = for(x <- selected; y <- selected) yield (x,y)
     val partition = (selected, links.filter(p => pairs.contains((p.source, p.destination))))
-    var intermediateWF = new Policy("partition", partition._1 collect {case x:DataIO[_] => x}, partition._1 collect {case x:Operation[_,_] => x}, partition._2)
-
-    // Add stubs for all disconnected inputs, outputs
-    val linksToAdd = new ArrayBuffer[Link[_<:DataType]]()
-    val iosToAdd = new ArrayBuffer[DataIO[_<:DataType]]()
-
-    val dOutputs = Verify.getDisconnectedOutputs(intermediateWF)
-    val dInputs = Verify.getDisconnectedInputs(intermediateWF)
-
-    dOutputs.foreach(o => {
-     // val l = new WFLink(o, new WorkflowStubOutput(o).input)
-     val l = new Link(o, new JointPointOutput(o.parent).input)
-      val s = l.destination
-      linksToAdd += l
-      iosToAdd += s.asInstanceOf[JointPointOutput[_<:DataType]]
-    })
-
-    dInputs.foreach(i => {
-     // val l = new WFLink(new WorkflowStubInput(i).output, i)
-     val l = new Link(new JointPointInput(i.parent).output, i)
-      val s = l.source
-      linksToAdd += l
-      iosToAdd += s.asInstanceOf[JointPointInput[_<:DataType]]
-    })
-
-    iosToAdd.foreach(o => intermediateWF = intermediateWF.addIO(o))
-    linksToAdd.foreach(l => intermediateWF = intermediateWF.addLink(l))
-
-    intermediateWF
-
-
+    new Policy("partition", partition._1 collect {case x:DataIO[_] => x}, partition._1 collect {case x:Operation[_,_] => x}, partition._2)
   }
 
   def allInputs[T<:DataType] = {
