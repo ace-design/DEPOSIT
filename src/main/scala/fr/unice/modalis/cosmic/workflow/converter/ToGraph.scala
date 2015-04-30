@@ -12,7 +12,7 @@ object ToGraph {
   def apply(w:Policy) = generateGraph(w)
 
   def generateGraph(w:Policy) = {
-    val nodes = w.ios ++ w.activities
+    val nodes = w.ios ++ w.operations
     val edges = w.links.map(l => l.source ~> l.destination)
 
     Graph.from(nodes, edges)

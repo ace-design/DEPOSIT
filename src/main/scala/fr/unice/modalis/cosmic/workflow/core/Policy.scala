@@ -8,11 +8,11 @@ import scala.collection.mutable.ArrayBuffer
 /**
  * Policy definition
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
- * @param activities Workflow element list
+ * @param operations Workflow element list
  * @param links Link list
 
  */
-case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activities:Set[Operation[_<:DataType,_<:DataType]], val links:Set[Link[_<:DataType]]) {
+case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val operations:Set[Operation[_<:DataType,_<:DataType]], val links:Set[Link[_<:DataType]]) {
 
 
   // Constructors
@@ -49,7 +49,7 @@ case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activit
   }
 
   def addIO(o:DataIO[_<:DataType]):Policy = {
-    new Policy(name, ios + o, activities, links)
+    new Policy(name, ios + o, operations, links)
   }
   /**
    * Add an element in the current workflow
@@ -58,8 +58,8 @@ case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activit
    */
   def addActivity[T<:DataType, O<:DataType](c:Operation[T,O]):Policy  = {
     c match {
-      case Process(wf) => new Policy(name, ios, activities + c, links ++ autoConnectProcess(c.asInstanceOf[Process[_<:DataType, _<:DataType]]))
-      case _ => new Policy(name, ios, activities + c, links)
+      case Process(wf) => new Policy(name, ios, operations + c, links ++ autoConnectProcess(c.asInstanceOf[Process[_<:DataType, _<:DataType]]))
+      case _ => new Policy(name, ios, operations + c, links)
     }
   }
 
@@ -69,7 +69,7 @@ case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activit
    * @return A new workflow with the link added
    */
   def addLink(l:Link[_<:DataType]):Policy  = {
-   new Policy(name, ios, activities, links + l)
+   new Policy(name, ios, operations, links + l)
   }
 
   /**
@@ -78,7 +78,7 @@ case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activit
    * @return A workflow without this activity and links referring this activity
    */
   def deleteActivity(c:Operation[_<:DataType,_<:DataType]):Policy = {
-    new Policy(name, ios, activities - c, links.filterNot(p => (p.destination == c) || (p.source == c)))
+    new Policy(name, ios, operations - c, links.filterNot(p => (p.destination == c) || (p.source == c)))
   }
 
   /**
@@ -87,7 +87,7 @@ case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activit
    * @return A workflow without this IO and links referring this IO
    */
   def deleteIO(c:DataIO[_<:DataType]):Policy = {
-    new Policy(name, ios - c, activities, links.filterNot(p => (p.destination == c) || (p.source == c)))
+    new Policy(name, ios - c, operations, links.filterNot(p => (p.destination == c) || (p.source == c)))
   }
 
   /**
@@ -138,7 +138,7 @@ case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activit
    * @return A workflow with the linked removed
    */
   def deleteLink(l:Link[_<:DataType]):Policy  = {
-    new Policy(name, ios, activities, links - l)
+    new Policy(name, ios, operations, links - l)
   }
 
   /**
@@ -171,14 +171,14 @@ case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activit
   def allInputs[T<:DataType] = {
     val array = ArrayBuffer[Input[_<:DataType]]()
     ios.collect{case x:Collector[T] => x}.foreach(c => array += c.input)
-    activities.foreach(a => array ++= a.inputs)
+    operations.foreach(a => array ++= a.inputs)
     array.toSet
   }
 
   def allOutputs[T<:DataType] = {
     val array = ArrayBuffer[Output[_<:DataType]]()
     ios.collect{case x:Sensor[T] => x}.foreach(c => array += c.output)
-    activities.foreach(a => array ++= a.outputs)
+    operations.foreach(a => array ++= a.outputs)
     array.toSet
   }
 
@@ -187,9 +187,9 @@ case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val activit
 
   def linksFrom(a:Concept) = links.filter(l => l.source == a)
 
-  def +(w:Policy):Policy = new Policy(this.name + "_" + w.name, this.ios ++ w.ios, this.activities ++ w.activities, this.links ++ w.links)
+  def +(w:Policy):Policy = new Policy(this.name + "_" + w.name, this.ios ++ w.ios, this.operations ++ w.operations, this.links ++ w.links)
 
-  override def toString = "Workflow[name=" + name + ";ios={" + ios + "};activites={" + activities + "};links={" + links + "}]"
+  override def toString = "Workflow[name=" + name + ";ios={" + ios + "};activites={" + operations + "};links={" + links + "}]"
 
 }
 

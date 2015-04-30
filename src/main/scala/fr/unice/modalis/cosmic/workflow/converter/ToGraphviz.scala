@@ -29,7 +29,7 @@ def apply(w: Policy): String = generateCode(w)
 
     w.ios.foreach(e => s.append(generateIO(e) + "\n"))
 
-    w.activities.foreach(e => s.append(generateElementCode(e) + ";\n"))
+    w.operations.foreach(e => s.append(generateElementCode(e) + ";\n"))
     w.links.foreach(l => s.append(generateLinkCode(l)))
     s.append(generateFooter())
     s.toString()

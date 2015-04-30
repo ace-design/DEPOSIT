@@ -36,7 +36,7 @@ class PolicyTest extends SpecificationWithJUnit {
 
     "add a concept in the policy" in {
       val a = Sub[IntegerType](Set())
-      DCPTest.dcpA.addActivity(a).activities must contain(a)
+      DCPTest.dcpA.addActivity(a).operations must contain(a)
     }
 
     "add an input with generic add in the policy" in {
@@ -51,7 +51,7 @@ class PolicyTest extends SpecificationWithJUnit {
 
     "add an concept with generic add in the policy" in {
       val a = Sub[IntegerType](Set())
-      DCPTest.dcpA.add(a).activities must contain(a)
+      DCPTest.dcpA.add(a).operations must contain(a)
     }
 
     "add a link in the policy" in {
@@ -67,7 +67,7 @@ class PolicyTest extends SpecificationWithJUnit {
     }
 
     "delete a concept in the policy" in {
-      DCPTest.dcpA.deleteActivity(DCPTest.adder).activities must not contain DCPTest.adder
+      DCPTest.dcpA.deleteActivity(DCPTest.adder).operations must not contain DCPTest.adder
     }
 
     "delete a link in the policy" in {
