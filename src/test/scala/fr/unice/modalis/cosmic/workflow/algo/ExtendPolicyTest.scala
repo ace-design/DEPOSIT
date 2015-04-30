@@ -18,6 +18,10 @@ class ExtendPolicyTest extends SpecificationWithJUnit {
       adder.setExtendable(false)
       ExtendPolicy.generateJoinPointsForOperation(adder) must throwAn[IllegalArgumentException]
     }
+
+    "Factorize invert Extend operation" in {
+      FactorizePolicy(ExtendPolicy(DCPTest.convert_workflow)) must be equalTo DCPTest.convert_workflow
+    }
   }
 
   "An extendable policy" should {
@@ -27,5 +31,12 @@ class ExtendPolicyTest extends SpecificationWithJUnit {
     "provide join points for all extendable operations (2)" in {
       ExtendPolicy(DCPTest.convert_workflow2).ios.collect {case x:JoinPoint[_] => x} must have size 11
     }
+  }
+
+  "A factorized policy" should {
+    "not contain any Join Points" in {
+      FactorizePolicy(ExtendPolicy(DCPTest.convert_workflow)).ios.collect {case x:JoinPoint[_] => x} must have size 0
+    }
+
   }
 }

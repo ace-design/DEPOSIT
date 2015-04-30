@@ -11,7 +11,7 @@ object ExtendPolicy {
 
 
   def apply(p:Policy):Policy = {
-    val toApply = (for (activity <- p.activities; if(activity.isExtendable)) yield generateJoinPointsForOperation(activity))
+    val toApply = (for (activity <- p.operations; if(activity.isExtendable)) yield generateJoinPointsForOperation(activity))
       .foldLeft(Set[JoinPoint[_ <:DataType]](),Set[Link[_ <:DataType]]()){(acc, e) => (acc._1 ++ e._1, acc._2 ++ e._2)}
     var policy = p
     toApply._1.foreach(j => policy = policy.add(j))
@@ -51,6 +51,20 @@ object ExtendPolicy {
 
   }
 
+}
 
+object FactorizePolicy {
 
+  def apply(p:Policy) = deleteJoinPointsForOperation(p)
+
+  /**
+   * Remove all join points in a policy
+   * @param p Input policy
+   * @return A new policy without join points
+   */
+  def deleteJoinPointsForOperation(p:Policy) = {
+    var policy = p
+    p.ios.collect( {case x:JoinPoint[_] => x}).foreach(e => policy = policy.deleteIO(e))
+    policy
+  }
 }
