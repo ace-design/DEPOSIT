@@ -63,7 +63,7 @@ class PolicyTest extends SpecificationWithJUnit {
 
   "Deleting methods in a Policy" should {
     "delete an output in the policy" in {
-      DCPTest.dcpA.deleteIO(DCPTest.collectorA).ios must not contain(DCPTest.collectorA)
+      DCPTest.dcpA.deleteIO(DCPTest.collectorA).ios must not contain DCPTest.collectorA
     }
 
     "delete a concept in the policy" in {
@@ -75,7 +75,7 @@ class PolicyTest extends SpecificationWithJUnit {
     }
 
     "delete links to a concept if this latter is deleted" in {
-      DCPTest.dcpA.deleteActivity(DCPTest.adder).links.filter(l => (l.source.equals(DCPTest.adder)) || (l.destination.equals(DCPTest.adder))) must be empty
+      DCPTest.dcpA.deleteActivity(DCPTest.adder).links.filter(l => l.source.equals(DCPTest.adder) || l.destination.equals(DCPTest.adder)) must be empty
     }
   }
 
@@ -83,7 +83,21 @@ class PolicyTest extends SpecificationWithJUnit {
 
   "Operators" should {
     "allow the partial reuse (select)" in {
-      pending
+      val selectedSources = DCPTest.dcpA.ios.filter {case p:Sensor[_] => p.url.contains("Hernan"); case _ => false}.asInstanceOf[Set[EventSensor[SantanderParkingType]]]
+      val selectedProcesses = for (s <- selectedSources) yield DCPTest.dcpA.nextElements(s).head._1
+      val selected = selectedSources ++ selectedProcesses ++ Set(DCPTest.adder)
+      val result = DCPTest.dcpA.select(selected)
+
+      "only selected concepts are present" in {
+        (result.ios ++ result.operations) -- selected must be empty
+      }
+
+      "only links corresponding to selected concepts are present" in {
+        result.links.forall(l => selected.contains(l.source) || selected.contains(l.destination)) must beTrue
+      }
+
+
+
     }
     "allow the reuse (process)" in {
       val process = Process[SantanderParkingType, IntegerType](DCPTest.convert_workflow)

@@ -11,7 +11,7 @@ import scala.collection.mutable.ArrayBuffer
  * @param operations Workflow element list
  * @param links Link list
  */
-case class Policy(name:String, ios:Set[DataIO[_<:DataType]], operations:Set[Operation[_<:DataType,_<:DataType]], links:Set[Link[_<:DataType]]) {
+case class Policy(var name:String, ios:Set[DataIO[_<:DataType]], operations:Set[Operation[_<:DataType,_<:DataType]], links:Set[Link[_<:DataType]]) {
 
 
   // Constructors
@@ -44,6 +44,14 @@ case class Policy(name:String, ios:Set[DataIO[_<:DataType]], operations:Set[Oper
       case n:DataIO[_] => addIO(n)
       case n:Operation[_, _] => addActivity(n)
       case _ => throw new Exception(c + " is not handled by method add")
+    }
+  }
+
+  def delete(c:Concept):Policy = {
+    c match {
+      case n:DataIO[_] => deleteIO(n)
+      case n:Operation[_, _] => deleteActivity(n)
+      case _ => throw new Exception(c + " is not handled by method delete")
     }
   }
 
@@ -161,12 +169,6 @@ case class Policy(name:String, ios:Set[DataIO[_<:DataType]], operations:Set[Oper
     links.toSet
   }
 
-  def partition(selected:Set[Concept]) = {
-    val pairs = for(x <- selected; y <- selected) yield (x,y)
-    val partition = (selected, links.filter(p => pairs.contains((p.source, p.destination))))
-    new Policy("partition", partition._1 collect {case x:DataIO[_] => x}, partition._1 collect {case x:Operation[_,_] => x}, partition._2)
-  }
-
   def allInputs[T<:DataType] = {
     val array = ArrayBuffer[Input[_<:DataType]]()
     ios.collect{case x:Collector[T] => x}.foreach(c => array += c.input)
@@ -179,6 +181,21 @@ case class Policy(name:String, ios:Set[DataIO[_<:DataType]], operations:Set[Oper
     ios.collect{case x:Sensor[T] => x}.foreach(c => array += c.output)
     operations.foreach(a => array ++= a.outputs)
     array.toSet
+  }
+
+
+  /**
+   * Select operator
+   * @param n New policy's name
+   * @param e Set of concepts
+   * @return A new policy containing only selected concepts
+   */
+  def select(e:Set[Concept], n:String = "select_") = {
+    var result = this
+    val notSelected = (result.ios ++ result.operations) -- e
+    notSelected.foreach(c => result = result.delete(c))
+    result.name = n
+    result
   }
 
 
