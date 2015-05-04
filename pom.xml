@@ -1,15 +1,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>workflow</groupId>
-  <artifactId>workflow</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <inceptionYear>2014</inceptionYear>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>eu.ace-design</groupId>
+    <artifactId>deposit</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <name>DEPOSIT Architecture</name>
+    <description>Scala implementation of the DEPOSIT Architecture (Data collEction POlicies for Sensing InfrasTructures)</description>
+    <inceptionYear>2014</inceptionYear>
     <properties>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
         <encoding>UTF-8</encoding>
-        <scala.tools.version>2.11.4</scala.tools.version>
-        <scala.version>2.11.4</scala.version>
+        <scala.tools.version>2.11</scala.tools.version>
+        <scala.version>2.11.0</scala.version>
     </properties>
 
     <distributionManagement>
@@ -68,13 +70,13 @@
         </repository>
     </repositories>
 
-  <pluginRepositories>
-    <pluginRepository>
-      <id>scala-tools.org</id>
-      <name>Scala-Tools Maven2 Repository</name>
-      <url>http://scala-tools.org/repo-releases</url>
-    </pluginRepository>
-  </pluginRepositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>scala-tools.org</id>
+            <name>Scala-Tools Maven2 Repository</name>
+            <url>http://scala-tools.org/repo-releases</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <dependencies>
         <dependency>
@@ -90,9 +92,8 @@
         <dependency>
             <groupId>com.assembla.scala-incubator</groupId>
             <artifactId>graph-core_2.11</artifactId>
-            <version>1.9.1</version>
+            <version>1.8.1</version>
         </dependency>
-
 
         <!-- Test -->
         <dependency>
@@ -103,8 +104,8 @@
         </dependency>
         <dependency>
             <groupId>org.specs2</groupId>
-            <artifactId>specs2_2.11</artifactId>
-            <version>2.3.11</version>
+            <artifactId>specs2_${scala.tools.version}</artifactId>
+            <version>2.3.12</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
