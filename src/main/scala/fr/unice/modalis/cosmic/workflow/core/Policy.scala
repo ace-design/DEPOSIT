@@ -10,9 +10,8 @@ import scala.collection.mutable.ArrayBuffer
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
  * @param operations Workflow element list
  * @param links Link list
-
  */
-case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val operations:Set[Operation[_<:DataType,_<:DataType]], val links:Set[Link[_<:DataType]]) {
+case class Policy(name:String, ios:Set[DataIO[_<:DataType]], operations:Set[Operation[_<:DataType,_<:DataType]], links:Set[Link[_<:DataType]]) {
 
 
   // Constructors
@@ -101,16 +100,16 @@ case class Policy(val name:String, val ios:Set[DataIO[_<:DataType]], val operati
     // Add root into the activities/ios
 
     root match {
-      case elem:DataIO[DataType] => ios += elem
-      case elem:Operation[DataType, DataType] => activities += elem
+      case elem:DataIO[_] => ios += elem
+      case elem:Operation[_, _] => activities += elem
     }
 
     def internal(e:Concept):Unit = {
       val next = nextElements(e)
       next.foreach(e => e._1 match {
-        case elem:Collector[DataType]  => ios += elem; links += e._2
-        case elem:Sensor[DataType] =>  ios += elem; links += e._2; if (e != Set.empty && !last.isDefined || last.get != e._1) internal(e._1)
-        case elem:Operation[DataType, DataType] => activities += elem; links += e._2; if (e != Set.empty && !last.isDefined || last.get != e._1) internal(e._1)
+        case elem:Collector[_]  => ios += elem; links += e._2
+        case elem:Sensor[_] =>  ios += elem; links += e._2; if (e != Set.empty && !last.isDefined || last.get != e._1) internal(e._1)
+        case elem:Operation[_, _] => activities += elem; links += e._2; if (e != Set.empty && !last.isDefined || last.get != e._1) internal(e._1)
       }
       )
     }
