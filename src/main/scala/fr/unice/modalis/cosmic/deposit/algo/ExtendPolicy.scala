@@ -1,6 +1,6 @@
-package fr.unice.modalis.cosmic.workflow.algo
+package fr.unice.modalis.cosmic.deposit.algo
 
-import fr.unice.modalis.cosmic.workflow.core._
+import fr.unice.modalis.cosmic.deposit.core._
 
 import scala.collection.mutable.ArrayBuffer
 

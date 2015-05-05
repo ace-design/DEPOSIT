@@ -1,6 +1,6 @@
-package fr.unice.modalis.cosmic.workflow.core
+package fr.unice.modalis.cosmic.deposit.core
 
-import fr.unice.modalis.cosmic.workflow.algo.{Weave, Unification, ExtendPolicy}
+import fr.unice.modalis.cosmic.deposit.algo.{Weave, Unification, ExtendPolicy}
 
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 28/04/15.

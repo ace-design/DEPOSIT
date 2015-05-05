@@ -1,7 +1,7 @@
-package fr.unice.modalis.cosmic.workflow.core
+package fr.unice.modalis.cosmic.deposit.core
 
-import fr.unice.modalis.cosmic.workflow.algo.ExtendPolicy
-import fr.unice.modalis.cosmic.workflow.converter.ToGraph
+import fr.unice.modalis.cosmic.deposit.algo.ExtendPolicy
+import fr.unice.modalis.cosmic.deposit.converter.ToGraph
 
 import scala.collection.mutable.ArrayBuffer
 

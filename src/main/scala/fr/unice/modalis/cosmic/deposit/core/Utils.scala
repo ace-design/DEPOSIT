@@ -1,4 +1,4 @@
-package fr.unice.modalis.cosmic.workflow.core
+package fr.unice.modalis.cosmic.deposit.core
 
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 05/05/15.

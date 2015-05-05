@@ -1,6 +1,6 @@
-package fr.unice.modalis.cosmic.workflow.core
+package fr.unice.modalis.cosmic.deposit.core
 
-import fr.unice.modalis.cosmic.workflow.algo.{Unification, Weave}
+import fr.unice.modalis.cosmic.deposit.algo.{Unification, Weave}
 import org.specs2.mutable.{SpecificationWithJUnit, Specification}
 
 /**

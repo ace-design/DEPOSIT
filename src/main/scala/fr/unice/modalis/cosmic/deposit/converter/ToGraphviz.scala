@@ -1,6 +1,6 @@
-package fr.unice.modalis.cosmic.workflow.converter
+package fr.unice.modalis.cosmic.deposit.converter
 
-import fr.unice.modalis.cosmic.workflow.core._
+import fr.unice.modalis.cosmic.deposit.core._
 
 /**
  * Graphviz generator. Useful for debug purposes

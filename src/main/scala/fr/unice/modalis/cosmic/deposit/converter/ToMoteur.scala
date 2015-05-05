@@ -1,4 +1,4 @@
-package fr.unice.modalis.cosmic.workflow.converter
+package fr.unice.modalis.cosmic.deposit.converter
 
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 02/12/14.

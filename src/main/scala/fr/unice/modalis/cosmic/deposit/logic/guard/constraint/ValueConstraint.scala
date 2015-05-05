@@ -1,6 +1,6 @@
 package fr.unice.modalis.cosmic.actions.guard.constraint
 
-import fr.unice.modalis.cosmic.workflow.core.DataType
+import fr.unice.modalis.cosmic.deposit.core.DataType
 
 
 /**

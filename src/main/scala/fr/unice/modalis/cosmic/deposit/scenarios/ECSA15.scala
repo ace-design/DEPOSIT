@@ -1,7 +1,7 @@
-package fr.unice.modalis.cosmic.workflow.scenarios
+package fr.unice.modalis.cosmic.deposit.scenarios
 
-import fr.unice.modalis.cosmic.workflow.converter.ToGraphviz
-import fr.unice.modalis.cosmic.workflow.core._
+import fr.unice.modalis.cosmic.deposit.converter.ToGraphviz
+import fr.unice.modalis.cosmic.deposit.core._
 
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 15/04/15.

@@ -1,4 +1,4 @@
-package fr.unice.modalis.cosmic.workflow.converter
+package fr.unice.modalis.cosmic.deposit.converter
 
 import java.io.PrintWriter
 

@@ -1,4 +1,4 @@
-package fr.unice.modalis.cosmic.workflow.core
+package fr.unice.modalis.cosmic.deposit.core
 
 /**
  * Data Type trait
