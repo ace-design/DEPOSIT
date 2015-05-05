@@ -7,6 +7,8 @@ import scala.collection.mutable.ArrayBuffer
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 28/04/15.
  */
+case class Unification[T<:DataType](val a:JoinPointOutput[T], val b:JoinPointInput[T])
+
 object ExtendPolicy {
 
 
@@ -67,4 +69,23 @@ object FactorizePolicy {
     p.ios.collect( {case x:JoinPoint[_] => x}).foreach(e => policy = policy.deleteIO(e))
     policy
   }
+}
+
+
+object Weave {
+
+  def apply(p1: Policy, p2: Policy, associations:Set[Unification[_<:DataType]]) = {
+    if (!p1.isExtendable) throw new NotExtendableException(p1)
+    if (!p2.isExtendable) throw new NotExtendableException(p2)
+
+    val links = for (x<-associations) yield createLink(x)
+    var newPolicy = p1 ++ p2
+    for (l <- links) yield newPolicy = newPolicy.addLink(l)
+    FactorizePolicy(newPolicy)
+  }
+
+  def createLink[T<:DataType](u:Unification[T]) = {
+    new Link[T](u.a.fromConceptOutput, u.b.toConceptInput)
+  }
+
 }

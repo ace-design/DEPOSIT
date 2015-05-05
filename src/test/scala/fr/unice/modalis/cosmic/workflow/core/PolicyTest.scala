@@ -1,5 +1,6 @@
 package fr.unice.modalis.cosmic.workflow.core
 
+import fr.unice.modalis.cosmic.workflow.algo.{Unification, Weave}
 import org.specs2.mutable.{SpecificationWithJUnit, Specification}
 
 /**
@@ -106,7 +107,16 @@ class PolicyTest extends SpecificationWithJUnit {
       }
     }
     "weave a policy" in {
-      pending
+      "not extendable policies can't be weaved" in {
+        Weave(DCPTest.p1, DCPTest.p2, Set()) must throwA[NotExtendableException]
+      }
+      "unify join points" in {
+        val u1 = new Unification[IntegerType](
+          DCPTest.p1e.outputJoinPoints.head.asInstanceOf[JoinPointOutput[IntegerType]],
+          DCPTest.p3e.inputJoinPoints.find(p => p.toConceptInput.name == DCPTest.add.getInput("i1").name).get.asInstanceOf[JoinPointInput[IntegerType]])
+
+        Weave(DCPTest.p1e, DCPTest.p3e, Set(u1)).links.find(p => p.source_output == DCPTest.a1.output && p.destination_input == DCPTest.add.getInput("i1")) must be some
+      }
     }
   }
 

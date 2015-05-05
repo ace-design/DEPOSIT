@@ -1,5 +1,7 @@
 package fr.unice.modalis.cosmic.workflow.core
 
+import fr.unice.modalis.cosmic.workflow.algo.{Weave, Unification, ExtendPolicy}
+
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 28/04/15.
  */
@@ -93,6 +95,49 @@ object DCPTest {
 
     dcp
   }
+
+  val s1 = EventSensor[SmartCampusType]("a")
+  val a1 = Extract[SmartCampusType, IntegerType]("v")
+  val c1 = new Collector[IntegerType]("collectorA")
+
+  val l1 = Link(s1.output, a1.input)
+  val l2 = Link(a1.output, c1.input)
+
+  val p1 = new Policy().add(s1).add(a1).add(c1).addLink(l1).addLink(l2)
+
+  val s2 = EventSensor[SmartCampusType]("b")
+  val a2 = Extract[SmartCampusType, IntegerType]("v")
+  val c2 = new Collector[IntegerType]("collectorB")
+
+  val l12 = Link(s2.output, a2.input)
+  val l22 = Link(a2.output, c2.input)
+
+  val p2 = new Policy().add(s2).add(a2).add(c2).addLink(l12).addLink(l22)
+
+  val add = new Add[IntegerType](Set("i1", "i2"))
+  val c3 = new Collector[IntegerType]("collectorC")
+  val p3 = new Policy().add(add).add(c3).addLink(Link(add.output, c3.input))
+
+
+  val p1e = ExtendPolicy(p1)
+  val p2e = ExtendPolicy(p2)
+  val p3e = ExtendPolicy(p3)
+
+
+  /** First unification **/
+  val u1 = new Unification[IntegerType](
+    p1e.outputJoinPoints.head.asInstanceOf[JoinPointOutput[IntegerType]],
+    p3e.inputJoinPoints.find(p => p.toConceptInput.name == add.getInput("i1").name).get.asInstanceOf[JoinPointInput[IntegerType]])
+
+  val res = Weave(p1e, p3e, Set(u1))
+  val rese = ExtendPolicy(res)
+  /** Second unification **/
+  val u2 = new Unification[IntegerType](
+    p2e.outputJoinPoints.head.asInstanceOf[JoinPointOutput[IntegerType]],
+    rese.inputJoinPoints.find(p => p.toConceptInput.name == add.getInput("i2").name).get.asInstanceOf[JoinPointInput[IntegerType]])
+
+
+  val resfinal = Weave(rese, p2e, Set(u2))
 
 
 }

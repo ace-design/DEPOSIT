@@ -1,5 +1,6 @@
 package fr.unice.modalis.cosmic.workflow.core
 
+import fr.unice.modalis.cosmic.workflow.algo.ExtendPolicy
 import fr.unice.modalis.cosmic.workflow.converter.ToGraph
 
 import scala.collection.mutable.ArrayBuffer
@@ -21,7 +22,10 @@ case class Policy(var name:String, ios:Set[DataIO[_<:DataType]], operations:Set[
   // Sources and Collectors (lazy computation)
   lazy val sources = ios.filter(_.isInstanceOf[Sensor[_<:DataType]]).asInstanceOf[Set[Sensor[_<:DataType]]]
   lazy val collectors = ios.filter(_.isInstanceOf[Collector[_<:DataType]]).asInstanceOf[Set[Collector[_<:DataType]]]
+  lazy val inputJoinPoints = ios.filter(_.isInstanceOf[JoinPointInput[_<:DataType]]).asInstanceOf[Set[JoinPointInput[_<:DataType]]]
+  lazy val outputJoinPoints = ios.filter(_.isInstanceOf[JoinPointOutput[_<:DataType]]).asInstanceOf[Set[JoinPointOutput[_<:DataType]]]
 
+  lazy val isExtendable = inputJoinPoints.size > 0 || outputJoinPoints.size > 0
 
   // Policy properties (mutable)
   val properties = scala.collection.mutable.Set[Property[_]]()
@@ -203,7 +207,7 @@ case class Policy(var name:String, ios:Set[DataIO[_<:DataType]], operations:Set[
 
   def linksFrom(a:Concept) = links.filter(l => l.source == a)
 
-  def +(w:Policy):Policy = new Policy(this.name + "_" + w.name, this.ios ++ w.ios, this.operations ++ w.operations, this.links ++ w.links)
+  def ++(w:Policy):Policy = new Policy(this.name + "_" + w.name, this.ios ++ w.ios, this.operations ++ w.operations, this.links ++ w.links)
 
   override def toString = "Workflow[name=" + name + ";ios={" + ios + "};activites={" + operations + "};links={" + links + "}]"
 
