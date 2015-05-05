@@ -101,7 +101,9 @@ class PolicyTest extends SpecificationWithJUnit {
     }
     "allow the reuse (process)" in {
       val process = Process[SantanderParkingType, IntegerType](DCPTest.convert_workflow)
-      process.workflow must beEqualTo(DCPTest.convert_workflow)
+      "the inner workflow must be equal to the reused workflow" in {
+        process.workflow must beEqualTo(DCPTest.convert_workflow)
+      }
     }
     "weave a policy" in {
       pending
