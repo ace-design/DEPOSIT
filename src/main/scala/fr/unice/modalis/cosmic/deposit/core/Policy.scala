@@ -1,6 +1,5 @@
 package fr.unice.modalis.cosmic.deposit.core
 
-import fr.unice.modalis.cosmic.deposit.algo.ExtendPolicy
 import fr.unice.modalis.cosmic.deposit.converter.ToGraph
 
 import scala.collection.mutable.ArrayBuffer
@@ -12,7 +11,7 @@ import scala.collection.mutable.ArrayBuffer
  * @param operations Workflow element list
  * @param links Link list
  */
-case class Policy(var name:String, ios:Set[DataIO[_<:DataType]], operations:Set[Operation[_<:DataType,_<:DataType]], links:Set[Link[_<:DataType]]) {
+case class Policy(var name:String, ios:Set[DataIO[_<:DataType]], operations:Set[Operation[_<:DataType,_<:DataType]], links:Set[Link[_<:DataType]]) extends Properties{
 
 
   // Constructors
@@ -27,15 +26,9 @@ case class Policy(var name:String, ios:Set[DataIO[_<:DataType]], operations:Set[
 
   lazy val isExtendable = inputJoinPoints.size > 0 || outputJoinPoints.size > 0
 
-  // Policy properties (mutable)
-  val properties = scala.collection.mutable.Set[Property[_]]()
-  properties += new Property[String]("name", name) //Add name as a property
+  addProperty("name", name) //Add name as a property
 
 
-  def readProperty(s:String) = properties.find(_.name.equalsIgnoreCase(s)) match {
-    case Some(p) => p.value
-    case None => throw new NoSuchFieldException
-  }
 
   /**
    * Graph representation
@@ -213,4 +206,3 @@ case class Policy(var name:String, ios:Set[DataIO[_<:DataType]], operations:Set[
 
 }
 
-class Property[T](val name:String, val value:T)
