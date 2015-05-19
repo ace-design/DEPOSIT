@@ -1,5 +1,8 @@
 package fr.unice.modalis.cosmic.deployment
+
+import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.{Inventory, NetworkTopology}
 import fr.unice.modalis.cosmic.deposit.core.{DataType, Sensor, Concept, Policy}
+
 
 
 /**
@@ -7,6 +10,16 @@ import fr.unice.modalis.cosmic.deposit.core.{DataType, Sensor, Concept, Policy}
  */
 class DeploymentModel(val platform:String, val p:Policy)
 
+object ToGraph {
+  import scalax.collection.Graph
+  import scalax.collection.GraphPredef._
+  def apply(n: NetworkTopology with Inventory) = {
+    val nodes = n.resources
+    val edges = n.edges.map(l => l.source ~> l.destination)
+
+    Graph.from(nodes, edges)
+  }
+}
 object Deploy {
 
   /**
