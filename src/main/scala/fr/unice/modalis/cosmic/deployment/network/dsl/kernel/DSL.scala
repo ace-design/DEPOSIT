@@ -3,15 +3,49 @@ package fr.unice.modalis.cosmic.deployment.network.dsl.kernel
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 19/05/15.
  */
-trait NetworkTopology {
+trait NetworkTopology { inventory:Inventory =>
+  import scala.language.implicitConversions
 
+  var edges: Set[Edge]  = Set()
+
+  var currentEdge: Edge  = _
+
+
+  def declare (contents: => Unit): Unit = {
+    contents
+    saveCurrentTopology()
+  }
+
+  private def saveCurrentTopology(): Unit = {
+    if (currentEdge != null)
+      edges += currentEdge
+    currentEdge = null
+  }
+
+
+
+  protected case class EdgeBuilder(fromId: String = "", toId:String = "", from:Node = null, to: Node = null) {
+    val source = (inventory.resources find {r => r.name == fromId}).get
+    def isConnectedTo(id:String):EdgeBuilder = {
+      val target = (inventory.resources find {r => r.name == id}).get
+      val updated = this.copy(from = source, to = target); currentEdge = updated; updated
+    }
+  }
+
+  implicit def str2EdgeBuilder(s:String):EdgeBuilder = {
+    saveCurrentTopology()
+    EdgeBuilder(s)
+  }
+ implicit protected def edgeBuilderToEdge(builder: EdgeBuilder): Edge = {
+   Edge(builder.from, builder.to)
+ }
 }
 
 
 trait Inventory {
   import scala.language.implicitConversions
 
-  def declare(contents: => Unit): Unit = {
+  def deployed(contents: => Unit): Unit = {
     contents
     saveCurrentInventory()
   }
