@@ -29,4 +29,8 @@ object Deploy {
 
   }
 
+  def prepare(p:Policy) = {
+    p.operations.foreach(o => o.addProperty("sensors", sensorsInvolved(o, p)))
+  }
+
 }
