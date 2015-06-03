@@ -13,6 +13,6 @@ case class Sensor(val name:String) extends Node
 case class Bridge(val name:String) extends Node
 case class SensorPlatform(val name:String) extends Node
 case class Remote(val name: String) extends Node
-
+case class Repeater(val name:String) extends Node
 case class Edge(val source: Node, val destination:Node)
 

@@ -73,6 +73,11 @@ trait Inventory {
     NodeBuilder("sensorPlatform")
   }
 
+  protected def aRepeater(): Unit ={
+    saveCurrentInventory()
+    NodeBuilder("repeater")
+  }
+
   protected def aBridge() = {
     saveCurrentInventory()
     NodeBuilder("bridge")
@@ -103,6 +108,7 @@ trait Inventory {
       case "sensorPlatform" => SensorPlatform(builder.id)
       case "bridge" => Bridge(builder.id)
       case "remote" => Remote(builder.id)
+      case "repeater" => Repeater(builder.id)
     }
   }
 }
