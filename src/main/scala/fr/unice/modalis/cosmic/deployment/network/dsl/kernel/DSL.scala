@@ -23,6 +23,8 @@ trait NetworkTopology { inventory:Inventory =>
   }
 
 
+  def isConnectedTo(n: Node) = edges.filter(_.source == n).map(_.destination)
+  def isConnectedBy(n: Node) = edges.filter(_.destination == n).map(_.source)
 
   protected case class EdgeBuilder(fromId: String = "", toId:String = "", from:Node = null, to: Node = null) {
     val source = (inventory.resources find {r => r.name == fromId}).get
@@ -39,6 +41,17 @@ trait NetworkTopology { inventory:Inventory =>
  implicit protected def edgeBuilderToEdge(builder: EdgeBuilder): Edge = {
    Edge(builder.from, builder.to)
  }
+
+  def getSensorsFromNode(n: Node):Set[Sensor] = {
+    var visited = List[Node]()
+    def inner(n: Node):List[Sensor] = {
+      n match {
+        case n:Sensor => List(n)
+        case _ => isConnectedBy(n).foldLeft(List[Sensor]()){(acc, n) => if (!visited.contains(n)) {visited = n :: visited; inner(n) ::: acc} else acc}
+      }
+    }
+    inner(n).toSet
+  }
 }
 
 

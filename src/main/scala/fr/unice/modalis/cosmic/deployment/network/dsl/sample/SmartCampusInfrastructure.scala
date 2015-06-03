@@ -1,12 +1,12 @@
 package fr.unice.modalis.cosmic.deployment.network.dsl.sample
 
-import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.{Inventory, Bridge, Sensor, NetworkTopology}
+import fr.unice.modalis.cosmic.deployment.network.dsl.kernel._
 
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 19/05/15.
  */
 object Demo extends App with SmartCampusInfrastructure {
-  println(edges)
+  /* Actions to perform with the Infrastructure model */
 }
 
 trait SmartCampusInfrastructure extends NetworkTopology with SmartCampusInventory{
