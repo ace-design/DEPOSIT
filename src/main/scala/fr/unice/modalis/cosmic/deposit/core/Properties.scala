@@ -18,4 +18,6 @@ trait Properties {
   }
 
 }
-class Property[T](val name:String, val value:T)
+class Property[T](val name:String, val value:T) {
+  override def toString():String = name + "-->" + value
+}
