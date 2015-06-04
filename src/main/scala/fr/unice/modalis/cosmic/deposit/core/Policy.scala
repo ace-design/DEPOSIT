@@ -180,7 +180,22 @@ case class Policy(var name:String, ios:Set[DataIO[_<:DataType]], operations:Set[
     array.toSet
   }
 
+  /**
+   * Return the set of sensors needed for a concept
+   * @param c Concept
+   * @return A sensor set
+   */
+  def sensorsInvolved(c: Concept):Set[Sensor[_<:DataType]] = {
+    var visited = List[Concept]()
+    def inner(c:Concept):List[Sensor[_<:DataType]] = {
+      c match {
+        case n:Sensor[_] => List(n)
+        case n:Concept => linksTo(n).map(_.source).foldLeft(List[Sensor[_<:DataType]]()){(acc, c) => if (!visited.contains(c)) {visited = c :: visited; inner(c) ::: acc} else acc}
 
+      }
+    }
+    inner(c).toSet
+  }
   /**
    * Select operator
    * @param n New policy's name

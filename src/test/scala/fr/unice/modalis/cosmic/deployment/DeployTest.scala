@@ -35,8 +35,8 @@ class DeployTest extends SpecificationWithJUnit{
 
 
   "A concept knows where data coming from" in {
-    Deploy.sensorsInvolved(a2, policy).toSet mustEqual Set(s)
-    Deploy.sensorsInvolved(place_status, policy).toSet mustEqual Set(s, s2)
+    policy.sensorsInvolved(a2) mustEqual Set(s)
+    policy.sensorsInvolved(place_status) mustEqual Set(s, s2)
   }
 
 }
