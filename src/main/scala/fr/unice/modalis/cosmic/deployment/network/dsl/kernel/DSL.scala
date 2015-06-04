@@ -1,5 +1,7 @@
 package fr.unice.modalis.cosmic.deployment.network.dsl.kernel
 
+import scalax.collection.Graph
+import scalax.collection.GraphPredef._
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 19/05/15.
  */
@@ -52,6 +54,14 @@ trait NetworkTopology { inventory:Inventory =>
     }
     inner(n).toSet
   }
+
+  def toGraph = {
+    val _nodes = inventory.resources
+    val _edges = edges.map(l => l.source ~> l.destination)
+    Graph.from(_nodes, _edges)
+  }
+
+
 }
 
 
