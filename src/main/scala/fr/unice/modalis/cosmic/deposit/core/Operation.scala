@@ -1,4 +1,5 @@
 package fr.unice.modalis.cosmic.deposit.core
+
 import scala.collection.immutable.Set
 /**
  * Business concerns
@@ -108,6 +109,15 @@ case class Conditional[T<:DataType](val predicate:String) extends Filtering[T] {
   override def toString:String = "CONDITIONAL(p={"+predicate+"})"
 
 }
+
+case class Switch[T<:DataType](val switchMap:Map[String,String], val inputsNames:Set[String], val outputsNames:Set[String]) extends Filtering[T] {
+  require(switchMap.keys.forall(inputsNames.contains(_)))
+  require(switchMap.values.forall(outputsNames.contains(_)))
+
+
+  override def toString:String = "SWITCH(" + switchMap + ")"
+
+}
 /*** COMPARISON OPERATIONS ***/
 
 /**
@@ -200,3 +210,4 @@ case class Process[I<:DataType, O<:DataType](val workflow:Policy) extends Operat
   override def toString:String = "PROCESS[" + workflow.name + "]"
 
 }
+
