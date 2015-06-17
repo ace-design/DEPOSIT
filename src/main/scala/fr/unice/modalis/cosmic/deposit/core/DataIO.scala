@@ -53,6 +53,15 @@ case class PeriodicSensor[T<:DataType](val wishedPeriod:Int, override val url: S
 case class EventSensor[T<:DataType](override val url:String) extends Sensor[T] {
   override def toString:String = "EVENT_SENSOR[" + url + "]{" + id + "}"
 }
+
+/**
+ * Clock
+ * @tparam T Data type
+ */
+case class Clock[T<:DataType] extends Sensor[T] {
+  override val url:String = _
+}
+
 /**
  * Workflow sink. Refers to a collector
  * @param endpoint Collector URL
