@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<sensornetwork>
+    <entities>
+        <entity id="ARD_3_443">
+            <features>
+                <feature>SensorPlatform</feature>
+                <feature>Platform</feature>
+                <feature>CommunicationSP</feature>
+                <feature>Arduino</feature>
+                <feature>ProgrammableSP</feature>
+                <feature>SerialSP</feature>
+                <feature>WiredSP</feature>
+                <feature>Uno</feature>
+                <feature>Shield</feature>
+                <feature>Grove</feature>
+                <feature>XBEESP</feature>
+                <feature>WirelessSP</feature>
+                <feature>XbeeShield</feature>
+            </features>
+        </entity>
+        <entity id="AC_443">
+            <features>
+                <feature>Sensor</feature>
+                <feature>GroveTemperature</feature>
+                <feature>Temperature</feature>
+            </features>
+        </entity>
+        <entity id="WINDOW_443">
+            <features>
+                <feature>Sensor</feature>
+                <feature>Magnetic</feature>
+                <feature>GroveMagnetic</feature>
+            </features>
+        </entity>
+        <entity id="BR_443_2">
+            <features>
+                <feature>CommunicationBR</feature>
+                <feature>Bridge</feature>
+                <feature>WiredBR</feature>
+                <feature>SerialBR</feature>
+                <feature>WirelessBR</feature>
+                <feature>XBEEBR</feature>
+                <feature>ProgrammableBR</feature>
+                <feature>Raspberry</feature>
+            </features>
+        </entity>
+        <entity id="SmartCampusCollector">
+            <features>
+                <feature>Remote</feature>
+                <feature>SmartCampus</feature>
+            </features>
+        </entity>
+    </entities>
+    <connections>
+        <connection from="AC_443" to="ARD_3_443"/>
+        <connection from="WINDOW_443" to="ARD_3_443"/>
+        <connection from="ARD_3_443" to="BR_443_2"/>
+        <connection from="BR_443_2" to="SmartCampusCollector"/>
+    </connections>
+</sensornetwork>
