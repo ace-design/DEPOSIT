@@ -58,8 +58,8 @@ case class EventSensor[T<:DataType](override val url:String) extends Sensor[T] {
  * Clock
  * @tparam T Data type
  */
-case class Clock[T<:DataType] extends Sensor[T] {
-  override val url:String = _
+case class Clock[T<:DataType]() extends Sensor[T] {
+  override val url:String = ""
 }
 
 /**
