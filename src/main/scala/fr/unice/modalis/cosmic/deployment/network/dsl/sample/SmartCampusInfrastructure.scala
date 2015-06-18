@@ -5,11 +5,11 @@ import fr.unice.modalis.cosmic.deployment.network.dsl.kernel._
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 19/05/15.
  */
-object Demo extends App with SmartCampusInfrastructure {
+object Demo extends App {
   /* Actions to perform with the Infrastructure model */
 }
 
-trait SmartCampusInfrastructure extends NetworkTopology with SmartCampusInventory{
+class SmartCampusInfrastructure extends NetworkTopology with SmartCampusInventory{
 
    declare {
      "TEMP_442" isConnectedTo "ARD_1_442"
@@ -20,7 +20,7 @@ trait SmartCampusInfrastructure extends NetworkTopology with SmartCampusInventor
      "DOOR_443" isConnectedTo "ARD_2_443"
      "PRESENCE_443" isConnectedTo "ARD_2_443"
      "WINDOW_443" isConnectedTo "ARD_3_443"
-
+     "AC_443" isConnectedTo "ARD_3_443"
 
      "LIGHT_CAFE" isConnectedTo "ARD_1_CAFE"
      "TEMP_CAFE" isConnectedTo "ARD_1_CAFE"
@@ -57,6 +57,7 @@ trait SmartCampusInventory extends Inventory {
     aSensor withId "TEMP_CAFE"
     aSensor withId "TEMP_444"
     aSensor withId "LIGHT_444"
+    aSensor withId "AC_443"
 
 
     aSensorPlatform withId "ARD_1_442"

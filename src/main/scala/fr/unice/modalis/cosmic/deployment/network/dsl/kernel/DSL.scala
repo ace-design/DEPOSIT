@@ -25,10 +25,10 @@ trait NetworkTopology { inventory:Inventory =>
   }
 
 
-  def isConnectedTo(n: Node) = edges.filter(_.source == n).map(_.destination)
-  def isConnectedBy(n: Node) = edges.filter(_.destination == n).map(_.source)
+  def isConnectedTo(n: GenericNode) = edges.filter(_.source == n).map(_.destination)
+  def isConnectedBy(n: GenericNode) = edges.filter(_.destination == n).map(_.source)
 
-  protected case class EdgeBuilder(fromId: String = "", toId:String = "", from:Node = null, to: Node = null) {
+  protected case class EdgeBuilder(fromId: String = "", toId:String = "", from:GenericNode = null, to: GenericNode = null) {
     val source = (inventory.resources find {r => r.name == fromId}).get
     def isConnectedTo(id:String):EdgeBuilder = {
       val target = (inventory.resources find {r => r.name == id}).get
@@ -44,9 +44,9 @@ trait NetworkTopology { inventory:Inventory =>
    Edge(builder.from, builder.to)
  }
 
-  def getSensorsFromNode(n: Node):Set[Sensor] = {
-    var visited = List[Node]()
-    def inner(n: Node):List[Sensor] = {
+  def getSensorsFromNode(n: GenericNode):Set[Sensor] = {
+    var visited = List[GenericNode]()
+    def inner(n: GenericNode):List[Sensor] = {
       n match {
         case n:Sensor => List(n)
         case _ => isConnectedBy(n).foldLeft(List[Sensor]()){(acc, n) => if (!visited.contains(n)) {visited = n :: visited; inner(n) ::: acc} else acc}
@@ -98,6 +98,11 @@ trait Inventory {
     NodeBuilder("remote")
   }
 
+  protected def aNode() = {
+    saveCurrentInventory()
+    NodeBuilder("node")
+  }
+
   private def saveCurrentInventory() = {
     if (currentResource != null) {
       resources += currentResource
@@ -105,20 +110,21 @@ trait Inventory {
     }
   }
 
-  var resources: Set[Node] = Set()
-  private var currentResource: Node = _
+  var resources: Set[GenericNode] = Set()
+  private var currentResource: GenericNode = _
 
   protected case class NodeBuilder(nodeType: String, id:String = "") {
     def withId(i: String): NodeBuilder = {val updated = this.copy(nodeType, id = i); currentResource = updated; updated}
   }
 
-  implicit def NodeBuilder2Node(builder: NodeBuilder): Node = {
+  implicit def NodeBuilder2Node(builder: NodeBuilder): GenericNode = {
     builder.nodeType match {
       case "sensor" => Sensor(builder.id)
       case "sensorPlatform" => SensorPlatform(builder.id)
       case "bridge" => Bridge(builder.id)
       case "remote" => Remote(builder.id)
       case "repeater" => Repeater(builder.id)
+      case "node" => Node(builder.id)
     }
   }
 }
