@@ -1,7 +1,7 @@
 package fr.unice.modalis.cosmic.deposit.core
 
 import fr.unice.modalis.cosmic.deposit.algo.{Unification, Weave}
-import org.specs2.mutable.{SpecificationWithJUnit, Specification}
+import org.specs2.mutable.SpecificationWithJUnit
 
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 28/04/15.
@@ -17,15 +17,15 @@ class PolicyTest extends SpecificationWithJUnit {
     "can be add in a policy" in {
 
       testPolicy.properties += new Property[String]("foo", "bar")
-      testPolicy.readProperty("foo") must_== "bar"
+      testPolicy.readProperty("foo") must beSome("bar")
     }
 
     "can be readen" in {
-      testPolicy.readProperty("name") must_== testPolicy.name
+      testPolicy.readProperty("name") must beSome(testPolicy.name)
     }
 
     "throw exception when not found" in {
-      testPolicy.readProperty("foo2") must throwA[NoSuchFieldException]
+      testPolicy.readProperty("foo2") must beNone
     }
   }
 

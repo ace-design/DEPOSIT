@@ -13,8 +13,8 @@ trait Properties {
   def addProperty[T](name:String, value:T) = properties += new Property[T](name, value)
 
   def readProperty(s:String) = properties.find(_.name.equalsIgnoreCase(s)) match {
-    case Some(p) => p.value
-    case None => throw new NoSuchFieldException
+    case Some(p) => Some(p.value)
+    case None => None
   }
 
 }
