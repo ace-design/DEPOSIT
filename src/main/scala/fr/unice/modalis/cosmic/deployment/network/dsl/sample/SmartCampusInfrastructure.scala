@@ -7,10 +7,37 @@ import fr.unice.modalis.cosmic.deployment.network.dsl.kernel._
  */
 object Demo extends App {
   /* Actions to perform with the Infrastructure model */
+  println((new SmartCampusInfrastructure).edges)
 }
 
-class SmartCampusInfrastructure extends NetworkTopology with SmartCampusInventory{
+class SmartCampusInfrastructure extends NetworkTopology{
+    deployed {
+      aSensor withId "TEMP_442"
+      aSensor withId "LIGHT_443"
+      aSensor withId "TEMP_443"
+      aSensor withId "DOOR_443"
+      aSensor withId "PRESENCE_443"
+      aSensor withId "WINDOW_443"
+      aSensor withId "LIGHT_CAFE"
+      aSensor withId "TEMP_CAFE"
+      aSensor withId "TEMP_444"
+      aSensor withId "LIGHT_444"
+      aSensor withId "AC_443"
 
+
+      aSensorPlatform withId "ARD_1_442"
+      aSensorPlatform withId "ARD_1_443"
+      aSensorPlatform withId "ARD_2_443"
+      aSensorPlatform withId "ARD_3_443"
+      aSensorPlatform withId "ARD_1_444"
+      aSensorPlatform withId "ARD_1_CAFE"
+
+      aBridge withId "BR_443_1"
+      aBridge withId "BR_443_2"
+      aBridge withId "BR_CAFE"
+
+      aRemoteCollector withId "SmartCampusCollector"
+    }
    declare {
      "TEMP_442" isConnectedTo "ARD_1_442"
 
@@ -42,35 +69,5 @@ class SmartCampusInfrastructure extends NetworkTopology with SmartCampusInventor
      "BR_CAFE" isConnectedTo "SmartCampusCollector"
 
 
-  }
-}
-
-trait SmartCampusInventory extends Inventory {
-  deployed {
-    aSensor withId "TEMP_442"
-    aSensor withId "LIGHT_443"
-    aSensor withId "TEMP_443"
-    aSensor withId "DOOR_443"
-    aSensor withId "PRESENCE_443"
-    aSensor withId "WINDOW_443"
-    aSensor withId "LIGHT_CAFE"
-    aSensor withId "TEMP_CAFE"
-    aSensor withId "TEMP_444"
-    aSensor withId "LIGHT_444"
-    aSensor withId "AC_443"
-
-
-    aSensorPlatform withId "ARD_1_442"
-    aSensorPlatform withId "ARD_1_443"
-    aSensorPlatform withId "ARD_2_443"
-    aSensorPlatform withId "ARD_3_443"
-    aSensorPlatform withId "ARD_1_444"
-    aSensorPlatform withId "ARD_1_CAFE"
-
-    aBridge withId "BR_443_1"
-    aBridge withId "BR_443_2"
-    aBridge withId "BR_CAFE"
-
-    aRemoteCollector withId "SmartCampusCollector"
   }
 }

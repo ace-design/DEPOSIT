@@ -7,7 +7,7 @@ import org.specs2.mutable.SpecificationWithJUnit
  * Created by Cyril Cecchinel - I3S Laboratory on 19/05/15.
  */
 
-trait TestInventory extends Inventory {
+trait TestTopology extends NetworkTopology {
   deployed {
     aSensor withId "TEMP_442"
     aSensor withId "LIGHT_442"
@@ -17,10 +17,6 @@ trait TestInventory extends Inventory {
     aBridge withId "BR_442"
     aRemoteCollector withId "SmartCampusCollector"
   }
-}
-
-trait TestInfrastructure extends NetworkTopology with TestInventory{
-
   declare {
     "DOOR_442" isConnectedTo "ARD_2_442"
     "TEMP_442" isConnectedTo "ARD_1_442"
@@ -32,7 +28,8 @@ trait TestInfrastructure extends NetworkTopology with TestInventory{
   }
 }
 
-class NetworkTopologyTest extends SpecificationWithJUnit with TestInfrastructure{
+
+class NetworkTopologyTest extends SpecificationWithJUnit with TestTopology{
   "An inventory stores all elements present in a network" in {
 
     this.resources must contain (Sensor("TEMP_442"))

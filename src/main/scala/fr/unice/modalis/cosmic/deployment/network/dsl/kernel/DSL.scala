@@ -5,67 +5,7 @@ import scalax.collection.GraphPredef._
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 19/05/15.
  */
-trait NetworkTopology { inventory:Inventory =>
-  import scala.language.implicitConversions
-
-  var edges: Set[Edge]  = Set()
-
-  var currentEdge: Edge  = _
-
-
-  def declare (contents: => Unit): Unit = {
-    contents
-    saveCurrentTopology()
-  }
-
-  private def saveCurrentTopology(): Unit = {
-    if (currentEdge != null)
-      edges += currentEdge
-    currentEdge = null
-  }
-
-
-  def isConnectedTo(n: GenericNode) = edges.filter(_.source == n).map(_.destination)
-  def isConnectedBy(n: GenericNode) = edges.filter(_.destination == n).map(_.source)
-
-  protected case class EdgeBuilder(fromId: String = "", toId:String = "", from:GenericNode = null, to: GenericNode = null) {
-    val source = (inventory.resources find {r => r.name == fromId}).get
-    def isConnectedTo(id:String):EdgeBuilder = {
-      val target = (inventory.resources find {r => r.name == id}).get
-      val updated = this.copy(from = source, to = target); currentEdge = updated; updated
-    }
-  }
-
-  implicit def str2EdgeBuilder(s:String):EdgeBuilder = {
-    saveCurrentTopology()
-    EdgeBuilder(s)
-  }
- implicit protected def edgeBuilderToEdge(builder: EdgeBuilder): Edge = {
-   Edge(builder.from, builder.to)
- }
-
-  def getSensorsFromNode(n: GenericNode):Set[Sensor] = {
-    var visited = List[GenericNode]()
-    def inner(n: GenericNode):List[Sensor] = {
-      n match {
-        case n:Sensor => List(n)
-        case _ => isConnectedBy(n).foldLeft(List[Sensor]()){(acc, n) => if (!visited.contains(n)) {visited = n :: visited; inner(n) ::: acc} else acc}
-      }
-    }
-    inner(n).toSet
-  }
-
-  def toGraph = {
-    val _nodes = inventory.resources
-    val _edges = edges.map(l => l.source ~> l.destination)
-    Graph.from(_nodes, _edges)
-  }
-
-
-}
-
-
-trait Inventory {
+trait NetworkTopology {
   import scala.language.implicitConversions
 
   def deployed(contents: => Unit): Unit = {
@@ -127,5 +67,61 @@ trait Inventory {
       case "node" => Node(builder.id)
     }
   }
+
+  var edges: Set[Edge]  = Set()
+
+  var currentEdge: Edge  = _
+
+
+  def declare (contents: => Unit): Unit = {
+    contents
+    saveCurrentTopology()
+  }
+
+  private def saveCurrentTopology(): Unit = {
+    if (currentEdge != null)
+      edges += currentEdge
+    currentEdge = null
+  }
+
+
+  def isConnectedTo(n: GenericNode) = edges.filter(_.source == n).map(_.destination)
+  def isConnectedBy(n: GenericNode) = edges.filter(_.destination == n).map(_.source)
+
+  protected case class EdgeBuilder(fromId: String = "", toId:String = "", from:GenericNode = null, to: GenericNode = null) {
+    val source = (resources find {r => r.name == fromId}).get
+    def isConnectedTo(id:String):EdgeBuilder = {
+      val target = (resources find {r => r.name == id}).get
+      val updated = this.copy(from = source, to = target); currentEdge = updated; updated
+    }
+  }
+
+  implicit def str2EdgeBuilder(s:String):EdgeBuilder = {
+    saveCurrentTopology()
+    EdgeBuilder(s)
+  }
+ implicit protected def edgeBuilderToEdge(builder: EdgeBuilder): Edge = {
+   Edge(builder.from, builder.to)
+ }
+
+  def getSensorsFromNode(n: GenericNode):Set[Sensor] = {
+    var visited = List[GenericNode]()
+    def inner(n: GenericNode):List[Sensor] = {
+      n match {
+        case n:Sensor => List(n)
+        case _ => isConnectedBy(n).foldLeft(List[Sensor]()){(acc, n) => if (!visited.contains(n)) {visited = n :: visited; inner(n) ::: acc} else acc}
+      }
+    }
+    inner(n).toSet
+  }
+
+  def toGraph = {
+    val _nodes = resources
+    val _edges = edges.map(l => l.source ~> l.destination)
+    Graph.from(_nodes, _edges)
+  }
+
+
 }
+
 
