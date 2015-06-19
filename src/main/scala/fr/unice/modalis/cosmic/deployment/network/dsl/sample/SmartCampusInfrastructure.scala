@@ -7,7 +7,7 @@ import fr.unice.modalis.cosmic.deployment.network.dsl.kernel._
  */
 object Demo extends App {
   /* Actions to perform with the Infrastructure model */
-  println((new SmartCampusInfrastructure).edges)
+
 }
 
 class SmartCampusInfrastructure extends NetworkTopology{
@@ -54,12 +54,12 @@ class SmartCampusInfrastructure extends NetworkTopology{
      "TEMP_444" isConnectedTo "ARD_1_444"
      "LIGHT_444" isConnectedTo "ARD_1_444"
 
-     "ARD_1_442" isConnectedTo "BR_443_1"
-     "ARD_1_443" isConnectedTo "BR_443_1"
+     "ARD_1_442" isConnectedTo "BR_443_1" by "Serial"
+     "ARD_1_443" isConnectedTo "BR_443_1" by "Serial"
 
-     "ARD_2_443" isConnectedTo "BR_443_2"
-     "ARD_3_443" isConnectedTo "BR_443_2"
-     "ARD_1_444" isConnectedTo "BR_443_2"
+     "ARD_2_443" isConnectedTo "BR_443_2" by "Xbee"
+     "ARD_3_443" isConnectedTo "BR_443_2" by "Xbee"
+     "ARD_1_444" isConnectedTo "BR_443_2" by "Xbee"
 
 
      "ARD_1_CAFE" isConnectedTo "BR_CAFE"
