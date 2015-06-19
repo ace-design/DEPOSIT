@@ -1,11 +1,11 @@
 package fr.unice.modalis.cosmic.deployment
 
+import fr.unice.modalis.cosmic.deployment.exception.NoTargetFoundException
 import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.{GenericNode, NetworkTopology}
 import fr.unice.modalis.cosmic.deposit.core.{DataType, Operation, Policy, Sensor}
 
-
-
 /**
+ * Prepare the deployment of a data collection policy
  * Created by Cyril Cecchinel - I3S Laboratory on 12/05/15.
  */
 object PreDeploy {
@@ -13,7 +13,12 @@ object PreDeploy {
 
   def apply(policy: Policy, topology: NetworkTopology) = prepare(policy, topology)
 
-  def prepare(policy:Policy, topology: NetworkTopology ) = {
+  /**
+   * Compute the sensors involved for each operation and each node
+   * @param policy Data collection policy
+   * @param topology Network topology
+   */
+  def prepare(policy:Policy, topology: NetworkTopology) = {
 
 
     policy.operations.foreach(o => o.addProperty("sensors", policy.sensorsInvolved(o)))
@@ -29,7 +34,9 @@ object PreDeploy {
             targets = targets + resource
         }
       }
-      operation.addProperty("targets", targets)
+      if (targets.nonEmpty)
+        operation.addProperty("targets", targets)
+      else throw new NoTargetFoundException(operation)
     }
   }
 
