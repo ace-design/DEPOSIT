@@ -19,15 +19,17 @@ object PreDeploy {
     policy.operations.foreach(o => o.addProperty("sensors", policy.sensorsInvolved(o)))
     topology.resources.foreach(r => r.addProperty("sensors", topology.getSensorsFromNode(r)))
 
-    for (o <- policy.operations; p = o.readProperty("sensors").asInstanceOf[Set[Sensor[_]]].map(_.url)) yield {
+    for (operation <- policy.operations; sensorsNeeded = operation.readProperty("sensors").getOrElse(Set[Sensor[_]]()).asInstanceOf[Set[Sensor[_]]].map(_.url)) yield {
       var targets:Set[GenericNode] = Set.empty
-      for (o2 <- topology.resources; p2 = o2.readProperty("sensors").asInstanceOf[Set[fr.unice.modalis.cosmic.deployment.network.dsl.kernel.Sensor]].map(_.name)) yield {
+      for (resource <- topology.resources; sensorsConnected = resource.readProperty("sensors").getOrElse(Set[Sensor[_]]()).asInstanceOf[Set[fr.unice.modalis.cosmic.deployment.network.dsl.kernel.Sensor]].map(_.name)) yield {
 
-        if (p.forall(p2 contains _)) {
-          targets = targets + o2
+        if (sensorsNeeded.forall(sensorsConnected contains _)) {
+
+          if (resource.isProgrammable)
+            targets = targets + resource
         }
       }
-      o.addProperty("targets", targets)
+      operation.addProperty("targets", targets)
     }
   }
 

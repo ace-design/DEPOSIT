@@ -40,41 +40,31 @@ object InfrastructureModelBuilder {
         // First: Build the inventory
         deployed {
 
-          def buildSensorPlatform(id: String, seq: NodeSeq) = {
-            val sensorplatform = aSensorPlatform() withId id
-            if (findFeature("ProgrammableSP", seq)) sensorplatform.addProperty("programmable", true)
-
-            sensorplatform
-          }
-
-          def buildBridge(id: String, seq: NodeSeq) = {
-            val bridge = aBridge() withId id
-            if (findFeature("ProgrammableBR", seq)) bridge.addProperty("programmable", true)
-
-            bridge
-          }
 
           def buildNode(id: String, seq: NodeSeq) = {
             if (findFeature("Sensor", seq))
-              aSensor() withId id
-
+              aSensor withId id
             else if (findFeature("SensorPlatform", seq))
-              buildSensorPlatform(id, seq)
-
+              aSensorPlatform withId id
             else if (findFeature("Bridge", seq))
-              buildBridge(id, seq)
-
+              aBridge withId id
             else if (findFeature("Remote", seq))
-              aRemoteCollector() withId id
-
-
+              aRemoteCollector withId id
             else throw new Exception("Unable to build node " + id)
-
           }
 
           for (e <- (configuration \\ "sensornetwork" \\ "entities" \\ "entity"); id = (e \\ "@id").text) {
             buildNode(id, e \\ "features")
           }
+
+        }
+
+
+        for (e<- (configuration \\ "sensornetwork" \\ "entities" \\ "entity"); id = (e \\ "@id").text) {
+          if (findFeature("ProgrammableBR", e) || findFeature("ProgrammableSP", e))
+            resources.find(_.name == id).get.addProperty("programmable", true)
+          else
+            resources.find(_.name == id).get.addProperty("programmable", false)
         }
 
         // Secondly: Build the links
@@ -83,7 +73,6 @@ object InfrastructureModelBuilder {
             from isConnectedTo to
           }
         }
-
       }
 
   }

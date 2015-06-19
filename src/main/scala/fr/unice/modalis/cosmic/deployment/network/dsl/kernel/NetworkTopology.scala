@@ -6,6 +6,7 @@ import fr.unice.modalis.cosmic.deposit.core.Properties
  */
 
 trait GenericNode extends Properties{
+  def isProgrammable:Boolean = readProperty("programmable").getOrElse(false).asInstanceOf[Boolean]
   val name:String
 }
 
