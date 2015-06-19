@@ -21,10 +21,9 @@ trait TestTopology extends NetworkTopology {
     "DOOR_442" isConnectedTo "ARD_2_442"
     "TEMP_442" isConnectedTo "ARD_1_442"
     "LIGHT_442" isConnectedTo "ARD_1_442"
-    "ARD_1_442" isConnectedTo "BR_442"
+    "ARD_1_442" isConnectedTo "BR_442" by "xbee"
     "ARD_2_442" isConnectedTo "BR_442"
     "BR_442" isConnectedTo "SmartCampusCollector"
-
   }
 }
 
@@ -50,6 +49,11 @@ class NetworkTopologyTest extends SpecificationWithJUnit with TestTopology{
 
   "It is possible to retrieve successors of a given node" in {
     isConnectedTo(SensorPlatform("ARD_1_442")) mustEqual Set(Bridge("BR_442"))
+  }
+
+  "Some links can be parametized with a media type" in {
+    this.edges.find(e => e.source.name == "ARD_1_442" && e.destination.name == "BR_442").get.media mustEqual Media.XBee
+    this.edges.find(e => e.source.name == "ARD_2_442" && e.destination.name == "BR_442").get.media mustEqual Media.Unknown
   }
 
   "It is possible to retrieve sensors communicating with a given node" in {

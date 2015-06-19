@@ -1,5 +1,7 @@
 package fr.unice.modalis.cosmic.deployment.network.dsl.kernel
 
+import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.Media.Media
+
 import scalax.collection.Graph
 import scalax.collection.GraphPredef._
 /**
@@ -88,12 +90,24 @@ trait NetworkTopology {
   def isConnectedTo(n: GenericNode) = edges.filter(_.source == n).map(_.destination)
   def isConnectedBy(n: GenericNode) = edges.filter(_.destination == n).map(_.source)
 
-  protected case class EdgeBuilder(fromId: String = "", toId:String = "", from:GenericNode = null, to: GenericNode = null) {
+  protected case class EdgeBuilder(fromId: String = "", toId:String = "", from:GenericNode = null, to: GenericNode = null, media: Media = Media.Unknown) {
     val source = (resources find {r => r.name == fromId}).get
     def isConnectedTo(id:String):EdgeBuilder = {
       val target = (resources find {r => r.name == id}).get
       val updated = this.copy(from = source, to = target); currentEdge = updated; updated
     }
+
+    def by(media:String):EdgeBuilder = {
+      val mediaRepresentation = media.toLowerCase match {
+        case "xbee" => Media.XBee
+        case "serial" => Media.Serial
+        case "zwave" => Media.ZWave
+        case "usb" => Media.USB
+        case _ => Media.Unknown
+      }
+      val updated = this.copy(media = mediaRepresentation); currentEdge = updated; updated
+    }
+
   }
 
   implicit def str2EdgeBuilder(s:String):EdgeBuilder = {
@@ -101,7 +115,7 @@ trait NetworkTopology {
     EdgeBuilder(s)
   }
  implicit protected def edgeBuilderToEdge(builder: EdgeBuilder): Edge = {
-   Edge(builder.from, builder.to)
+   Edge(builder.from, builder.to, builder.media)
  }
 
   def getSensorsFromNode(n: GenericNode):Set[Sensor] = {
