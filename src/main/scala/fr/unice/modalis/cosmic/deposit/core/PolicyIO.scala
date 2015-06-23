@@ -6,11 +6,11 @@ package fr.unice.modalis.cosmic.deposit.core
  */
 trait PolicyIO[T<:DataType] extends Concept{
   override val id:String = "io" + scala.util.Random.alphanumeric.take(5).mkString
-
+  val name:String
 }
 
 trait DataIO[T<:DataType] extends PolicyIO[T]{
-  val url:String
+
 }
 
 trait DataInput[T<:DataType] extends DataIO[T]
@@ -22,12 +22,12 @@ trait DataOutput[T<:DataType] extends DataIO[T]
 
 case class GenericInput[T<:DataType](val name:String) extends DataInput[T] {
   val output = new Output[T](name, this)
-  override val url: String = name
+  val url: String = name
 }
 
 case class GenericOutput[T<:DataType](val name:String) extends DataOutput[T] {
   val input = new Input[T](name, this)
-  override val url: String = name
+  val url: String = name
 }
 
 
@@ -37,11 +37,15 @@ trait JoinPoint[T<:DataType] extends PolicyIO[T]
 case class JoinPointInput[I<:DataType](val toConceptInput:Input[I]) extends JoinPoint[I]{
   val output = new Output[I](this)
   override def toString:String = "JOIN_POINT_INPUT[to=" + toConceptInput + "]"
+
+  override val name: String = "JointPoint" + id
 }
 
 case class JoinPointOutput[O<:DataType](val fromConceptOutput:Output[O]) extends JoinPoint[O]{
   val input = new Input[O](this)
   override def toString:String = "JOIN_POINT_OUTPUT[from=" + fromConceptOutput + "]"
+  override val name: String = "JointPoint" + id
+
 }
 
 
@@ -52,7 +56,7 @@ case class JoinPointOutput[O<:DataType](val fromConceptOutput:Output[O]) extends
 trait Sensor[T<:DataType] extends DataInput[T]{
   val url:String
   val output = new Output[T](url, this)
-
+  override val name = url
 
   override def toString:String = "SENSOR[" + url + "]"
 }
@@ -81,7 +85,7 @@ case class EventSensor[T<:DataType](override val url:String) extends Sensor[T] {
  * @tparam T Data type
  */
 case class Clock[T<:DataType]() extends DataInput[T] {
-  override val url:String = ""
+  override val name: String = "clock" + id
 }
 
 /**
@@ -91,6 +95,6 @@ case class Clock[T<:DataType]() extends DataInput[T] {
  */
 case class Collector[T<:DataType](endpoint:String) extends DataOutput[T] {
   val input = new Input[T](endpoint, this)
-  val url = endpoint
+  val name = endpoint
   override def toString:String = "COLLECTOR[" + endpoint + "]"
 }
