@@ -61,7 +61,7 @@ object InfrastructureModelBuilder {
 
 
         for (e<- (configuration \\ "sensornetwork" \\ "entities" \\ "entity"); id = (e \\ "@id").text) {
-          if (findFeature("ProgrammableBR", e) || findFeature("ProgrammableSP", e))
+          if (findFeature("Programmable", e))
             resources.find(_.name == id).get.addProperty("programmable", true)
           else
             resources.find(_.name == id).get.addProperty("programmable", false)

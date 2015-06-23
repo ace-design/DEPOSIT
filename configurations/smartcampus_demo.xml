@@ -4,35 +4,35 @@
         <entity id="ARD_1_443">
             <features>
                 <feature>Platform</feature>
-                <feature>CommunicationSP</feature>
+                <feature>Communication</feature>
                 <feature>SensorPlatform</feature>
                 <feature>Arduino</feature>
-                <feature>ProgrammableSP</feature>
-                <feature>WiredSP</feature>
+                <feature>Programmable</feature>
+                <feature>Wired</feature>
                 <feature>Uno</feature>
-                <feature>SerialSP</feature>
+                <feature>Serial</feature>
                 <feature>Shield</feature>
                 <feature>Grove</feature>
-                <feature>WirelessSP</feature>
-                <feature>XBEESP</feature>
+                <feature>Wireless</feature>
+                <feature>XBEE</feature>
                 <feature>XbeeShield</feature>
             </features>
         </entity>
         <entity id="ARD_2_443">
             <features>
                 <feature>Platform</feature>
-                <feature>CommunicationSP</feature>
+                <feature>Communication</feature>
                 <feature>SensorPlatform</feature>
                 <feature>Arduino</feature>
-                <feature>WirelessSP</feature>
-                <feature>ProgrammableSP</feature>
+                <feature>Wireless</feature>
+                <feature>Programmable</feature>
                 <feature>Shield</feature>
-                <feature>XBEESP</feature>
+                <feature>XBEE</feature>
                 <feature>XbeeShield</feature>
                 <feature>Grove</feature>
-                <feature>WiredSP</feature>
+                <feature>Wired</feature>
                 <feature>Uno</feature>
-                <feature>SerialSP</feature>
+                <feature>Serial</feature>
             </features>
         </entity>
         <entity id="AC_443">
@@ -59,13 +59,13 @@
         <entity id="BR_442">
             <features>
                 <feature>Bridge</feature>
-                <feature>CommunicationBR</feature>
-                <feature>SerialBR</feature>
-                <feature>WiredBR</feature>
-                <feature>XBEEBR</feature>
-                <feature>WirelessBR</feature>
+                <feature>Communication</feature>
+                <feature>Serial</feature>
+                <feature>Wired</feature>
+                <feature>XBEE</feature>
+                <feature>Wireless</feature>
                 <feature>Raspberry</feature>
-                <feature>ProgrammableBR</feature>
+                <feature>Programmable</feature>
             </features>
         </entity>
         <entity id="SmartCampusCollector">
