@@ -205,9 +205,11 @@ case class Average[I<:AtomicType](val inputsNames:Set[String]) extends Arithmeti
 /*** PROCESS OPERATION ***/
 case class Process[I<:DataType, O<:DataType](val workflow:Policy) extends Operation[I,O]{
   override val inputsNames: Set[String] = workflow.sources.map(_.url)
-  override val outputsNames: Set[String] = workflow.collectors.map(_.endpoint)
+  override val outputsNames: Set[String] = workflow.collectors.map(_.url)
 
   override def toString:String = "PROCESS[" + workflow.name + "]"
+
+
 
 }
 

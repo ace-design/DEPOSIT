@@ -10,7 +10,7 @@ object ToGraphviz {
 
   var showStubs = true
 
-  def generateIO(io:DataIO[_<:DataType]) = {
+  def generateIO(io:PolicyIO[_<:DataType]) = {
     io match {
       case Collector(n) => generateNodeShape("triangle", "crimson") + io.id + printlabel(n) + ";"
       case PeriodicSensor(_,n) => generateNodeShape("invtriangle", "blue") + io.id + printlabel(n) + ";"

@@ -4,18 +4,20 @@ package fr.unice.modalis.cosmic.deposit.core
  * Data Input/Output trait
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
  */
-trait DataIO[T<:DataType] extends Concept{
+trait PolicyIO[T<:DataType] extends Concept{
   override val id:String = "io" + scala.util.Random.alphanumeric.take(5).mkString
 
 }
 
-trait DataInput[T<:DataType] extends DataIO[T] {
+trait DataIO[T<:DataType] extends PolicyIO[T]{
   val url:String
 }
 
-trait DataOutput[T<:DataType] extends DataIO[T] {
-  val endpoint:String
-}
+trait DataInput[T<:DataType] extends DataIO[T]
+
+
+trait DataOutput[T<:DataType] extends DataIO[T]
+
 
 
 case class GenericInput[T<:DataType](val name:String) extends DataInput[T] {
@@ -25,12 +27,12 @@ case class GenericInput[T<:DataType](val name:String) extends DataInput[T] {
 
 case class GenericOutput[T<:DataType](val name:String) extends DataOutput[T] {
   val input = new Input[T](name, this)
-  override val endpoint: String = name
+  override val url: String = name
 }
 
 
 
-trait JoinPoint[T<:DataType] extends DataIO[T]
+trait JoinPoint[T<:DataType] extends PolicyIO[T]
 
 case class JoinPointInput[I<:DataType](val toConceptInput:Input[I]) extends JoinPoint[I]{
   val output = new Output[I](this)
@@ -89,6 +91,6 @@ case class Clock[T<:DataType]() extends DataInput[T] {
  */
 case class Collector[T<:DataType](endpoint:String) extends DataOutput[T] {
   val input = new Input[T](endpoint, this)
-
+  val url = endpoint
   override def toString:String = "COLLECTOR[" + endpoint + "]"
 }

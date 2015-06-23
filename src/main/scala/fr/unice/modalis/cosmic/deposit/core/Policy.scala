@@ -11,7 +11,7 @@ import scala.collection.mutable.ArrayBuffer
  * @param operations Workflow element list
  * @param links Link list
  */
-case class Policy(var name:String, ios:Set[DataIO[_<:DataType]], operations:Set[Operation[_<:DataType,_<:DataType]], links:Set[Link[_<:DataType]]) extends Properties{
+case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Set[Operation[_<:DataType,_<:DataType]], links:Set[Link[_<:DataType]]) extends Properties{
 
 
   // Constructors
@@ -38,7 +38,7 @@ case class Policy(var name:String, ios:Set[DataIO[_<:DataType]], operations:Set[
 
   def add(c:Concept):Policy = {
     c match {
-      case n:DataIO[_] => addIO(n)
+      case n:PolicyIO[_] => addIO(n)
       case n:Operation[_, _] => addActivity(n)
       case _ => throw new Exception(c + " is not handled by method add")
     }
@@ -46,13 +46,13 @@ case class Policy(var name:String, ios:Set[DataIO[_<:DataType]], operations:Set[
 
   def delete(c:Concept):Policy = {
     c match {
-      case n:DataIO[_] => deleteIO(n)
+      case n:PolicyIO[_] => deleteIO(n)
       case n:Operation[_, _] => deleteActivity(n)
       case _ => throw new Exception(c + " is not handled by method delete")
     }
   }
 
-  def addIO(o:DataIO[_<:DataType]):Policy = {
+  def addIO(o:PolicyIO[_<:DataType]):Policy = {
     new Policy(name, ios + o, operations, links)
   }
   /**
@@ -90,7 +90,7 @@ case class Policy(var name:String, ios:Set[DataIO[_<:DataType]], operations:Set[
    * @param c Workflow IO
    * @return A workflow without this IO and links referring this IO
    */
-  def deleteIO(c:DataIO[_<:DataType]):Policy = {
+  def deleteIO(c:PolicyIO[_<:DataType]):Policy = {
     new Policy(name, ios - c, operations, links.filterNot(p => (p.destination == c) || (p.source == c)))
   }
 
@@ -99,13 +99,13 @@ case class Policy(var name:String, ios:Set[DataIO[_<:DataType]], operations:Set[
    * @param root Root element
    */
   def subWorkflow(root:Concept, last:Option[Concept] = None):Policy = {
-    val ios = new ArrayBuffer[DataIO[_<:DataType]]()
+    val ios = new ArrayBuffer[PolicyIO[_<:DataType]]()
     val activities = new ArrayBuffer[Operation[_<:DataType, _<:DataType]]()
     val links = new ArrayBuffer[Link[_<:DataType]]()
     // Add root into the activities/ios
 
     root match {
-      case elem:DataIO[_] => ios += elem
+      case elem:PolicyIO[_] => ios += elem
       case elem:Operation[_, _] => activities += elem
     }
 
