@@ -17,6 +17,8 @@ object ToGraphviz {
       case EventSensor(n) => generateNodeShape("invtriangle", "green") + io.id + printlabel(n) + ";"
       case JoinPointInput(a) if showStubs => generateNodeShape("doublecircle", "green") + io.id + ";"
       case JoinPointOutput(a) if showStubs =>  generateNodeShape("doublecircle", "crimson") + io.id + ";"
+      case GenericInput(name) => generateNodeShape("invtriangle", "darkslateblue") + io.id + printlabel(name) + ";"
+      case GenericOutput(name) => generateNodeShape("triangle", "darkslateblue") + io.id + printlabel(name) + ";"
       case _ => ""
     }
   }

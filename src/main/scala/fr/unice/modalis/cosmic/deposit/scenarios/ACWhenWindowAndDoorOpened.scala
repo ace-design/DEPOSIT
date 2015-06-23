@@ -1,7 +1,6 @@
 package fr.unice.modalis.cosmic.deposit.scenarios
 
-import fr.unice.modalis.cosmic.deployment.PreDeploy
-import fr.unice.modalis.cosmic.deployment.utils.InfrastructureModelBuilder
+import fr.unice.modalis.cosmic.deposit.converter.ToGraphviz
 import fr.unice.modalis.cosmic.deposit.core._
 
 /**
@@ -11,17 +10,17 @@ object ACWhenWindowAndDoorOpened {
 
 
   val virtualState = {
-    val sensor = new fr.unice.modalis.cosmic.deposit.core.EventSensor[SmartCampusType]("sensor")
+    val input = new GenericInput[SmartCampusType]("input")
     val cond = new Conditional[SmartCampusType]("i.v < 500")
 
-    val open = new Collector[SmartCampusType]("open")
-    val closed = new Collector[SmartCampusType]("closed")
+    val open = new GenericOutput[SmartCampusType]("open")
+    val closed = new GenericOutput[SmartCampusType]("closed")
 
-    val l1 = Link(sensor.output, cond.input)
+    val l1 = Link(input.output, cond.input)
     val l2 = Link(cond.thenOutput, open.input)
     val l3 = Link(cond.elseOutput, closed.input)
 
-    new Policy().add(sensor).add(cond).add(open).add(closed).addLink(l1).addLink(l2).addLink(l3)
+    new Policy().add(input).add(cond).add(open).add(closed).addLink(l1).addLink(l2).addLink(l3)
 
   }
 
@@ -39,8 +38,8 @@ object ACWhenWindowAndDoorOpened {
 
 
   val l1 = Link(acSensor.output, acOn.input)
-  val l2 = Link(windowSensor.output, windowOpened.getInput("sensor"))
-  val l3 = Link(doorSensor.output, doorOpened.getInput("sensor"))
+  val l2 = Link(windowSensor.output, windowOpened.getInput("input"))
+  val l3 = Link(doorSensor.output, doorOpened.getInput("input"))
 
   val l4 = Link(acOn.thenOutput, switch.getInput("i1"))
   val l5 = Link(doorOpened.getOutput("open"), switch.getInput("i2"))
@@ -52,13 +51,15 @@ object ACWhenWindowAndDoorOpened {
 }
 
 object TestDeployment extends App {
-  val model = InfrastructureModelBuilder("configurations/smartcampus_demo.xml")
+  //println(ACWhenWindowAndDoorOpened.windowOpened)
+  println(ToGraphviz(ACWhenWindowAndDoorOpened.virtualState))
+  /*val model = InfrastructureModelBuilder("configurations/smartcampus_demo.xml")
   model.resources.foreach {o => println(o + ": " + o.properties)}
 
 
   PreDeploy(ACWhenWindowAndDoorOpened.policy, model)
   ACWhenWindowAndDoorOpened.policy.operations.foreach(o => println(o + ":" + o.readProperty("targets")))
-
+*/
 
 }
 
