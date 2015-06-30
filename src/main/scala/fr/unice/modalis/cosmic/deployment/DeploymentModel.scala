@@ -4,12 +4,13 @@ import fr.unice.modalis.cosmic.deployment.exception.NoTargetFoundException
 import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.{GenericNode, NetworkTopology}
 import fr.unice.modalis.cosmic.deposit.core.{DataType, Operation, Policy, Process, Sensor}
 
+import scala.collection.mutable
+
 /**
  * Prepare the deployment of a data collection policy
  * Created by Cyril Cecchinel - I3S Laboratory on 12/05/15.
  */
 object PreDeploy {
-
 
   def apply(policy: Policy, topology: NetworkTopology) = prepare(policy, topology)
 
@@ -22,6 +23,22 @@ object PreDeploy {
     var policy = p
     p.operations collect {case x:Process[_,_] => x } foreach {process => policy = process.expand(policy)}
     policy
+  }
+
+  /**
+   * Get the repartition of operation on a given topology
+   * @param p Policy
+   * @param topology Network topology
+   * @return A hashmap (GenericNode, Set(operations))
+   */
+  def getOperationRepartition(p:Policy, topology: NetworkTopology) = {
+    val repartition = mutable.HashMap[GenericNode, Set[Operation[_<:DataType, _<:DataType]]]()
+    p.operations.map(o => o.readProperty("targets"))
+    for (resource <- topology.resources if resource.isProgrammable) yield {
+      val selection = p.operations.filter(o => o.readProperty("targets").getOrElse(false).asInstanceOf[Set[GenericNode]] contains resource)
+      repartition += ((resource, selection))
+    }
+    repartition
   }
 
   /**
@@ -44,7 +61,7 @@ object PreDeploy {
       var targets:Set[GenericNode] = Set.empty
       for (resource <- topology.resources; sensorsConnected = resource.readProperty("sensors").getOrElse(Set[Sensor[_]]()).asInstanceOf[Set[fr.unice.modalis.cosmic.deployment.network.dsl.kernel.Sensor]].map(_.name)) yield {
 
-        if (sensorsNeeded.forall(sensorsConnected contains _)) {
+        if (sensorsNeeded.forall(sensorsConnected.contains)) {
 
           // If the resource is programmable
           if (resource.isProgrammable)
@@ -66,8 +83,8 @@ object PreDeploy {
 object Deploy {
 
   def deploy (policy:Policy, topology: NetworkTopology, targets: Map[Operation[_<:DataType, _<:DataType], GenericNode]) = {
-    require(targets.keys.forall(policy.operations contains _))
-    require(targets.values.forall(topology.resources contains _))
+    require(targets.keys.forall(policy.operations.contains))
+    require(targets.values.forall(topology.resources.contains))
 
 
   }
