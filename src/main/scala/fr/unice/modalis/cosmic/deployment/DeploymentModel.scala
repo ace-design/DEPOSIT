@@ -14,6 +14,17 @@ object PreDeploy {
   def apply(policy: Policy, topology: NetworkTopology) = prepare(policy, topology)
 
   /**
+   * Expand processes
+   * @param p Policy
+   * @return A policy with processes expanded
+   */
+  def expandProcesses(p:Policy) = {
+    var policy = p
+    p.operations collect {case x:Process[_,_] => x } foreach {process => policy = process.expand(policy)}
+    policy
+  }
+
+  /**
    * Compute the sensors involved for each operation and each node
    * @param p Data collection policy
    * @param topology Network topology
@@ -21,8 +32,7 @@ object PreDeploy {
   def prepare(p:Policy, topology: NetworkTopology) = {
 
     // Step 0: develop the processes
-    var policy = p
-    p.operations collect {case x:Process[_,_] => x } foreach {process => policy = process.expand(policy)}
+    val policy = expandProcesses(p)
 
     // Step 1: compute Sensors involved for each operation of the policy
     policy.operations.foreach(o => o.addProperty("sensors", policy.sensorsInvolved(o)))
