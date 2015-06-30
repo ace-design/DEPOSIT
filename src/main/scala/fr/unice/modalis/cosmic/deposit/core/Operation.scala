@@ -1,6 +1,8 @@
 package fr.unice.modalis.cosmic.deposit.core
 
 import scala.collection.immutable.Set
+import scala.collection.mutable.ArrayBuffer
+
 /**
  * Business concerns
  * Represents domain expert business operations
@@ -209,6 +211,43 @@ case class Process[I<:DataType, O<:DataType](val workflow:Policy) extends Operat
 
   override def toString:String = "PROCESS[" + workflow.name + "]"
 
+  def expand(parent:Policy) = {
+    if (!parent.operations.contains(this)) throw new NotExtendableException(parent)
+
+    val newLinks = ArrayBuffer[Link[_<:DataType]]()
+    // Compute the links to add between the previous concept and the first concept of this process
+    parent.linksTo(this).foreach {
+      l =>
+        workflow.linksFrom(
+          workflow.ios.find(_.name == l.destination_input.name).get)
+          .foreach(n => newLinks += Link(l.source_output, n.destination_input))
+    }
+
+    // Compute the links to add between the last concept of this process and the first concept after this process
+    parent.linksFrom(this).foreach {
+      l =>
+        workflow.linksTo(
+        workflow.ios.find(_.name == l.source_output.name).get)
+          .foreach(n => newLinks += Link(n.source_output, l.destination_input)
+        )
+    }
+
+    // Delete all input/output concepts in the embedded workflow
+    var resultIODeletion = workflow
+    workflow.ios.foreach {io => resultIODeletion = resultIODeletion.delete(io)}
+
+    var transformationsResult = parent
+    // Delete the process concept into the parent policy
+    transformationsResult = transformationsResult.delete(this)
+
+    // Add the operations and links into the parent policy
+    resultIODeletion.operations.foreach(o => transformationsResult = transformationsResult.add(o))
+    resultIODeletion.links.foreach(l => transformationsResult = transformationsResult.addLink(l))
+    newLinks.foreach(l => transformationsResult = transformationsResult.addLink(l))
+
+    // Return the policy
+    transformationsResult
+  }
 
 
 }
