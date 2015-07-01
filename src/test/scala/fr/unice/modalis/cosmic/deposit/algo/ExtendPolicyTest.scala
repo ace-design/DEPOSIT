@@ -9,14 +9,17 @@ import org.specs2.mutable.SpecificationWithJUnit
 class ExtendPolicyTest extends SpecificationWithJUnit {
   "Helper methods" should {
     "compute the join points and links for an operation" in {
-      val res = ExtendPolicy.generateJoinPointsForOperation(new Add[IntegerType](Set("i1", "i2")))
+      val adder = new Add[IntegerType](Set("i1", "i2"))
+      val p = new Policy().add(adder)
+      val res = ExtendPolicy.generateJoinPointsForOperation(adder, p)
       (res._1 must have size 3) and (res._2 must have size 3)
     }
 
     "not compute the join points for an operation if this latter is not extendable" in {
       val adder = new Add[IntegerType](Set("i1", "i2"))
+      val p = new Policy().add(adder)
       adder.setExtendable(false)
-      ExtendPolicy.generateJoinPointsForOperation(adder) must throwAn[IllegalArgumentException]
+      ExtendPolicy.generateJoinPointsForOperation(adder, p) must throwAn[IllegalArgumentException]
     }
 
     "Factorize invert Extend operation" in {

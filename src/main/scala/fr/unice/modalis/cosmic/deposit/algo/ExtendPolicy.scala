@@ -12,8 +12,8 @@ case class Unification[T<:DataType](val a:JoinPointOutput[T], val b:JoinPointInp
 object ExtendPolicy {
 
 
-  def apply(p:Policy):Policy = {
-    val toApply = (for (activity <- p.operations; if(activity.isExtendable)) yield generateJoinPointsForOperation(activity))
+  def apply(p:Policy, emptyIOonly:Boolean = false):Policy = {
+    val toApply = (for (activity <- p.operations; if(activity.isExtendable)) yield generateJoinPointsForOperation(activity, p, emptyIOonly))
       .foldLeft(Set[JoinPoint[_ <:DataType]](),Set[Link[_ <:DataType]]()){(acc, e) => (acc._1 ++ e._1, acc._2 ++ e._2)}
     var policy = p
     toApply._1.foreach(j => policy = policy.add(j))
@@ -22,31 +22,46 @@ object ExtendPolicy {
     policy
   }
 
+
+
   /**
    * Compute the join points for an operation
    * Pre-condition: The operation can be joined
-   * @param o Operation
+   * @param op Operation
    * @tparam T Inputs type
    * @tparam O Outputs type
    * @return List of join points and List of links
    */
-  def generateJoinPointsForOperation[T<:DataType, O<:DataType](o:Operation[T,O]) = {
-    require(o.isExtendable)
+  def generateJoinPointsForOperation[T<:DataType, O<:DataType](op:Operation[T,O], p:Policy, emptyIOonly:Boolean = false) = {
+    require(op.isExtendable)
+    require(p.operations contains op)
+    var outputs:Set[Output[_<:DataType]] = Set()
+    var inputs:Set[Input[_<:DataType]] = Set()
     val linksToAdd = new ArrayBuffer[Link[_<:DataType]]()
     val iosToAdd = new ArrayBuffer[JoinPoint[_<:DataType]]()
 
-    o.outputs.foreach(o => {
+
+
+
+    if (emptyIOonly) {
+      outputs =  op.outputs.asInstanceOf[Set[Output[_<:DataType]]] -- p.linksFrom(op).map {l => l.source_output}
+      inputs =  op.inputs.asInstanceOf[Set[Input[_<:DataType]]] -- p.linksTo(op).map {l => l.destination_input}
+    } else {
+      outputs = op.outputs.asInstanceOf[Set[Output[_<:DataType]]]
+      inputs = op.inputs.asInstanceOf[Set[Input[_<:DataType]]]
+    }
+    outputs.foreach(o => {
       val l = new Link(o, new JoinPointOutput(o).input)
       val s = l.destination
       linksToAdd += l
-      iosToAdd += s.asInstanceOf[JoinPointOutput[_<:DataType]]
+      iosToAdd += s.asInstanceOf[JoinPointOutput[_ <: DataType]]
     })
 
-    o.inputs.foreach(i => {
-      val l = new Link(new JoinPointInput(i).output, i)
-      val s = l.source
-      linksToAdd += l
-      iosToAdd += s.asInstanceOf[JoinPointInput[_<:DataType]]
+    inputs.foreach(i => {
+        val l = new Link(new JoinPointInput(i).output, i)
+        val s = l.source
+        linksToAdd += l
+        iosToAdd += s.asInstanceOf[JoinPointInput[_<:DataType]]
     })
 
     (iosToAdd.toSet, linksToAdd.toSet)
