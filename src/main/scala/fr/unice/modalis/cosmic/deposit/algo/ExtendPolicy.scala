@@ -5,15 +5,16 @@ import fr.unice.modalis.cosmic.deposit.core._
 import scala.collection.mutable.ArrayBuffer
 
 /**
+ * Methods and objects related to (de)composition operators
  * Created by Cyril Cecchinel - I3S Laboratory on 28/04/15.
  */
-case class Unification[T<:DataType](val a:JoinPointOutput[T], val b:JoinPointInput[T])
+case class Unification[T<:DataType](a:JoinPointOutput[T], b:JoinPointInput[T])
 
 object ExtendPolicy {
 
 
   def apply(p:Policy, emptyIOonly:Boolean = false):Policy = {
-    val toApply = (for (activity <- p.operations; if(activity.isExtendable)) yield generateJoinPointsForOperation(activity, p, emptyIOonly))
+    val toApply = (for (activity <- p.operations; if activity.isExpendable) yield generateJoinPointsForOperation(activity, p, emptyIOonly))
       .foldLeft(Set[JoinPoint[_ <:DataType]](),Set[Link[_ <:DataType]]()){(acc, e) => (acc._1 ++ e._1, acc._2 ++ e._2)}
     var policy = p
     toApply._1.foreach(j => policy = policy.add(j))
@@ -33,7 +34,7 @@ object ExtendPolicy {
    * @return List of join points and List of links
    */
   def generateJoinPointsForOperation[T<:DataType, O<:DataType](op:Operation[T,O], p:Policy, emptyIOonly:Boolean = false) = {
-    require(op.isExtendable)
+    require(op.isExpendable)
     require(p.operations contains op)
     var outputs:Set[Output[_<:DataType]] = Set()
     var inputs:Set[Input[_<:DataType]] = Set()

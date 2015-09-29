@@ -4,6 +4,7 @@ import fr.unice.modalis.cosmic.deposit.core._
 import org.specs2.mutable.SpecificationWithJUnit
 
 /**
+ * Operation tests
  * Created by Cyril Cecchinel - I3S Laboratory on 28/04/15.
  */
 class ExtendPolicyTest extends SpecificationWithJUnit {
@@ -18,7 +19,7 @@ class ExtendPolicyTest extends SpecificationWithJUnit {
     "not compute the join points for an operation if this latter is not extendable" in {
       val adder = new Add[IntegerType](Set("i1", "i2"))
       val p = new Policy().add(adder)
-      adder.setExtendable(false)
+      adder.setExpendable(false)
       ExtendPolicy.generateJoinPointsForOperation(adder, p) must throwAn[IllegalArgumentException]
     }
 

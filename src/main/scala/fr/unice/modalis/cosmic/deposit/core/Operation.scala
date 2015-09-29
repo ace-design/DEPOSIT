@@ -26,18 +26,16 @@ trait Operation[I<:DataType, O<:DataType] extends Concept with Properties{
    * @param s Requested name
    * @return Input option
    */
-  def getInput(s:String):Input[I] = inputs.find(_.name.equalsIgnoreCase(s)).getOrElse(throw new Exception("Input " + s +  " not found"))
+  def getInput(s:String = DEFAULT_INPUT_NAME):Input[I] = inputs.find(_.name.equalsIgnoreCase(s)).getOrElse(throw new Exception("Input " + s +  " not found"))
 
   /**
    * Find an output with its name
    * @param s Requested name
    * @return Output option
    */
-  def getOutput(s:String):Output[O] = outputs.find(_.name.equalsIgnoreCase(s)).getOrElse(throw new Exception("Output " + s +  " not found"))
+  def getOutput(s:String = DEFAULT_OUTPUT_NAME):Output[O] = outputs.find(_.name.equalsIgnoreCase(s)).getOrElse(throw new Exception("Output " + s +  " not found"))
 
-  override val id:String = "concept_" + scala.util.Random.alphanumeric.take(5).mkString
-  
-  override def toString:String
+  override val id:String = "concept_" + super.id
 
 }
 
@@ -49,7 +47,6 @@ trait Arithmetic[T<:AtomicType] extends Operation[T, T] {
 
   lazy val output = getOutput(DEFAULT_OUTPUT_NAME)
 
-  def toString:String
 }
 
 trait Filtering[T<:DataType] extends Operation[T, T]
@@ -61,14 +58,18 @@ trait Comparison[T<:DataType] extends Operation[T, T]
  * @param v Constant
  * @tparam T Constant DataType
  */
-case class Constant[T<:DataType](val v:T) extends Operation[T,T] {
+case class Constant[T<:DataType](v:T) extends Operation[T,T] {
   override val inputsNames: Set[String] = Set()
   override val outputsNames: Set[String] = Set(DEFAULT_OUTPUT_NAME)
 
   lazy val output = getOutput(DEFAULT_OUTPUT_NAME)
+  override val commonName: String = "CONSTANT(" + v.value + ")"
 
-  override def toString:String = "CONSTANT(" + v.value + ")"
-
+  /**
+   * Return a copy of this concept (with different id)
+   * @return copy of this concept
+   */
+  override def duplicate: Concept = new Constant[T](v)
 }
 
 
@@ -78,15 +79,19 @@ case class Constant[T<:DataType](val v:T) extends Operation[T,T] {
  * @tparam I CompositeType
  * @tparam O Type of the field to isolate
  */
-case class Extract[I<:CompositeType, O<:AtomicType](val field:String) extends Operation[I,O] {
+case class Extract[I<:CompositeType, O<:AtomicType](field:String) extends Operation[I,O] {
   override val inputsNames: Set[String] = Set(DEFAULT_INPUT_NAME)
   override val outputsNames: Set[String] = Set(DEFAULT_OUTPUT_NAME)
 
   lazy val input = getInput(DEFAULT_INPUT_NAME)
   lazy val output = getOutput(DEFAULT_OUTPUT_NAME)
+  override val commonName: String = "EXTRACT(" + field + ")"
 
-  override def toString:String = "EXTRACT(" + field + ")"
-
+  /**
+   * Return a copy of this concept (with different id)
+   * @return copy of this concept
+   */
+  override def duplicate: Concept = new Extract[I,O](field)
 }
 
 /*** FILTERING OPERATIONS ***/
@@ -97,7 +102,7 @@ case class Extract[I<:CompositeType, O<:AtomicType](val field:String) extends Op
  * @param predicate Predicate
  * @tparam T DataType
  */
-case class Conditional[T<:DataType](val predicate:String) extends Filtering[T] {
+case class Conditional[T<:DataType](predicate:String) extends Filtering[T] {
   final val THEN_OUTPUT_NAME = "then"
   final val ELSE_OUTPUT_NAME = "else"
 
@@ -107,18 +112,25 @@ case class Conditional[T<:DataType](val predicate:String) extends Filtering[T] {
   lazy val input = getInput(DEFAULT_INPUT_NAME)
   lazy val elseOutput = getOutput(ELSE_OUTPUT_NAME)
   lazy val thenOutput = getOutput(THEN_OUTPUT_NAME)
+  override val commonName: String = "CONDITIONAL(" + predicate + ")"
 
-  override def toString:String = "CONDITIONAL(p={"+predicate+"})"
-
+  /**
+   * Return a copy of this concept (with different id)
+   * @return copy of this concept
+   */
+  override def duplicate: Concept = new Conditional[T](predicate)
 }
 
-case class Switch[T<:DataType](val switchMap:Map[String,String], val inputsNames:Set[String], val outputsNames:Set[String]) extends Filtering[T] {
-  require(switchMap.keys.forall(inputsNames.contains(_)))
-  require(switchMap.values.forall(outputsNames.contains(_)))
+case class Switch[T<:DataType](switchMap:Map[String,String], inputsNames:Set[String], outputsNames:Set[String]) extends Filtering[T] {
+  require(switchMap.keys.forall(inputsNames.contains))
+  require(switchMap.values.forall(outputsNames.contains))
+  override val commonName: String = "SWITCH(" + switchMap + ")"
 
-
-  override def toString:String = "SWITCH(" + switchMap + ")"
-
+  /**
+   * Return a copy of this concept (with different id)
+   * @return copy of this concept
+   */
+  override def duplicate: Concept = new Switch[T](switchMap, inputsNames, outputsNames)
 }
 /*** COMPARISON OPERATIONS ***/
 
@@ -127,12 +139,16 @@ case class Switch[T<:DataType](val switchMap:Map[String,String], val inputsNames
  * @param inputsNames Inputs names
  * @tparam T Inputs DataType
  */
-case class Max[T<:DataType](val inputsNames:Set[String]) extends Comparison[T] {
+case class Max[T<:DataType](inputsNames:Set[String]) extends Comparison[T] {
   override val outputsNames: Set[String] = Set(DEFAULT_OUTPUT_NAME)
   lazy val output = getOutput(DEFAULT_OUTPUT_NAME)
+  override val commonName: String = "MAX"
 
-  override def toString:String = "MAX"
-
+  /**
+   * Return a copy of this concept (with different id)
+   * @return copy of this concept
+   */
+  override def duplicate: Concept = new Max[T](inputsNames)
 }
 
 /**
@@ -140,12 +156,16 @@ case class Max[T<:DataType](val inputsNames:Set[String]) extends Comparison[T] {
  * @param inputsNames Inputs names
  * @tparam T Inputs DataType
  */
-case class Min[T<:DataType](val inputsNames:Set[String]) extends Comparison[T] {
+case class Min[T<:DataType](inputsNames:Set[String]) extends Comparison[T] {
   override val outputsNames: Set[String] = Set(DEFAULT_OUTPUT_NAME)
   lazy val output = getOutput(DEFAULT_OUTPUT_NAME)
+  override val commonName: String = "MIN"
 
-  override def toString:String = "MIN"
-
+  /**
+   * Return a copy of this concept (with different id)
+   * @return copy of this concept
+   */
+  override def duplicate: Concept = new Min[T](inputsNames)
 }
 
 
@@ -164,52 +184,114 @@ trait BinaryComparison[T<:DataType] extends Comparison[T] {
 
   lazy val output = getOutput(DEFAULT_OUTPUT_NAME)
 
-  def toString:String
+
 }
 
 case class Lower[T<:DataType]() extends BinaryComparison[T] {
-  override def toString:String = "LOWER"
+  override val commonName: String = "LOWER"
+
+  /**
+   * Return a copy of this concept (with different id)
+   * @return copy of this concept
+   */
+  override def duplicate: Concept = new Lower[T]
 }
 
 case class LowerEq[T<:DataType]() extends BinaryComparison[T] {
-  override def toString:String = "LOWEREQ"
+  override val commonName: String = "LOWEREQ"
+
+  /**
+   * Return a copy of this concept (with different id)
+   * @return copy of this concept
+   */
+  override def duplicate: Concept = new LowerEq[T]
 }
 
 case class Higher[T<:DataType]() extends BinaryComparison[T] {
-  override def toString:String = "HIGHER"
+  override val commonName: String = "HIGHER"
+
+  /**
+   * Return a copy of this concept (with different id)
+   * @return copy of this concept
+   */
+  override def duplicate: Concept = new Higher[T]
 }
 
 case class HigherEq[T<:DataType]() extends BinaryComparison[T] {
-  override def toString:String = "HIGHEREQ"
+  override val commonName: String = "HIGHEREQ"
+
+  /**
+   * Return a copy of this concept (with different id)
+   * @return copy of this concept
+   */
+  override def duplicate: Concept = new HigherEq[T]
 }
 
 /*** ARITHMETIC OPERATIONS ***/
-case class Add[I<:AtomicType](val inputsNames:Set[String]) extends Arithmetic[I] {
-  override def toString:String = "ADD"
+case class Add[I<:AtomicType](inputsNames:Set[String]) extends Arithmetic[I] {
+  override val commonName: String = "ADD"
+
+  /**
+   * Return a copy of this concept (with different id)
+   * @return copy of this concept
+   */
+  override def duplicate: Concept = new Add[I](inputsNames)
 }
 
-case class Sub[I<:AtomicType](val inputsNames:Set[String]) extends Arithmetic[I] {
-  override def toString:String = "SUB"
+case class Sub[I<:AtomicType](inputsNames:Set[String]) extends Arithmetic[I] {
+  override val commonName: String = "SUB"
+
+  /**
+   * Return a copy of this concept (with different id)
+   * @return copy of this concept
+   */
+  override def duplicate: Concept = new Sub[I](inputsNames)
 }
 
-case class Multiply[I<:AtomicType](val inputsNames:Set[String]) extends Arithmetic[I] {
-  override def toString:String = "MULTIPLY"
+case class Multiply[I<:AtomicType](inputsNames:Set[String]) extends Arithmetic[I] {
+  override val commonName: String = "MULTIPLY"
+
+  /**
+   * Return a copy of this concept (with different id)
+   * @return copy of this concept
+   */
+  override def duplicate: Concept = new Multiply[I](inputsNames)
 }
 
-case class Divide[I<:AtomicType](val inputsNames:Set[String]) extends Arithmetic[I] {
-  override def toString:String = "DIVIDE"
+case class Divide[I<:AtomicType](inputsNames:Set[String]) extends Arithmetic[I] {
+  override val commonName: String = "DIVIDE"
+
+  /**
+   * Return a copy of this concept (with different id)
+   * @return copy of this concept
+   */
+  override def duplicate: Concept = new Divide[I](inputsNames)
 }
 
-case class Average[I<:AtomicType](val inputsNames:Set[String]) extends Arithmetic[I] {
-  override def toString:String = "AVERAGE"
+case class Average[I<:AtomicType](inputsNames:Set[String]) extends Arithmetic[I] {
+  override val commonName: String = "AVERAGE"
+
+  /**
+   * Return a copy of this concept (with different id)
+   * @return copy of this concept
+   */
+  override def duplicate: Concept = new Average[I](inputsNames)
 }
 
 /*** PROCESS OPERATION ***/
-case class Process[I<:DataType, O<:DataType](val workflow:Policy) extends Operation[I,O]{
+case class Process[I<:DataType, O<:DataType](workflow:Policy) extends Operation[I,O]{
+
+  override val commonName: String = "PROCESS(" + workflow.name + ")"
+
+  /**
+   * Return a copy of this concept (with different id)
+   * @return copy of this concept
+   */
+  override def duplicate: Concept = new Process[I,O](workflow)
+
   override val inputsNames: Set[String] = workflow.sources.map(_.name)
   override val outputsNames: Set[String] = workflow.collectors.map(_.name)
 
-  override def toString:String = "PROCESS[" + workflow.name + "]"
 
   def expand(parent:Policy) = {
     if (!parent.operations.contains(this)) throw new NotExtendableException(parent)

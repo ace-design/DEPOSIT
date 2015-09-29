@@ -1,8 +1,9 @@
 package fr.unice.modalis.cosmic.deposit.core
 
-import fr.unice.modalis.cosmic.deposit.algo.{Weave, Unification, ExtendPolicy}
+import fr.unice.modalis.cosmic.deposit.algo.{ExtendPolicy, Unification, Weave}
 
 /**
+ * Data collection policies Test (SmartSantander parking scenari)
  * Created by Cyril Cecchinel - I3S Laboratory on 28/04/15.
  */
 object DCPTest {
@@ -44,7 +45,7 @@ object DCPTest {
 
     val s = EventSensor[SantanderParkingType]("parking_sensor")
     val constant = Constant(new IntegerType(1))
-    constant.setExtendable(false)
+    constant.setExpendable(false)
     val a1 = Extract[SantanderParkingType, IntegerType]("status")
     val a2 = Conditional[IntegerType]("i == 1")
     val a3a = Sub[IntegerType](Set("i1", "i2"))
@@ -87,7 +88,7 @@ object DCPTest {
 
     val ios = sensors ++ Set(collectorA)
     val activities: Set[Operation[_ <: DataType, _ <: DataType]] = (converters ++ List(adder)).toSet
-    val links = (linksToProcess ++ linksToAdd ++ List(l))
+    val links = linksToProcess ++ linksToAdd ++ List(l)
 
     ios.foreach(x => dcp = dcp.addIO(x))
     activities.foreach(x => dcp = dcp.addActivity(x))
