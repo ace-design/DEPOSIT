@@ -29,6 +29,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   addProperty("name", name) //Add name as a property
 
 
+  def findConceptById(id:String) = ios ++ operations find {_.id equals id}
 
   /**
    * Graph representation

@@ -4,12 +4,18 @@ import fr.unice.modalis.cosmic.deposit.algo.{Unification, Weave}
 import org.specs2.mutable.SpecificationWithJUnit
 
 /**
+ * Policy test
  * Created by Cyril Cecchinel - I3S Laboratory on 28/04/15.
  */
 class PolicyTest extends SpecificationWithJUnit {
 
   "Policy#name" should {
     "return the name of the policy" in { DCPTest.dcpA.name must beEqualTo("DCPA")}
+  }
+
+  "A concept can be retrived by its id" in {
+    DCPTest.p2.findConceptById(DCPTest.c2.id) must beSome(DCPTest.c2)
+    DCPTest.p2.findConceptById("wrongid") must beNone
   }
 
   "Properties" should {
