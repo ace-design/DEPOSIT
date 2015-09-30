@@ -1,22 +1,35 @@
 package fr.unice.modalis.cosmic.deposit.core
 
 /**
- * Data Input/Output trait
+ * Input/Output trait
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
+ */
+
+/**
+ * Policy I/O
+ * @tparam T Datatype
  */
 trait PolicyIO[T<:DataType] extends Concept{
   override val id:String = "io" + scala.util.Random.alphanumeric.take(5).mkString
   val name:String
 }
 
+/**
+ * Data I/O
+ * @tparam T DataType
+ */
 trait DataIO[T<:DataType] extends PolicyIO[T]{
 
 }
 
-trait DataInput[T<:DataType] extends DataIO[T]
+trait DataInput[T<:DataType] extends DataIO[T]{
+  val output:Output[T]
+}
 
 
-trait DataOutput[T<:DataType] extends DataIO[T]
+trait DataOutput[T<:DataType] extends DataIO[T] {
+  val input:Input[T]
+}
 
 
 

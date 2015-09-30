@@ -211,7 +211,22 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     result
   }
 
+  def duplicate = {
+    // Convert links between operations
+    val corr = (this.links.map {l => l.source } ++ this.links.map{l => l.destination}).map{c => (c, c.duplicate)} toMap
 
+    // Build new links /!\ This code will be refactored (dont care about the instance of)
+    val _l1 = this.links.filter(l => l.source.isInstanceOf[Operation[_,_]] && l.destination.isInstanceOf[Operation[_,_]]).map{l => (corr(l.source), corr(l.destination), l.source_output.name, l.destination_input.name)}.map(l => Link(l._1.asInstanceOf[Operation[_<:DataType,_<:DataType]].getOutput(l._3), l._2.asInstanceOf[Operation[_<:DataType,_<:DataType]].getInput(l._4)))
+    val _l2 = this.links.filter(l => l.source.isInstanceOf[DataInput[_]] && l.destination.isInstanceOf[Operation[_,_]]).map{l => (corr(l.source), corr(l.destination), l.source_output.name, l.destination_input.name)}.map(l => Link(l._1.asInstanceOf[DataInput[_<:DataType]].output, l._2.asInstanceOf[Operation[_<:DataType,_<:DataType]].getInput(l._4)))
+    val _l3 = this.links.filter(l => l.source.isInstanceOf[Operation[_,_]] && l.destination.isInstanceOf[DataOutput[_]]).map{l => (corr(l.source), corr(l.destination), l.source_output.name, l.destination_input.name)}.map(l => Link(l._1.asInstanceOf[Operation[_<:DataType,_<:DataType]].getOutput(l._3), l._2.asInstanceOf[DataOutput[_<:DataType]].input))
+    val _l4 = this.links.filter(l => l.source.isInstanceOf[DataInput[_]] && l.destination.isInstanceOf[DataOutput[_]]).map{l => (corr(l.source), corr(l.destination), l.source_output.name, l.destination_input.name)}.map(l => Link(l._1.asInstanceOf[DataInput[_<:DataType]].output, l._2.asInstanceOf[DataOutput[_<:DataType]].input))
+    val linksDuplicated = _l1 ++ _l2 ++ _l3 ++ _l4
+    val iosDuplicated = linksDuplicated.filter(_.source.isInstanceOf[DataIO[_]]).map {_.source} ++ linksDuplicated.filter(_.destination.isInstanceOf[DataIO[_]]).map {_.destination}
+    val operationsDuplicated = linksDuplicated.filter(_.source.isInstanceOf[Operation[_,_]]).map {_.source} ++ linksDuplicated.filter(_.destination.isInstanceOf[Operation[_,_]]).map {_.destination}
+
+    new Policy(name,iosDuplicated.asInstanceOf[Set[PolicyIO[_<:DataType]]], operationsDuplicated.asInstanceOf[Set[Operation[_<:DataType, _<:DataType]]], linksDuplicated.asInstanceOf[Set[Link[_<:DataType]]])
+
+  }
   def linksTo(a:Concept) = links.filter(l => l.destination == a)
 
   def linksFrom(a:Concept) = links.filter(l => l.source == a)

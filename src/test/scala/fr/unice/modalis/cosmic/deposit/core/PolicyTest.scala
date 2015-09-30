@@ -9,6 +9,28 @@ import org.specs2.mutable.SpecificationWithJUnit
  */
 class PolicyTest extends SpecificationWithJUnit {
 
+  "Duplication of policies" should {
+    val a = DCPTest.dcpA
+    val b = DCPTest.dcpA.duplicate
+
+    "policies must not be equals" in {
+      a mustNotEqual b
+    }
+
+    "policies must have the same amount of ios" in {
+      b.ios must haveSize (a.ios.size)
+    }
+
+    "policies must have the same amount of operations" in {
+      println(a.operations.size + " -- " + b.operations.size)
+      b.operations must haveSize (a.operations.size)
+    }
+
+    "policies must have the same amount of links" in {
+      b.links must haveSize (a.links.size)
+
+    }
+  }
   "Policy#name" should {
     "return the name of the policy" in { DCPTest.dcpA.name must beEqualTo("DCPA")}
   }
