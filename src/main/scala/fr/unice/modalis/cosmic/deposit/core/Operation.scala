@@ -296,27 +296,30 @@ case class Process[I<:DataType, O<:DataType](workflow:Policy) extends Operation[
   def expand(parent:Policy) = {
     if (!parent.operations.contains(this)) throw new NotExtendableException(parent)
 
+    // Duplicate the inner workflow (re-generating the concept id)
+    val _workflow = workflow.duplicate
+
     val newLinks = ArrayBuffer[Link[_<:DataType]]()
     // Compute the links to add between the previous concept and the first concept of this process
     parent.linksTo(this).foreach {
       l =>
-        workflow.linksFrom(
-          workflow.ios.find(_.name == l.destination_input.name).get)
+        _workflow.linksFrom(
+          _workflow.ios.find(_.name == l.destination_input.name).get)
           .foreach(n => newLinks += Link(l.source_output, n.destination_input))
     }
 
     // Compute the links to add between the last concept of this process and the first concept after this process
     parent.linksFrom(this).foreach {
       l =>
-        workflow.linksTo(
-        workflow.ios.find(_.name == l.source_output.name).get)
+        _workflow.linksTo(
+          _workflow.ios.find(_.name == l.source_output.name).get)
           .foreach(n => newLinks += Link(n.source_output, l.destination_input)
         )
     }
 
     // Delete all input/output concepts in the embedded workflow
-    var resultIODeletion = workflow
-    workflow.ios.foreach {io => resultIODeletion = resultIODeletion.delete(io)}
+    var resultIODeletion = _workflow
+    _workflow.ios.foreach {io => resultIODeletion = resultIODeletion.delete(io)}
 
     var transformationsResult = parent
     // Delete the process concept into the parent policy
