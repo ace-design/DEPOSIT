@@ -15,7 +15,7 @@ case class Link[T<:DataType](source_output:Output[T], destination_input:Input[T]
   override def toString:String = source_output + "-->" + destination_input
 
   override def equals(a:Any):Boolean = a match {
-    case Link(a, b) if (a == source_output) && (b == destination_input) => true
+    case Link(src, dest)  => (src == source_output) && (dest == destination_input)
     case _ => false
   }
 

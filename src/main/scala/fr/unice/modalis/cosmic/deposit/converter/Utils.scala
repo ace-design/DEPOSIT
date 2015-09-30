@@ -3,6 +3,7 @@ package fr.unice.modalis.cosmic.deposit.converter
 import java.io.PrintWriter
 
 /**
+ * Writing Util methods
  * Created by Cyril Cecchinel - I3S Laboratory on 26/12/14.
  */
 object Utils {

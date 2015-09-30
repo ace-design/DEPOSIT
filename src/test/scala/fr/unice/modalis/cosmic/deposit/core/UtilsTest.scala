@@ -3,6 +3,7 @@ package fr.unice.modalis.cosmic.deposit.core
 import org.specs2.mutable.SpecificationWithJUnit
 
 /**
+ * Sensor creation utils methods testing
  * Created by Cyril Cecchinel - I3S Laboratory on 05/05/15.
  */
 class UtilsTest extends SpecificationWithJUnit{

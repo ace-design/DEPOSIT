@@ -23,7 +23,7 @@ object InfrastructureModelBuilder {
    * @param seq XML representation
    * @return Feature found ?
    */
-  def findFeature(name:String, seq:NodeSeq) = (seq \\ "feature").find(_.text.toLowerCase == name.toLowerCase).isDefined
+  def findFeature(name:String, seq:NodeSeq) = (seq \\ "feature").exists(_.text.toLowerCase == name.toLowerCase)
 
   /**
    * Load the configuration
@@ -53,14 +53,14 @@ object InfrastructureModelBuilder {
             else throw new Exception("Unable to build node " + id)
           }
 
-          for (e <- (configuration \\ "sensornetwork" \\ "entities" \\ "entity"); id = (e \\ "@id").text) {
+          for (e <- configuration \\ "sensornetwork" \\ "entities" \\ "entity"; id = (e \\ "@id").text) {
             buildNode(id, e \\ "features")
           }
 
         }
 
 
-        for (e<- (configuration \\ "sensornetwork" \\ "entities" \\ "entity"); id = (e \\ "@id").text) {
+        for (e<- configuration \\ "sensornetwork" \\ "entities" \\ "entity"; id = (e \\ "@id").text) {
           if (findFeature("Programmable", e))
             resources.find(_.name == id).get.addProperty("programmable", true)
           else
@@ -69,7 +69,7 @@ object InfrastructureModelBuilder {
 
         // Secondly: Build the links
         declare {
-          for (l <- (configuration \\ "sensornetwork" \\ "connections" \\ "connection"); from = (l \\ "@from").text; to = (l \\ "@to").text) {
+          for (l <- configuration \\ "sensornetwork" \\ "connections" \\ "connection"; from = (l \\ "@from").text; to = (l \\ "@to").text) {
             from isConnectedTo to
           }
         }

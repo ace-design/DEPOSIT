@@ -6,6 +6,7 @@ import fr.unice.modalis.cosmic.deposit.core._
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 15/04/15.
  */
+//noinspection ScalaDefaultFileTemplateUsage
 object ECSA15 extends App{
 
   // City of Santander - Smart Parking sensors
@@ -63,7 +64,7 @@ object ECSA15 extends App{
 
     val ios = sensors ++ Set(collectorA)
     val activities: Set[Operation[_ <: DataType, _ <: DataType]] = (converters ++ List(adder)).toSet
-    val links = (linksToProcess ++ linksToAdd ++ List(l))
+    val links = linksToProcess ++ linksToAdd ++ List(l)
 
     ios.foreach(x => dcp = dcp.addIO(x))
     activities.foreach(x => dcp = dcp.addActivity(x))
@@ -86,7 +87,7 @@ object ECSA15 extends App{
     var dcp = new Policy("DCPD")
     val ios = sensors ++ Set(collectorD)
     val activities = Set(a)
-    val links = (linksToConditional ++ List(l))
+    val links = linksToConditional ++ List(l)
 
     ios.foreach(x => dcp = dcp.addIO(x))
     activities.foreach(x => dcp = dcp.addActivity(x))

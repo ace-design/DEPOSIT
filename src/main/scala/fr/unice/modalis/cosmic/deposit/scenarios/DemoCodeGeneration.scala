@@ -7,6 +7,7 @@ import fr.unice.modalis.cosmic.deposit.core._
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 24/09/15.
  */
+//noinspection ScalaDefaultFileTemplateUsage
 object DemoCodeGeneration extends App{
 
   // Define the process

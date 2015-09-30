@@ -37,7 +37,7 @@ def apply(w: Policy): String = generateCode(w)
     s.toString()
   }
 
-  def generateHeader() = {
+  def generateHeader = {
     "digraph finite_state_machine { rankdir=TB; size=\"20\"\n"
   }
 
@@ -47,9 +47,6 @@ def apply(w: Policy): String = generateCode(w)
 
 
   def generateLinkCode(t: Link[_<:DataType]) = {
-//    if (t.source.isInstanceOf[Stub[_]] || t.destination.isInstanceOf[Stub[_]] && !showStubs)
-//      ""
-//    else
       t.source_output.parent.id + "->" + t.destination_input.parent.id + printlabel("o:" + t.source_output.name + " i:" + t.destination_input.name) + "\n"
   }
 

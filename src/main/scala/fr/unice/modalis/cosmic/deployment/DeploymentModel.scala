@@ -53,7 +53,7 @@ object PreDeploy {
 
     // Step 1: compute Sensors involved for each operation of the policy
     policy.operations.foreach(o => o.addProperty("sensors", policy.sensorsInvolved(o)))
-    // Step 2: compute which sensors are reacheable from each point of the sensing infrastructure topology
+    // Step 2: compute which sensors are reachable from each point of the sensing infrastructure topology
     topology.resources.foreach(r => r.addProperty("sensors", topology.getSensorsFromNode(r)))
 
     // Step 3: compute where operations can be projected
@@ -70,7 +70,7 @@ object PreDeploy {
       }
       if (targets.nonEmpty)
         operation.addProperty("targets", targets)
-      else throw new NoTargetFoundException(operation) //If no target has been found for an operation, the policy is undeployable
+      else throw new NoTargetFoundException(operation) //If no target has been found for an operation, the policy can not be deployed
     }
 
     // Return the policy

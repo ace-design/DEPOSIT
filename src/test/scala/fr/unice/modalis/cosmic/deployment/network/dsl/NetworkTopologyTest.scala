@@ -6,6 +6,7 @@ import org.specs2.mutable.SpecificationWithJUnit
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 19/05/15.
  */
+//noinspection ScalaDefaultFileTemplateUsage
 
 trait TestTopology extends NetworkTopology {
   deployed {
@@ -34,13 +35,13 @@ class NetworkTopologyTest extends SpecificationWithJUnit with TestTopology{
     this.resources must contain (Sensor("TEMP_442"))
     this.resources must contain (Sensor("LIGHT_442"))
     this.resources must contain (Bridge("BR_442"))
-    this.resources must not contain (Sensor("INVALID"))
+    this.resources must not contain Sensor("INVALID")
 
   }
 
   "A topology represents the sensor network layout" in {
     this.edges must contain (Edge(Sensor("TEMP_442"), SensorPlatform("ARD_1_442")))
-    this.edges must not contain (Edge(Sensor("TEMP_442"), SensorPlatform("INVALID")))
+    this.edges must not contain Edge(Sensor("TEMP_442"), SensorPlatform("INVALID"))
   }
 
   "It is possible to retrieve predecessors of a given node" in {

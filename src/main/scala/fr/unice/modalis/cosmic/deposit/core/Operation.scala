@@ -294,7 +294,7 @@ case class Process[I<:DataType, O<:DataType](workflow:Policy) extends Operation[
 
 
   def expand(parent:Policy) = {
-    if (!parent.operations.contains(this)) throw new NotExtendableException(parent)
+    if (!parent.operations.contains(this)) throw new NotExpendableException(parent)
 
     // Duplicate the inner workflow (re-generating the concept id)
     val _workflow = workflow.duplicate

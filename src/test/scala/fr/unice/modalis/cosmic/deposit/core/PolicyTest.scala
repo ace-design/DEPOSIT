@@ -22,7 +22,6 @@ class PolicyTest extends SpecificationWithJUnit {
     }
 
     "policies must have the same amount of operations" in {
-      println(a.operations.size + " -- " + b.operations.size)
       b.operations must haveSize (a.operations.size)
     }
 
@@ -35,7 +34,7 @@ class PolicyTest extends SpecificationWithJUnit {
     "return the name of the policy" in { DCPTest.dcpA.name must beEqualTo("DCPA")}
   }
 
-  "A concept can be retrived by its id" in {
+  "A concept can be found by its id" in {
     DCPTest.p2.findConceptById(DCPTest.c2.id) must beSome(DCPTest.c2)
     DCPTest.p2.findConceptById("wrongid") must beNone
   }
@@ -135,8 +134,8 @@ class PolicyTest extends SpecificationWithJUnit {
       }
     }
     "weave a policy" in {
-      "not extendable policies can't be weaved" in {
-        Weave(DCPTest.p1, DCPTest.p2, Set()) must throwA[NotExtendableException]
+      "not expendable policies can't be weaved" in {
+        Weave(DCPTest.p1, DCPTest.p2, Set()) must throwA[NotExpendableException]
       }
       "unify join points" in {
         val u1 = new Unification[IntegerType](

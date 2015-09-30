@@ -1,21 +1,11 @@
 package fr.unice.modalis.cosmic.deposit.core
 
 
-
-/**
- * Data way : IN/OUT
- */
-object IO extends Enumeration {
-  type ComponentIO = Value
-  val IN, OUT = Value
-}
-
 /**
  * Component IO trait : represent a component IO interface
  * @tparam T Supported datatype
  */
 trait Port[+T <: DataType] {
-  val way:IO.ComponentIO
   val parent:Concept
 }
 
@@ -23,10 +13,9 @@ trait Port[+T <: DataType] {
  * Workflow component input
  * @tparam T Data type
  */
-case class Input[+T <: DataType](var name:String, val parent:Concept) extends Port[T] {
+case class Input[+T <: DataType](var name:String, parent:Concept) extends Port[T] {
 
   def this(parent:Concept) = this("input_" + scala.util.Random.alphanumeric.take(5).mkString, parent)
-  val way = IO.IN
   def setName(n: String) = name = n // /!\ Mutable field, PoC Only
 }
 
@@ -34,9 +23,8 @@ case class Input[+T <: DataType](var name:String, val parent:Concept) extends Po
  * Workflow component output
  * @tparam T Data type
  */
-case class Output[+T <: DataType](var name:String, val parent:Concept) extends Port[T] {
+case class Output[+T <: DataType](var name:String, parent:Concept) extends Port[T] {
   def this(parent:Concept) = this("output_" + scala.util.Random.alphanumeric.take(5).mkString, parent)
-  val way = IO.OUT
   def setName(n: String) = name = n // /!\ Mutable field, PoC Only
 
 }

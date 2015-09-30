@@ -1,4 +1,4 @@
-package fr.unice.modalis.cosmic.actions.guard
+package fr.unice.modalis.cosmic.deposit.logic.guard
 
 /**
  * Guard trait

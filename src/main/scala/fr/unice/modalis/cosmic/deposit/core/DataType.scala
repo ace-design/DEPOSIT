@@ -8,8 +8,8 @@ trait DataType {
   val value:Any
 
 }
-trait AtomicType extends DataType {
-}
+trait AtomicType extends DataType
+
 trait CompositeType extends DataType {
   val bindings:Map[String, AtomicType]
 }

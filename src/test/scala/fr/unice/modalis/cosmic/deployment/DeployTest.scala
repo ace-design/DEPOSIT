@@ -6,6 +6,7 @@ import org.specs2.mutable.SpecificationWithJUnit
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 13/05/15.
  */
+//noinspection ScalaDefaultFileTemplateUsage
 class DeployTest extends SpecificationWithJUnit{
 
   val s = EventSensor[SantanderParkingType]("parking_sensor")

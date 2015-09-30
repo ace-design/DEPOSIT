@@ -28,11 +28,11 @@ class ExtendPolicyTest extends SpecificationWithJUnit {
     }
   }
 
-  "An extendable policy" should {
-    "provide join points for all extendable operations" in {
+  "An expendable policy" should {
+    "provide join points for all expendable operations" in {
       ExtendPolicy(DCPTest.convert_workflow).ios.collect {case x:JoinPoint[_] => x} must have size 12
     }
-    "provide join points for all extendable operations (2)" in {
+    "provide join points for all expendable operations (2)" in {
       ExtendPolicy(DCPTest.convert_workflow2).ios.collect {case x:JoinPoint[_] => x} must have size 11
     }
   }

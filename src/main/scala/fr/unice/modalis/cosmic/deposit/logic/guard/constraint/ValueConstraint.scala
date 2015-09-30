@@ -1,4 +1,4 @@
-package fr.unice.modalis.cosmic.actions.guard.constraint
+package fr.unice.modalis.cosmic.deposit.logic.guard.constraint
 
 import fr.unice.modalis.cosmic.deposit.core.DataType
 
@@ -18,7 +18,7 @@ case class ValueConstraint(operator: String, threshold:DataType) extends Constra
 
   if (!isCorrect(operator)) throw new Exception("Bad operator for " + operator)
 
-  override def toString(): String = "\\" + operator + threshold.value
+  override def toString: String = "\\" + operator + threshold.value
 
 
 }

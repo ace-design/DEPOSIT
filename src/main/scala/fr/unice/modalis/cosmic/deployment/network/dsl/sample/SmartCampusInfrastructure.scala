@@ -5,6 +5,7 @@ import fr.unice.modalis.cosmic.deployment.network.dsl.kernel._
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 19/05/15.
  */
+//noinspection ScalaDefaultFileTemplateUsage
 object Demo extends App {
   /* Actions to perform with the Infrastructure model */
 

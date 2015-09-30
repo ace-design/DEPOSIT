@@ -1,6 +1,7 @@
 package fr.unice.modalis.cosmic.deposit.core
 
 /**
+ * Utils methods
  * Created by Cyril Cecchinel - I3S Laboratory on 05/05/15.
  */
 object Utils {
