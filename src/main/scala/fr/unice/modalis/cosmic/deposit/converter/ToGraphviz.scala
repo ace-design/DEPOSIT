@@ -55,7 +55,7 @@ def apply(w: Policy): String = generateCode(w)
       case Process(_) => generateNodeShape("doubleoctagon", "gold")
       case _ => generateNodeShape("box")
     }) +
-    n.id + printlabel(n.toString)
+    n.id + printlabel(n.commonName)
   }
 
   def generateFooter() = "}"
