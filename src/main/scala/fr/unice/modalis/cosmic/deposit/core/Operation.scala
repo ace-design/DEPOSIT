@@ -52,7 +52,18 @@ trait Arithmetic[T<:AtomicType] extends Operation[T, T] {
 trait Filtering[T<:DataType] extends Operation[T, T]
 trait Comparison[T<:DataType] extends Operation[T, T]
 
+case class Increment[T<:AtomicType](value:T) extends Arithmetic[T] {
+  override val inputsNames: Set[String] = Set(DEFAULT_INPUT_NAME)
+  lazy val input = getInput()
 
+  /**
+   * Return a copy of this concept (with different id)
+   * @return copy of this concept
+   */
+  override def duplicate: Concept = new Increment[T](value)
+
+  override val commonName: String = "INCREMENT(" + value + ")"
+}
 /**
  * Define a constant
  * @param v Constant
