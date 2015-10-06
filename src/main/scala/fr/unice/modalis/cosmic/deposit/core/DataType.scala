@@ -6,9 +6,13 @@ package fr.unice.modalis.cosmic.deposit.core
  */
 trait DataType {
   val value:Any
+  val id:String = "type" + scala.util.Random.alphanumeric.take(5).mkString
+
 
 }
-trait AtomicType extends DataType
+trait AtomicType extends DataType {
+  val name:String
+}
 
 trait CompositeType extends DataType {
   val bindings:Map[String, AtomicType]
@@ -16,22 +20,30 @@ trait CompositeType extends DataType {
 /**
  * Represent Integer values
  */
-class IntegerType(val value:Int) extends AtomicType
+class IntegerType(val value:Int) extends AtomicType {
+  override val name: String = "int"
+}
 
 /**
  * Represent Double values
  */
-class DoubleType(val value:Double) extends AtomicType
+class DoubleType(val value:Double) extends AtomicType {
+  override val name: String = "double"
+}
 
 /**
  * Represent Long values
  */
-class LongType(val value:Long) extends AtomicType
+class LongType(val value:Long) extends AtomicType {
+  override val name: String = "long"
+}
 
 /**
  * Represent String values
  */
-class StringType(val value:String) extends AtomicType
+class StringType(val value:String) extends AtomicType {
+  override val name: String = "String"
+}
 
 /**
  * Represent SmartCampus Sensor Data
