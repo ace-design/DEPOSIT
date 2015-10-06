@@ -1,0 +1,7 @@
+void #@name@#(TimerInformation * Sender) {
+    int value = analogRead(#@port@#);
+    Data d = {'#@common_name@#', value};
+    last_#@id@# = {currentTime(), d, BOARD_ID};
+    lastUpdate_#@id@# = last_#@id@#.t;
+    program();
+}
