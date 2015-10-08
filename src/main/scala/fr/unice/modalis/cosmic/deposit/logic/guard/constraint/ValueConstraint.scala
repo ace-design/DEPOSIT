@@ -1,6 +1,6 @@
 package fr.unice.modalis.cosmic.deposit.logic.guard.constraint
 
-import fr.unice.modalis.cosmic.deposit.core.DataType
+import fr.unice.modalis.cosmic.deposit.core.AtomicType
 
 
 /**
@@ -10,7 +10,7 @@ import fr.unice.modalis.cosmic.deposit.core.DataType
  * @param threshold Threshold
  * @param operator Operator
  */
-case class ValueConstraint(operator: String, threshold:DataType) extends Constraint {
+case class ValueConstraint(operator: String, threshold:AtomicType) extends Constraint {
 
   def isCorrect(o: String): Boolean = {
     o == ">" || o == "<" || o == "==" || o == ">=" || o == "<=" || o == "!="

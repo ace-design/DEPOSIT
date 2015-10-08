@@ -76,7 +76,7 @@ case class Increment[T<:AtomicType](value:T, iType:Class[T]) extends Arithmetic[
  * @param v Constant
  * @tparam T Constant DataType
  */
-case class Constant[T<:DataType](v:T, iType:Class[T]) extends Operation[T,T] {
+case class Constant[T<:AtomicType](v:T, iType:Class[T]) extends Operation[T,T] {
   override val inputsNames: Set[String] = Set()
   override val outputsNames: Set[String] = Set(DEFAULT_OUTPUT_NAME)
   val oType = iType

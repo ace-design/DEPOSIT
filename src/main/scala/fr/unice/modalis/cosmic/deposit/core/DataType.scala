@@ -5,17 +5,22 @@ package fr.unice.modalis.cosmic.deposit.core
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
  */
 trait DataType {
-  val value:Any
   val id:String = "type" + scala.util.Random.alphanumeric.take(5).mkString
 
 
 }
 trait AtomicType extends DataType {
+  val value:Any
   val name:String
 }
 
 trait CompositeType extends DataType {
-  val bindings:Map[String, AtomicType]
+
+  case class Field(n:String, dataType: Class[_<:AtomicType])
+  val bindings:Map[String, Class[_<:AtomicType]]
+  def getNameField:Field
+  def getObservationField:Field
+  def getTimeField:Field
 }
 /**
  * Represent Integer values
@@ -48,18 +53,33 @@ case class StringType(val value:String) extends AtomicType {
 /**
  * Represent SmartCampus Sensor Data
  */
-case class SmartCampusType(val value:(String, Int, Long)) extends CompositeType {
-  val bindings = Map("n" -> new StringType(value._1),
-                     "v" -> new IntegerType(value._2),
-                     "t" -> new LongType(value._3))
+case class SmartCampusType() extends CompositeType {
+  val bindings = Map("n" -> classOf[StringType],
+    "v" -> classOf[IntegerType],
+    "t" -> classOf[LongType])
+
+  override def getNameField: Field = Field("n", bindings("n"))
+
+  override def getTimeField: Field = Field("t", bindings("t"))
+
+  override def getObservationField: Field = Field("v", bindings("v"))
 }
+
+
+
 
 /**
  * Represent Santander Parking Sensor Data
  */
-case class SantanderParkingType(val value:(Int, String, Double, Int)) extends CompositeType {
-  val bindings = Map("nodeId" -> new IntegerType(value._1),
-                     "date" -> new StringType(value._2),
-                     "battery" -> new DoubleType(value._3),
-                     "status" -> new IntegerType(value._4))
+case class SantanderParkingType() extends CompositeType {
+  val bindings = Map("nodeId" -> classOf[IntegerType],
+                     "date" -> classOf[StringType],
+                     "battery" -> classOf[DoubleType],
+                     "status" -> classOf[IntegerType])
+
+  override def getNameField: Field = Field("nodeId", classOf[IntegerType])
+
+  override def getTimeField: Field = Field("date", classOf[StringType])
+
+  override def getObservationField: Field = Field("status", classOf[IntegerType])
 }
