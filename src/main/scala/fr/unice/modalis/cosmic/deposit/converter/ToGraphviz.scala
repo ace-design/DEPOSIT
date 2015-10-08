@@ -52,7 +52,7 @@ def apply(w: Policy): String = generateCode(w)
 
   def generateElementCode(n: Concept) = {
     (n match {
-      case Process(_) => generateNodeShape("doubleoctagon", "gold")
+      case n:Process[_,_] => generateNodeShape("doubleoctagon", "gold")
       case _ => generateNodeShape("box")
     }) +
     n.id + printlabel(n.commonName)

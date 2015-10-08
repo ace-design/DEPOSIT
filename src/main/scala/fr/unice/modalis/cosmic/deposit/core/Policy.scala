@@ -63,7 +63,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
    */
   def addActivity[T<:DataType, O<:DataType](c:Operation[T,O]):Policy  = {
     c match {
-      case Process(wf) => new Policy(name, ios, operations + c, links ++ autoConnectProcess(c.asInstanceOf[Process[_<:DataType, _<:DataType]]))
+      case Process(wf, _, _) => new Policy(name, ios, operations + c, links ++ autoConnectProcess(c.asInstanceOf[Process[_<:DataType, _<:DataType]]))
       case _ => new Policy(name, ios, operations + c, links)
     }
   }

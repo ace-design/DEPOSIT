@@ -18,24 +18,24 @@ object DCPTest {
   val convert_workflow = {
 
     val s = EventSensor[SantanderParkingType]("parking_sensor")
-    val constant = Constant(new IntegerType(1))
-    val a1 = Extract[SantanderParkingType, IntegerType]("status")
-    val a2 = Conditional[IntegerType]("i == 1")
-    val a3a = Sub[IntegerType](Set("i1", "i2"))
-    val a3b = Add[IntegerType](Set("i1", "i2"))
+    val constant = Constant(new IntegerType(1), classOf[IntegerType])
+    val a1 = Extract("status", classOf[SantanderParkingType], classOf[IntegerType])
+    val a2 = Conditional("i == 1", classOf[IntegerType])
+    val a3a = Sub(Set("i1", "i2"), classOf[IntegerType])
+    val a3b = Add(Set("i1", "i2"), classOf[IntegerType])
 
     val place_status = Collector[IntegerType]("place_status")
 
-    val l1 = new Link[SantanderParkingType](s.output, a1.input)
-    val l2 = new Link[IntegerType](a1.output, a2.input)
-    val l3a = new Link[IntegerType](a2.thenOutput, a3a.getInput("i1"))
-    val l3b = new Link[IntegerType](constant.output, a3a.getInput("i2"))
+    val l1 = new Link(s.output, a1.input)
+    val l2 = new Link(a1.output, a2.input)
+    val l3a = new Link(a2.thenOutput, a3a.getInput("i1"))
+    val l3b = new Link(constant.output, a3a.getInput("i2"))
 
-    val l4a = new Link[IntegerType](a2.elseOutput, a3b.getInput("i1"))
-    val l4b = new Link[IntegerType](constant.output, a3b.getInput("i2"))
+    val l4a = new Link(a2.elseOutput, a3b.getInput("i1"))
+    val l4b = new Link(constant.output, a3b.getInput("i2"))
 
-    val l5a = new Link[IntegerType](a3a.output, place_status.input)
-    val l5b = new Link[IntegerType](a3b.output, place_status.input)
+    val l5a = new Link(a3a.output, place_status.input)
+    val l5b = new Link(a3b.output, place_status.input)
 
     new Policy("convert", Set(s,place_status), Set(a1, a2, a3a, a3b, constant), Set(l1, l2, l3a, l3b, l4a, l4b, l5a, l5b))
 
@@ -44,25 +44,25 @@ object DCPTest {
   val convert_workflow2 = {
 
     val s = EventSensor[SantanderParkingType]("parking_sensor")
-    val constant = Constant(new IntegerType(1))
+    val constant = Constant(new IntegerType(1), classOf[IntegerType])
     constant.setExpendable(false)
-    val a1 = Extract[SantanderParkingType, IntegerType]("status")
-    val a2 = Conditional[IntegerType]("i == 1")
-    val a3a = Sub[IntegerType](Set("i1", "i2"))
-    val a3b = Add[IntegerType](Set("i1", "i2"))
+    val a1 = Extract[SantanderParkingType, IntegerType]("status", classOf[SantanderParkingType], classOf[IntegerType])
+    val a2 = Conditional[IntegerType]("i == 1", classOf[IntegerType])
+    val a3a = Sub[IntegerType](Set("i1", "i2"), classOf[IntegerType])
+    val a3b = Add[IntegerType](Set("i1", "i2"), classOf[IntegerType])
 
     val place_status = Collector[IntegerType]("place_status")
 
-    val l1 = new Link[SantanderParkingType](s.output, a1.input)
-    val l2 = new Link[IntegerType](a1.output, a2.input)
-    val l3a = new Link[IntegerType](a2.thenOutput, a3a.getInput("i1"))
-    val l3b = new Link[IntegerType](constant.output, a3a.getInput("i2"))
+    val l1 = new Link(s.output, a1.input)
+    val l2 = new Link(a1.output, a2.input)
+    val l3a = new Link(a2.thenOutput, a3a.getInput("i1"))
+    val l3b = new Link(constant.output, a3a.getInput("i2"))
 
-    val l4a = new Link[IntegerType](a2.elseOutput, a3b.getInput("i1"))
-    val l4b = new Link[IntegerType](constant.output, a3b.getInput("i2"))
+    val l4a = new Link(a2.elseOutput, a3b.getInput("i1"))
+    val l4b = new Link(constant.output, a3b.getInput("i2"))
 
-    val l5a = new Link[IntegerType](a3a.output, place_status.input)
-    val l5b = new Link[IntegerType](a3b.output, place_status.input)
+    val l5a = new Link(a3a.output, place_status.input)
+    val l5b = new Link(a3b.output, place_status.input)
 
     new Policy("convert", Set(s,place_status), Set(a1, a2, a3a, a3b, constant), Set(l1, l2, l3a, l3b, l4a, l4b, l5a, l5b))
 
@@ -72,14 +72,14 @@ object DCPTest {
   val collectorA = Collector[IntegerType]("applicationA")
 
   val sensors = caleHernan ++ plaza ++ caleLopeVega
-  val converters = for (x <- sensors) yield Process[SantanderParkingType, IntegerType](convert_workflow)
+  val converters = for (x <- sensors) yield Process(convert_workflow, classOf[SantanderParkingType], classOf[IntegerType])
   val linksToProcess = (sensors zip converters).map(x => new Link[SantanderParkingType](x._1.output, x._2.getInput("parking_sensor")))
 
-  val adder = Add[IntegerType]((for (i <- 1 to sensors.size) yield "i" + i).toSet)
+  val adder = Add((for (i <- 1 to sensors.size) yield "i" + i).toSet, classOf[IntegerType])
 
-  val linksToAdd = (converters zip adder.inputsNames).map(x => Link[IntegerType](x._1.getOutput("place_status"), adder.getInput(x._2)))
+  val linksToAdd = (converters zip adder.inputsNames).map(x => Link(x._1.getOutput("place_status"), adder.getInput(x._2)))
 
-  val l = Link[IntegerType](adder.output, collectorA.input)
+  val l = Link(adder.output, collectorA.input)
 
 
 
@@ -98,7 +98,7 @@ object DCPTest {
   }
 
   val s1 = EventSensor[SmartCampusType]("a")
-  val a1 = Extract[SmartCampusType, IntegerType]("v")
+  val a1 = Extract("v", classOf[SmartCampusType], classOf[IntegerType])
   val c1 = new Collector[IntegerType]("collectorA")
 
   val l1 = Link(s1.output, a1.input)
@@ -107,7 +107,7 @@ object DCPTest {
   val p1 = new Policy().add(s1).add(a1).add(c1).addLink(l1).addLink(l2)
 
   val s2 = EventSensor[SmartCampusType]("b")
-  val a2 = Extract[SmartCampusType, IntegerType]("v")
+  val a2 = Extract("v", classOf[SmartCampusType], classOf[IntegerType])
   val c2 = new Collector[IntegerType]("collectorB")
 
   val l12 = Link(s2.output, a2.input)
@@ -115,7 +115,7 @@ object DCPTest {
 
   val p2 = new Policy().add(s2).add(a2).add(c2).addLink(l12).addLink(l22)
 
-  val add = new Add[IntegerType](Set("i1", "i2"))
+  val add = new Add(Set("i1", "i2"), classOf[IntegerType])
   val c3 = new Collector[IntegerType]("collectorC")
   val p3 = new Policy().add(add).add(c3).addLink(Link(add.output, c3.input))
 

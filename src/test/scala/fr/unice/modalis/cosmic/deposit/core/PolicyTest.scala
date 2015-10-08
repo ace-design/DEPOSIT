@@ -63,7 +63,7 @@ class PolicyTest extends SpecificationWithJUnit {
     }
 
     "add a concept in the policy" in {
-      val a = Sub[IntegerType](Set())
+      val a = Sub(Set(), classOf[IntegerType])
       DCPTest.dcpA.addActivity(a).operations must contain(a)
     }
 
@@ -78,12 +78,12 @@ class PolicyTest extends SpecificationWithJUnit {
     }
 
     "add an concept with generic add in the policy" in {
-      val a = Sub[IntegerType](Set())
+      val a = Sub(Set(), classOf[IntegerType])
       DCPTest.dcpA.add(a).operations must contain(a)
     }
 
     "add a link in the policy" in {
-      val l = Link[IntegerType](Constant[IntegerType](new IntegerType(3)).output, DCPTest.collectorA.input)
+      val l = Link(Constant(new IntegerType(3),  classOf[IntegerType]).output, DCPTest.collectorA.input)
       DCPTest.dcpA.addLink(l).links must contain(l)
     }
 
@@ -128,7 +128,7 @@ class PolicyTest extends SpecificationWithJUnit {
 
     }
     "allow the reuse (process)" in {
-      val process = Process[SantanderParkingType, IntegerType](DCPTest.convert_workflow)
+      val process = Process(DCPTest.convert_workflow, classOf[SantanderParkingType], classOf[IntegerType])
       "the inner workflow must be equal to the reused workflow" in {
         process.workflow must beEqualTo(DCPTest.convert_workflow)
       }
@@ -149,12 +149,12 @@ class PolicyTest extends SpecificationWithJUnit {
 
   "A Process" should {
     "have the same number of inputs as sensors" in {
-      val process = Process[SantanderParkingType, IntegerType](DCPTest.convert_workflow)
+      val process = Process(DCPTest.convert_workflow, classOf[SantanderParkingType], classOf[IntegerType])
       process.inputs must haveSize(DCPTest.convert_workflow.ios.collect({case n:Sensor[_] => n}).size)
     }
 
     "have the same number of outputs as collectors" in {
-      val process = Process[SantanderParkingType, IntegerType](DCPTest.convert_workflow)
+      val process = Process(DCPTest.convert_workflow, classOf[SantanderParkingType], classOf[IntegerType])
       process.outputs must haveSize(DCPTest.convert_workflow.ios.collect({case n:Collector[_] => n}).size)
     }
   }
