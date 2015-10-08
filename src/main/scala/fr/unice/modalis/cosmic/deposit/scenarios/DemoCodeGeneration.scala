@@ -13,14 +13,14 @@ object DemoCodeGeneration extends App{
   // Define the process
   val convert_workflow = {
 
-    val s = GenericInput("parking_sensor")
+    val s = GenericInput("parking_sensor", classOf[SantanderParkingType])
     val constant = Constant(new IntegerType(1), classOf[IntegerType])
     val a1 = Extract("status", classOf[SantanderParkingType], classOf[IntegerType])
     val a2 = Conditional("i == 1", classOf[IntegerType])
     val a3a = Sub(Set("i1", "i2"), classOf[IntegerType])
     val a3b = Add(Set("i1", "i2"), classOf[IntegerType])
 
-    val place_status = GenericOutput("place_status")
+    val place_status = GenericOutput("place_status", classOf[IntegerType])
 
     val l1 = new Link(s.output, a1.input)
     val l2 = new Link(a1.output, a2.input)
@@ -38,9 +38,9 @@ object DemoCodeGeneration extends App{
 
   }
 
-  val s1 = EventSensor[SantanderParkingType]("s1")
-  val s2 = EventSensor[SantanderParkingType]("s2")
-  val c = Collector[IntegerType]("collector")
+  val s1 = EventSensor("s1", classOf[SantanderParkingType])
+  val s2 = EventSensor("s2", classOf[SantanderParkingType])
+  val c = Collector("collector", classOf[IntegerType])
 
   val p1 = Process(convert_workflow, classOf[SantanderParkingType], classOf[IntegerType])
   val p2 = Process(convert_workflow, classOf[SantanderParkingType], classOf[IntegerType])

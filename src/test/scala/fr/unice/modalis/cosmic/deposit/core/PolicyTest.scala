@@ -58,7 +58,7 @@ class PolicyTest extends SpecificationWithJUnit {
 
   "Adding methods in a Policy" should {
     "add an input in the policy" in {
-      val s = PeriodicSensor[IntegerType](3, "test")
+      val s = PeriodicSensor(3, "test", classOf[IntegerType])
       DCPTest.dcpA.addIO(s).ios must contain(s)
     }
 
@@ -68,12 +68,12 @@ class PolicyTest extends SpecificationWithJUnit {
     }
 
     "add an input with generic add in the policy" in {
-      val s = PeriodicSensor[IntegerType](3, "test")
+      val s = PeriodicSensor[IntegerType](3, "test", classOf[IntegerType])
       DCPTest.dcpA.add(s).ios must contain(s)
     }
 
     "add an input with generic add in the policy" in {
-      val s = PeriodicSensor[IntegerType](3, "test")
+      val s = PeriodicSensor[IntegerType](3, "test", classOf[IntegerType])
       DCPTest.dcpA.add(s).ios must contain(s)
     }
 

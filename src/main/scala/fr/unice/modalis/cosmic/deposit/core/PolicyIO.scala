@@ -12,6 +12,7 @@ package fr.unice.modalis.cosmic.deposit.core
 trait PolicyIO[T<:DataType] extends Concept{
   override val id:String = "io" + scala.util.Random.alphanumeric.take(5).mkString
   val name:String
+  val dataType:Class[T]
 }
 
 /**
@@ -33,7 +34,7 @@ trait DataOutput[T<:DataType] extends DataIO[T] {
 
 
 
-case class GenericInput[T<:DataType](name:String) extends DataInput[T] {
+case class GenericInput[T<:DataType](name:String, dataType: Class[T]) extends DataInput[T] {
   val output = new Output[T](name, this)
   override val commonName: String = name
 
@@ -41,12 +42,12 @@ case class GenericInput[T<:DataType](name:String) extends DataInput[T] {
    * Return a copy of this concept (with different id)
    * @return copy of this concept
    */
-  override def duplicate: Concept = new GenericInput[T](name)
+  override def duplicate: Concept = new GenericInput[T](name, dataType)
 
   val url: String = ""
 }
 
-case class GenericOutput[T<:DataType](name:String) extends DataOutput[T] {
+case class GenericOutput[T<:DataType](name:String, dataType: Class[T]) extends DataOutput[T] {
   val input = new Input[T](name, this)
   val url: String = name
   override val commonName: String = name
@@ -55,14 +56,14 @@ case class GenericOutput[T<:DataType](name:String) extends DataOutput[T] {
    * Return a copy of this concept (with different id)
    * @return copy of this concept
    */
-  override def duplicate: Concept = new GenericOutput[T](name)
+  override def duplicate: Concept = new GenericOutput[T](name, dataType)
 }
 
 
 
 trait JoinPoint[T<:DataType] extends PolicyIO[T]
 
-case class JoinPointInput[I<:DataType](toConceptInput:Input[I]) extends JoinPoint[I]{
+case class JoinPointInput[I<:DataType](toConceptInput:Input[I], dataType: Class[I]) extends JoinPoint[I]{
   val output = new Output[I](this)
   override def toString:String = "JOIN_POINT_INPUT[to=" + toConceptInput + "]"
 
@@ -73,10 +74,10 @@ case class JoinPointInput[I<:DataType](toConceptInput:Input[I]) extends JoinPoin
    * Return a copy of this concept (with different id)
    * @return copy of this concept
    */
-  override def duplicate: Concept = new JoinPointInput[I](toConceptInput)
+  override def duplicate: Concept = new JoinPointInput[I](toConceptInput, dataType)
 }
 
-case class JoinPointOutput[O<:DataType](fromConceptOutput:Output[O]) extends JoinPoint[O]{
+case class JoinPointOutput[O<:DataType](fromConceptOutput:Output[O], dataType: Class[O]) extends JoinPoint[O]{
   val input = new Input[O](this)
   override def toString:String = "JOIN_POINT_OUTPUT[from=" + fromConceptOutput + "]"
   override val name: String = "JointPoint" + id
@@ -86,7 +87,7 @@ case class JoinPointOutput[O<:DataType](fromConceptOutput:Output[O]) extends Joi
    * Return a copy of this concept (with different id)
    * @return copy of this concept
    */
-  override def duplicate: Concept = new JoinPointOutput[O](fromConceptOutput)
+  override def duplicate: Concept = new JoinPointOutput[O](fromConceptOutput, dataType)
 }
 
 
@@ -108,7 +109,7 @@ trait Sensor[T<:DataType] extends DataInput[T]{
  * @param url Sensor URL
  * @tparam T Data type
  */
-case class PeriodicSensor[T<:DataType](wishedPeriod:Int, override val url: String) extends Sensor[T] {
+case class PeriodicSensor[T<:DataType](wishedPeriod:Int, override val url: String, dataType: Class[T]) extends Sensor[T] {
 
   override val commonName: String = "PERIODIC_SENSOR[" + wishedPeriod + ";" + url + "]"
 
@@ -116,7 +117,7 @@ case class PeriodicSensor[T<:DataType](wishedPeriod:Int, override val url: Strin
    * Return a copy of this concept (with different id)
    * @return copy of this concept
    */
-  override def duplicate: Concept = new PeriodicSensor[T](wishedPeriod, url)
+  override def duplicate: Concept = new PeriodicSensor[T](wishedPeriod, url, dataType)
 }
 
 /**
@@ -124,7 +125,7 @@ case class PeriodicSensor[T<:DataType](wishedPeriod:Int, override val url: Strin
  * @param url Sensor URL
  * @tparam T Data type
  */
-case class EventSensor[T<:DataType](override val url:String) extends Sensor[T] {
+case class EventSensor[T<:DataType](override val url:String, dataType: Class[T]) extends Sensor[T] {
 
   override val commonName: String = "EVENT_SENSOR[" + url + "]"
 
@@ -132,7 +133,7 @@ case class EventSensor[T<:DataType](override val url:String) extends Sensor[T] {
    * Return a copy of this concept (with different id)
    * @return copy of this concept
    */
-  override def duplicate: Concept = new EventSensor[T](url)
+  override def duplicate: Concept = new EventSensor[T](url, dataType)
 }
 
 
@@ -141,7 +142,7 @@ case class EventSensor[T<:DataType](override val url:String) extends Sensor[T] {
  * @param endpoint Collector URL
  * @tparam T Data type
  */
-case class Collector[T<:DataType](endpoint:String) extends DataOutput[T] {
+case class Collector[T<:DataType](endpoint:String, dataType: Class[T]) extends DataOutput[T] {
   val input = new Input[T](endpoint, this)
   val name = endpoint
   override def toString:String = "COLLECTOR[" + endpoint + "]"
@@ -152,5 +153,5 @@ case class Collector[T<:DataType](endpoint:String) extends DataOutput[T] {
    * Return a copy of this concept (with different id)
    * @return copy of this concept
    */
-  override def duplicate: Concept = new Collector[T](endpoint)
+  override def duplicate: Concept = new Collector[T](endpoint, dataType)
 }

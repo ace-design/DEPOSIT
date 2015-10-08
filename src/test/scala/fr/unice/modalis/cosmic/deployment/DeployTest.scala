@@ -9,8 +9,8 @@ import org.specs2.mutable.SpecificationWithJUnit
 //noinspection ScalaDefaultFileTemplateUsage
 class DeployTest extends SpecificationWithJUnit{
 
-  val s = EventSensor[SantanderParkingType]("parking_sensor")
-  val s2 = EventSensor[IntegerType]("parking_sensor2")
+  val s = EventSensor("parking_sensor", classOf[SantanderParkingType])
+  val s2 = EventSensor("parking_sensor2", classOf[IntegerType])
 
   val constant = Constant(new IntegerType(1), classOf[IntegerType])
   val a1 = Extract("status", classOf[SantanderParkingType], classOf[IntegerType])
@@ -18,7 +18,7 @@ class DeployTest extends SpecificationWithJUnit{
   val a3a = Sub[IntegerType](Set("i1", "i2"), classOf[IntegerType])
   val a3b = Add[IntegerType](Set("i1", "i2"), classOf[IntegerType])
 
-  val place_status = Collector[IntegerType]("place_status")
+  val place_status = Collector("place_status", classOf[IntegerType])
   val lnew = new Link(s2.output, place_status.input)
   val l1 = new Link(s.output, a1.input)
   val l2 = new Link(a1.output, a2.input)

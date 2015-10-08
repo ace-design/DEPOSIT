@@ -7,24 +7,25 @@ import fr.unice.modalis.cosmic.deposit.algo.{ExtendPolicy, Unification, Weave}
  * Created by Cyril Cecchinel - I3S Laboratory on 28/04/15.
  */
 object DCPTest {
-  val caleHernan = Set(EventSensor[SantanderParkingType]("caleHernan-p1"), EventSensor[SantanderParkingType]("caleHernan-p2"), EventSensor[SantanderParkingType]("caleHernan-p3"), EventSensor[SantanderParkingType]("caleHernan-p4"), EventSensor[SantanderParkingType]("caleHernan-p5"),
-    EventSensor[SantanderParkingType]("caleHernan-p6-res"),EventSensor[SantanderParkingType]("caleHernan-p7"), EventSensor[SantanderParkingType]("caleHernan-p8"), EventSensor[SantanderParkingType]("caleHernan-p9"), EventSensor[SantanderParkingType]("caleHernan-p10-res"), EventSensor[SantanderParkingType]("caleHernan-p11"))
+  val caleHernan = Set(EventSensor("caleHernan-p1", classOf[SantanderParkingType]), EventSensor("caleHernan-p2", classOf[SantanderParkingType]), EventSensor("caleHernan-p3", classOf[SantanderParkingType]), EventSensor("caleHernan-p4", classOf[SantanderParkingType]), EventSensor("caleHernan-p5", classOf[SantanderParkingType]),
+    EventSensor("caleHernan-p6-res", classOf[SantanderParkingType]),EventSensor("caleHernan-p7", classOf[SantanderParkingType]), EventSensor("caleHernan-p8", classOf[SantanderParkingType]), EventSensor("caleHernan-p9", classOf[SantanderParkingType]), EventSensor("caleHernan-p10-res", classOf[SantanderParkingType]), EventSensor("caleHernan-p11", classOf[SantanderParkingType]))
 
-  val plaza = Set(EventSensor[SantanderParkingType]("plaza-p1"), EventSensor[SantanderParkingType]("plaza-p2-res"), EventSensor[SantanderParkingType]("plaza-p3"))
+  val plaza = Set(EventSensor("plaza-p1", classOf[SantanderParkingType]), EventSensor("plaza-p2-res", classOf[SantanderParkingType]), EventSensor("plaza-p3", classOf[SantanderParkingType]))
 
-  val caleLopeVega = Set(EventSensor[SantanderParkingType]("caleLopeVega-p1"), EventSensor[SantanderParkingType]("caleLopeVega-p2"), EventSensor[SantanderParkingType]("caleLopeVega-p3-res"), EventSensor[SantanderParkingType]("caleLopeVega-p4"))
+  val caleLopeVega = Set(EventSensor("caleLopeVega-p1", classOf[SantanderParkingType]), EventSensor("caleLopeVega-p2", classOf[SantanderParkingType]), EventSensor("caleLopeVega-p3-res", classOf[SantanderParkingType]), EventSensor("caleLopeVega-p4", classOf[SantanderParkingType]))
 
 
   val convert_workflow = {
 
-    val s = EventSensor[SantanderParkingType]("parking_sensor")
+    val s = EventSensor("parking_sensor", classOf[SantanderParkingType])
     val constant = Constant(new IntegerType(1), classOf[IntegerType])
     val a1 = Extract("status", classOf[SantanderParkingType], classOf[IntegerType])
     val a2 = Conditional("i == 1", classOf[IntegerType])
     val a3a = Sub(Set("i1", "i2"), classOf[IntegerType])
     val a3b = Add(Set("i1", "i2"), classOf[IntegerType])
 
-    val place_status = Collector[IntegerType]("place_status")
+    val place_status = Collector("place_status", classOf[IntegerType])
+
 
     val l1 = new Link(s.output, a1.input)
     val l2 = new Link(a1.output, a2.input)
@@ -43,7 +44,7 @@ object DCPTest {
 
   val convert_workflow2 = {
 
-    val s = EventSensor[SantanderParkingType]("parking_sensor")
+    val s = EventSensor("parking_sensor", classOf[SantanderParkingType])
     val constant = Constant(new IntegerType(1), classOf[IntegerType])
     constant.setExpendable(false)
     val a1 = Extract[SantanderParkingType, IntegerType]("status", classOf[SantanderParkingType], classOf[IntegerType])
@@ -51,7 +52,7 @@ object DCPTest {
     val a3a = Sub[IntegerType](Set("i1", "i2"), classOf[IntegerType])
     val a3b = Add[IntegerType](Set("i1", "i2"), classOf[IntegerType])
 
-    val place_status = Collector[IntegerType]("place_status")
+    val place_status = Collector("place_status", classOf[IntegerType])
 
     val l1 = new Link(s.output, a1.input)
     val l2 = new Link(a1.output, a2.input)
@@ -69,7 +70,7 @@ object DCPTest {
   }
 
   // Application A: Count number of free places
-  val collectorA = Collector[IntegerType]("applicationA")
+  val collectorA = Collector("applicationA", classOf[IntegerType])
 
   val sensors = caleHernan ++ plaza ++ caleLopeVega
   val converters = for (x <- sensors) yield Process(convert_workflow, classOf[SantanderParkingType], classOf[IntegerType])
@@ -97,18 +98,18 @@ object DCPTest {
     dcp
   }
 
-  val s1 = EventSensor[SmartCampusType]("a")
+  val s1 = EventSensor("a", classOf[SmartCampusType])
   val a1 = Extract("v", classOf[SmartCampusType], classOf[IntegerType])
-  val c1 = new Collector[IntegerType]("collectorA")
+  val c1 = new Collector("collectorA", classOf[SantanderParkingType])
 
   val l1 = Link(s1.output, a1.input)
   val l2 = Link(a1.output, c1.input)
 
   val p1 = new Policy().add(s1).add(a1).add(c1).addLink(l1).addLink(l2)
 
-  val s2 = EventSensor[SmartCampusType]("b")
+  val s2 = EventSensor("b", classOf[SmartCampusType])
   val a2 = Extract("v", classOf[SmartCampusType], classOf[IntegerType])
-  val c2 = new Collector[IntegerType]("collectorB")
+  val c2 = new Collector("collectorB", classOf[IntegerType])
 
   val l12 = Link(s2.output, a2.input)
   val l22 = Link(a2.output, c2.input)
@@ -116,7 +117,7 @@ object DCPTest {
   val p2 = new Policy().add(s2).add(a2).add(c2).addLink(l12).addLink(l22)
 
   val add = new Add(Set("i1", "i2"), classOf[IntegerType])
-  val c3 = new Collector[IntegerType]("collectorC")
+  val c3 = new Collector("collectorC", classOf[IntegerType])
   val p3 = new Policy().add(add).add(c3).addLink(Link(add.output, c3.input))
 
 

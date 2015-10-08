@@ -6,8 +6,8 @@ package fr.unice.modalis.cosmic.deposit.core
  */
 object Utils {
 
-  def createEventSensors[T<:DataType](prefix:String, nb:Int = 1) = for (i <- 1 to nb) yield new EventSensor[T](prefix + i)
-  def createPeriodicSensors[T<:DataType](period:Int, prefix:String, nb:Int = 1) = for (i <- 1 to nb) yield new PeriodicSensor[T](period, prefix + i)
-  def createCollectors[T<:DataType](prefix:String, nb:Int = 1) = for (i <- 1 to nb) yield new Collector[T](prefix + i)
+  def createEventSensors[T<:DataType](prefix:String, nb:Int = 1, dataType:Class[T]) = for (i <- 1 to nb) yield new EventSensor[T](prefix + i, dataType)
+  def createPeriodicSensors[T<:DataType](period:Int, prefix:String, nb:Int = 1, dataType:Class[T]) = for (i <- 1 to nb) yield new PeriodicSensor[T](period, prefix + i, dataType)
+  def createCollectors[T<:DataType](prefix:String, nb:Int = 1, dataType:Class[T]) = for (i <- 1 to nb) yield new Collector[T](prefix + i, dataType)
 
 }

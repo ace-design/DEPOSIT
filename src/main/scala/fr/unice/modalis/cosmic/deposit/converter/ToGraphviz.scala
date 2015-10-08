@@ -12,13 +12,13 @@ object ToGraphviz {
 
   def generateIO(io:PolicyIO[_<:DataType]) = {
     io match {
-      case Collector(n) => generateNodeShape("triangle", "crimson") + io.id + printlabel(n) + ";"
-      case PeriodicSensor(_,n) => generateNodeShape("invtriangle", "blue") + io.id + printlabel(n) + ";"
-      case EventSensor(n) => generateNodeShape("invtriangle", "green") + io.id + printlabel(n) + ";"
-      case JoinPointInput(a) if showStubs => generateNodeShape("doublecircle", "green") + io.id + ";"
-      case JoinPointOutput(a) if showStubs =>  generateNodeShape("doublecircle", "crimson") + io.id + ";"
-      case GenericInput(name) => generateNodeShape("invtriangle", "darkslateblue") + io.id + printlabel(name) + ";"
-      case GenericOutput(name) => generateNodeShape("triangle", "darkslateblue") + io.id + printlabel(name) + ";"
+      case Collector(n, _) => generateNodeShape("triangle", "crimson") + io.id + printlabel(n) + ";"
+      case PeriodicSensor(_,n, _) => generateNodeShape("invtriangle", "blue") + io.id + printlabel(n) + ";"
+      case EventSensor(n, _) => generateNodeShape("invtriangle", "green") + io.id + printlabel(n) + ";"
+      case JoinPointInput(a, _) if showStubs => generateNodeShape("doublecircle", "green") + io.id + ";"
+      case JoinPointOutput(a, _) if showStubs =>  generateNodeShape("doublecircle", "crimson") + io.id + ";"
+      case GenericInput(name, _) => generateNodeShape("invtriangle", "darkslateblue") + io.id + printlabel(name) + ";"
+      case GenericOutput(name, _) => generateNodeShape("triangle", "darkslateblue") + io.id + printlabel(name) + ";"
       case _ => ""
     }
   }

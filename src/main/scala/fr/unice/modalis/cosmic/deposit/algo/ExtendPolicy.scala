@@ -29,15 +29,15 @@ object ExtendPolicy {
    * Compute the join points for an operation
    * Pre-condition: The operation can be joined
    * @param op Operation
-   * @tparam T Inputs type
+   * @tparam I Inputs type
    * @tparam O Outputs type
    * @return List of join points and List of links
    */
-  def generateJoinPointsForOperation[T<:DataType, O<:DataType](op:Operation[T,O], p:Policy, emptyIOonly:Boolean = false) = {
+  def generateJoinPointsForOperation[I<:DataType, O<:DataType](op:Operation[I,O], p:Policy, emptyIOonly:Boolean = false) = {
     require(op.isExpendable)
     require(p.operations contains op)
-    var outputs:Set[Output[_<:DataType]] = Set()
-    var inputs:Set[Input[_<:DataType]] = Set()
+    var outputs:Set[Output[O]] = Set()
+    var inputs:Set[Input[I]] = Set()
     val linksToAdd = new ArrayBuffer[Link[_<:DataType]]()
     val iosToAdd = new ArrayBuffer[JoinPoint[_<:DataType]]()
 
@@ -45,21 +45,21 @@ object ExtendPolicy {
 
 
     if (emptyIOonly) {
-      outputs =  op.outputs.asInstanceOf[Set[Output[_<:DataType]]] -- p.linksFrom(op).map {l => l.source_output}
-      inputs =  op.inputs.asInstanceOf[Set[Input[_<:DataType]]] -- p.linksTo(op).map {l => l.destination_input}
+      outputs =  op.outputs -- p.linksFrom(op).map {l => l.source_output}.asInstanceOf[Set[Output[O]]]
+      inputs =  op.inputs -- p.linksTo(op).map {l => l.destination_input}.asInstanceOf[Set[Input[I]]]
     } else {
-      outputs = op.outputs.asInstanceOf[Set[Output[_<:DataType]]]
-      inputs = op.inputs.asInstanceOf[Set[Input[_<:DataType]]]
+      outputs = op.outputs
+      inputs = op.inputs
     }
     outputs.foreach(o => {
-      val l = new Link(o, new JoinPointOutput(o).input)
+      val l = new Link(o, new JoinPointOutput(o, op.oType).input)
       val s = l.destination
       linksToAdd += l
       iosToAdd += s.asInstanceOf[JoinPointOutput[_ <: DataType]]
     })
 
     inputs.foreach(i => {
-        val l = new Link(new JoinPointInput(i).output, i)
+        val l = new Link(new JoinPointInput(i, op.iType).output, i)
         val s = l.source
         linksToAdd += l
         iosToAdd += s.asInstanceOf[JoinPointInput[_<:DataType]]
