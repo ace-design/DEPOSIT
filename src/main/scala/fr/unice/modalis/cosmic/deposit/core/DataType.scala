@@ -26,28 +26,28 @@ trait CompositeType extends DataType {
  * Represent Integer values
  */
 case class IntegerType(val value:Int) extends AtomicType {
-  override val name: String = "int"
+  override val name: String = "IntegerType"
 }
 
 /**
  * Represent Double values
  */
 case class DoubleType(val value:Double) extends AtomicType {
-  override val name: String = "double"
+  override val name: String = "DoubleType"
 }
 
 /**
  * Represent Long values
  */
 case class LongType(val value:Long) extends AtomicType {
-  override val name: String = "long"
+  override val name: String = "LongType"
 }
 
 /**
  * Represent String values
  */
 case class StringType(val value:String) extends AtomicType {
-  override val name: String = "String"
+  override val name: String = "StringType"
 }
 
 /**
@@ -86,4 +86,16 @@ case class SantanderParkingType() extends CompositeType {
   override def getObservationField: Field = Field("status", classOf[IntegerType])
 
   override val name: String = "SantanderParkingType"
+}
+
+object DataType {
+  def factory(name:String) = name match {
+    case "SmartCampusType" => SmartCampusType()
+    case "SantanderParkingType" => SantanderParkingType()
+    case "IntegerType" => IntegerType(0)
+    case "LongType" => LongType(0)
+    case "StringType" => StringType("")
+    case "DoubleType" => DoubleType(0)
+    case _ => throw new Exception("Unknown data type")
+  }
 }
