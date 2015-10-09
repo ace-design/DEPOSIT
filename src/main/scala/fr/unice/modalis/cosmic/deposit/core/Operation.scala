@@ -42,7 +42,7 @@ trait Operation[I<:DataType, O<:DataType] extends Concept with Properties{
 }
 
 /** Classification of business concerns **/
-trait Arithmetic[T<:AtomicType] extends Operation[T, T] {
+trait Arithmetic[T<:DataType] extends Operation[T, T] {
   val inputsNames:Set[String]
 
   override val outputsNames: Set[String] = Set(DEFAULT_OUTPUT_NAME)
@@ -59,7 +59,7 @@ trait Comparison[T<:DataType] extends Operation[T, T] {
   val oType = iType
 }
 
-case class Increment[T<:AtomicType](value:T, iType:Class[T]) extends Arithmetic[T] {
+case class Increment[T<:DataType](value:T, iType:Class[T]) extends Arithmetic[T] {
   override val inputsNames: Set[String] = Set(DEFAULT_INPUT_NAME)
   lazy val input = getInput()
 
@@ -246,7 +246,7 @@ case class HigherEq[T<:DataType](iType:Class[T]) extends BinaryComparison[T] {
 }
 
 /*** ARITHMETIC OPERATIONS ***/
-case class Add[I<:AtomicType](inputsNames:Set[String], iType:Class[I]) extends Arithmetic[I] {
+case class Add[I<:DataType](inputsNames:Set[String], iType:Class[I]) extends Arithmetic[I] {
   override val commonName: String = "ADD"
 
   /**
@@ -256,7 +256,7 @@ case class Add[I<:AtomicType](inputsNames:Set[String], iType:Class[I]) extends A
   override def duplicate: Concept = new Add[I](inputsNames, iType)
 }
 
-case class Sub[I<:AtomicType](inputsNames:Set[String], iType:Class[I]) extends Arithmetic[I] {
+case class Sub[I<:DataType](inputsNames:Set[String], iType:Class[I]) extends Arithmetic[I] {
   override val commonName: String = "SUB"
 
   /**
@@ -266,7 +266,7 @@ case class Sub[I<:AtomicType](inputsNames:Set[String], iType:Class[I]) extends A
   override def duplicate: Concept = new Sub[I](inputsNames, iType)
 }
 
-case class Multiply[I<:AtomicType](inputsNames:Set[String], iType:Class[I]) extends Arithmetic[I] {
+case class Multiply[I<:DataType](inputsNames:Set[String], iType:Class[I]) extends Arithmetic[I] {
   override val commonName: String = "MULTIPLY"
 
   /**
@@ -276,7 +276,7 @@ case class Multiply[I<:AtomicType](inputsNames:Set[String], iType:Class[I]) exte
   override def duplicate: Concept = new Multiply[I](inputsNames, iType)
 }
 
-case class Divide[I<:AtomicType](inputsNames:Set[String], iType:Class[I]) extends Arithmetic[I] {
+case class Divide[I<:DataType](inputsNames:Set[String], iType:Class[I]) extends Arithmetic[I] {
   override val commonName: String = "DIVIDE"
 
   /**
@@ -286,7 +286,7 @@ case class Divide[I<:AtomicType](inputsNames:Set[String], iType:Class[I]) extend
   override def duplicate: Concept = new Divide[I](inputsNames, iType)
 }
 
-case class Average[I<:AtomicType](inputsNames:Set[String], iType:Class[I]) extends Arithmetic[I] {
+case class Average[I<:DataType](inputsNames:Set[String], iType:Class[I]) extends Arithmetic[I] {
   override val commonName: String = "AVERAGE"
 
   /**
