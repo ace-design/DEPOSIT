@@ -5,8 +5,6 @@ import org.chocosolver.solver.Solver
 import org.chocosolver.solver.constraints.IntConstraintFactory
 import org.chocosolver.solver.variables.VariableFactory
 
-import scala.collection.mutable
-
 /**
  * Code generator trait
  * Contains common methods shared by all code generators
@@ -16,21 +14,19 @@ trait CodeGenerator {
   def replace(parameter:String, value:String, source:String):String = source.replace("#@" + parameter + "@#", value)
 
   case class Variable(name:String, t:String)
-
-  val functions = mutable.HashMap[String,String]()
-  val variables = mutable.Set[Variable]()
+  case class Instruction(inputs:Set[Variable], body:String, outputs:Set[Variable])
 
   def orderedGenerationList(p:Policy) = {
     val totalConcepts = p.ios.size + p.operations.size
     val solver = new Solver("Generation ordering problem")
-    val sourcesvariables = for (s <- p.sources) yield { VariableFactory.fixed(s.id, 1, solver)}
-    val operationvariables = for (o <- p.operations) yield { VariableFactory.bounded(o.id, 2, totalConcepts, solver)}
-    val collectorvariables = for (c <- p.collectors) yield {VariableFactory.fixed(c.id, totalConcepts, solver)}
+    val sourcesvariablesChoco = for (s <- p.sources) yield { VariableFactory.fixed(s.id, 1, solver)}
+    val operationvariablesChoco = for (o <- p.operations) yield { VariableFactory.bounded(o.id, 2, totalConcepts, solver)}
+    val collectorvariablesChoco = for (c <- p.collectors) yield {VariableFactory.fixed(c.id, totalConcepts, solver)}
 
-    val variables = sourcesvariables ++ operationvariables ++ collectorvariables
+    val variablesChoco = sourcesvariablesChoco ++ operationvariablesChoco ++ collectorvariablesChoco
 
-    for (l <- p.links) yield {solver.post(IntConstraintFactory.arithm(variables.find(_.getName equals l.source.id).get, "<", variables.find(_.getName equals l.destination.id).get))}
-    solver.post(IntConstraintFactory.alldifferent(operationvariables.toArray))
+    for (l <- p.links) yield {solver.post(IntConstraintFactory.arithm(variablesChoco.find(_.getName equals l.source.id).get, "<", variablesChoco.find(_.getName equals l.destination.id).get))}
+    solver.post(IntConstraintFactory.alldifferent(operationvariablesChoco.toArray))
     
     if (solver.findSolution()) {
       val namedOperationsOrder = solver.retrieveIntVars().map(v => (v.getValue, v.getName)).toList.sortBy(_._1).map(_._2).map(p.findConceptById(_).get)

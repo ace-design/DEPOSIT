@@ -1,0 +1,48 @@
+#include <AnalogEvent.h>
+#include <TimedEvent.h>
+
+#define CONTROLLED_TIMER #@nb_periodic_sensors@#
+#define BOARD_ID #@board_id@#
+#define OFFSET #@offset@#
+
+#@data_structures@#
+
+#@global_sensor_values@#
+
+#@global_sensor_timpestamp@#
+
+void setup() {
+  #@setup_instructions@#
+  TimedEvent.start(CONTROLLED_TIMER);
+
+  Serial.begin(9600);
+
+}
+
+void start() {
+ getTimestamp();
+}
+
+void loop() {
+  if (timestamp0 < 0)
+    start();
+  else {
+    AnalogEvent.loop();
+    TimedEvent.loop();
+  }
+}
+void program() {
+#@datacollectionpolicy@#
+}
+
+#@dataacquisition@#
+
+void getTimestamp() {
+    Serial.println("timestamp?");
+    if (Serial.available() > 0)
+      timestamp0 = Serial.parseInt();
+}
+
+long currentTime() {
+  return millis() + timestamp0;
+}

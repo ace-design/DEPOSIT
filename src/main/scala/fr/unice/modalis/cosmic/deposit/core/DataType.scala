@@ -6,12 +6,12 @@ package fr.unice.modalis.cosmic.deposit.core
  */
 trait DataType {
   val id:String = "type" + scala.util.Random.alphanumeric.take(5).mkString
+  val name:String
 
 
 }
 trait AtomicType extends DataType {
   val value:Any
-  val name:String
 }
 
 trait CompositeType extends DataType {
@@ -63,6 +63,8 @@ case class SmartCampusType() extends CompositeType {
   override def getTimeField: Field = Field("t", bindings("t"))
 
   override def getObservationField: Field = Field("v", bindings("v"))
+
+  override val name: String = "SmartCampusType"
 }
 
 
@@ -82,4 +84,6 @@ case class SantanderParkingType() extends CompositeType {
   override def getTimeField: Field = Field("date", classOf[StringType])
 
   override def getObservationField: Field = Field("status", classOf[IntegerType])
+
+  override val name: String = "SantanderParkingType"
 }
