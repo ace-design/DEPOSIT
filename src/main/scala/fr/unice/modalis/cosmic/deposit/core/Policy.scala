@@ -24,7 +24,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   lazy val inputJoinPoints = ios.filter(_.isInstanceOf[JoinPointInput[_<:DataType]]).asInstanceOf[Set[JoinPointInput[_<:DataType]]]
   lazy val outputJoinPoints = ios.filter(_.isInstanceOf[JoinPointOutput[_<:DataType]]).asInstanceOf[Set[JoinPointOutput[_<:DataType]]]
 
-  lazy val isExtendable = inputJoinPoints.size > 0 || outputJoinPoints.size > 0
+  lazy val isExtendable = inputJoinPoints.nonEmpty || outputJoinPoints.nonEmpty
 
   addProperty("name", name) //Add name as a property
 
@@ -114,8 +114,8 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
       val next = nextElements(e)
       next.foreach(e => e._1 match {
         case elem:Collector[_]  => ios += elem; links += e._2
-        case elem:Sensor[_] =>  ios += elem; links += e._2; if (e != Set.empty && !last.isDefined || last.get != e._1) internal(e._1)
-        case elem:Operation[_, _] => activities += elem; links += e._2; if (e != Set.empty && !last.isDefined || last.get != e._1) internal(e._1)
+        case elem:Sensor[_] =>  ios += elem; links += e._2; if (e != Set.empty && last.isEmpty || last.get != e._1) internal(e._1)
+        case elem:Operation[_, _] => activities += elem; links += e._2; if (e != Set.empty && last.isEmpty || last.get != e._1) internal(e._1)
       }
       )
     }
@@ -209,6 +209,14 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     notSelected.foreach(c => result = result.delete(c))
     result.name = n
     result
+  }
+
+  /**
+   * Return data types involved in a policy
+   * @return A set of data types involved
+   */
+  def dataTypesInvolved[T<:DataType] = {
+    ios.map {_.dataType} ++ operations.map {_.iType} ++ operations.map {_.oType}
   }
 
   def duplicate = {
