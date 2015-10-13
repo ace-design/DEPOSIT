@@ -88,10 +88,23 @@ case class SantanderParkingType() extends CompositeType {
   override val name: String = "SantanderParkingType"
 }
 
+case class IntegerSensorType() extends CompositeType {
+  val bindings = Map("v" -> classOf[IntegerType],
+                     "t" -> classOf[LongType])
+
+  override def getNameField: Field = throw new Exception("No name value")
+
+  override def getTimeField: Field = Field("t", classOf[LongType])
+
+  override def getObservationField: Field = Field("v", classOf[IntegerType])
+
+  override val name: String = "IntegerSensorType"
+}
 object DataType {
   def factory(name:String) = name match {
     case "SmartCampusType" => SmartCampusType()
     case "SantanderParkingType" => SantanderParkingType()
+    case "IntegerSensorType" => IntegerSensorType()
     case "IntegerType" => IntegerType(0)
     case "LongType" => LongType(0)
     case "StringType" => StringType("")

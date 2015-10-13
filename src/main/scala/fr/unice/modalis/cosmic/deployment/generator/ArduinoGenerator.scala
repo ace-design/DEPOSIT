@@ -12,22 +12,30 @@ object ArduinoGenerator extends CodeGenerator{
 
 
   val LAST_VALUE_PREFIX = "lastValue_"
+  val LAST_UPDATE_PREFIX = "lastUpdate_"
+  val templateFile: String = "assets/generation/arduino/main.template"
 
+  
+  def generatePolicyBody(policy: Policy) = generateInstructionList(policy).foldLeft(""){(acc, e) => acc + e.body + "\n"}
 
-  def generate(c:Concept, policy: Policy):Instruction = c match {
-    case a:DataInput[_] => Instruction(Set(), generateDataTypeName(a.dataType) + " " + a.id + "_" + a.output.name + " = " + LAST_VALUE_PREFIX + a.id + ";", Set(Variable(a.output.name, generateDataTypeName(a.dataType))))
+  def generateInstruction(c:Concept, policy: Policy):Instruction = c match {
+    case a:DataInput[_] => Instruction(Set(), a.id + "_" + a.output.name + " = " + LAST_VALUE_PREFIX + a.id + ";", Set(Variable(a.id + "_" + a.output.name, generateDataTypeName(a.dataType))))
     //TODO Arithmetic operation
     case a:Arithmetic[_] => Instruction(a.inputs.foldLeft(Set[Variable]()){(acc, e) => acc + Variable(a.id + "_" + e.name, generateDataTypeName(a.iType))}, "/* TODO Arithmetic operation */", Set(Variable(a.id + "_" + a.output.name, generateDataTypeName(a.oType))))
-    case a:Conditional[_] => Instruction(Set(Variable(c.id + "_" + a.input.name, generateDataTypeName(a.iType))), "if (" + a.predicate + ") " + generateDataTypeName(a.oType) + " " + a.id + "_" + a.thenOutput.name + " = " + c.id + "_" + a.input.name + "; else " + generateDataTypeName(a.oType) + " " +  a.elseOutput.name + " = " + c.id + "_" + a.input.name + ";", Set(Variable(a.id + "_" + a.thenOutput.name, generateDataTypeName(a.oType))))
+    //TODO Handle predicate in conditional operations
+    case a:Conditional[_] => Instruction(Set(Variable(c.id + "_" + a.input.name, generateDataTypeName(a.iType))), "if (" + a.predicate + ") " + a.id + "_" + a.thenOutput.name + " = " + c.id + "_" + a.input.name + "; else " + a.id + "_" +  a.elseOutput.name + " = " + c.id + "_" + a.input.name + ";", Set(Variable(a.id + "_" + a.thenOutput.name, generateDataTypeName(a.oType)), Variable(a.id + "_" + a.elseOutput.name, generateDataTypeName(a.oType))))
     case a:DataOutput[_] => Instruction(Set(Variable(a.id + "_" + a.input.name, generateDataTypeName(a.dataType))), "send(" + a.id + "_" + a.input.name + "," + a.name + ");", Set())
-    case a:Extract[_, _] => Instruction(Set(Variable(a.id + "_" + a.input.name, generateDataTypeName(a.iType))), generateDataTypeName(a.oType) + " " + a.id + "_" + a.output.name + " = " + a.id + "_" + a.input.name + ".data." + a.field + ";", Set(Variable(a.id + "_" + a.output.name, generateDataTypeName(a.oType))))
+    case a:Extract[_, _] => Instruction(Set(Variable(a.id + "_" + a.input.name, generateDataTypeName(a.iType))), a.id + "_" + a.output.name + " = " + a.id + "_" + a.input.name + ".data." + a.field + ";", Set(Variable(a.id + "_" + a.output.name, generateDataTypeName(a.oType))))
     case _ => throw new Exception("Can't generate concept " + c + " for Arduino platform")
   }
 
   def generateInstructionList(p:Policy) = {
-    orderedGenerationList(p).map {generate(_,p)} map {i => i.copy(body = i.body + (if (i.outputs.nonEmpty) " update();" else ""))}
-    //orderedGenerationList(p).map {generate(_,p)} map {i => i.copy(body = i.body + ." update();"))}
+    orderedGenerationList(p).map {generateInstruction(_,p)} map {i => i.copy(body = i.body + (if (i.outputs.nonEmpty) " update();" else ""))}
   }
+
+  def generateVariablesDeclaration(variables:Set[Variable]) = variables.foldLeft(""){(acc, e) => acc + e.t + " " + e.name + ";\n"}
+
+
 
   def generateUpdateMethod(policy: Policy) = {
     "void update() { \n" +
@@ -87,7 +95,17 @@ object ArduinoGenerator extends CodeGenerator{
     p.dataTypesInvolved.foldLeft(""){(acc, e) => acc + generateStruct(DataType.factory(e.getSimpleName)) + "\n"}
   }
 
+  override def generate(p:Policy) = {
+    var generatedCode = super.generate(p)
 
+    generatedCode = replace("update", generateUpdateMethod(p), generatedCode)
+    generatedCode = replace("global_sensor_values", generateSensorValues(p), generatedCode)
+    generatedCode
+  }
+
+  def generateSensorValues(p:Policy) = {
+    p.sources.foldLeft(""){(acc, e) => acc + generateDataTypeName(e.dataType) + " " + LAST_VALUE_PREFIX + e.id + ";\n" + "long " + LAST_UPDATE_PREFIX + e.id + ";\n"}
+  }
   def generateDataTypeName[T<:DataType](d:Class[T]) = {
     d.getSimpleName match {
       case "IntegerType" => "int"
@@ -96,6 +114,7 @@ object ArduinoGenerator extends CodeGenerator{
       case "DoubleType" => "double"
       case "SmartCampusType" => "struct SmartCampus"
       case "SantanderParkingType" => "struct SantanderParkingType"
+      case "IntegerSensorType" => "struct IntegerSensorType"
       case _ => throw new Exception("Unknown data type name")
     }
   }
@@ -115,4 +134,6 @@ object ArduinoGenerator extends CodeGenerator{
       case e: NumberFormatException => throw new Exception("Arduino only support integer id for sensors")
     }
   }
+
+  override def generateGlobalVariables(policy: Policy): String = generateVariablesDeclaration(generateInstructionList(policy).flatMap(i => Set(i.inputs, i.outputs)).flatten.toSet)
 }
