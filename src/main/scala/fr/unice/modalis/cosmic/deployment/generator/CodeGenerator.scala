@@ -47,8 +47,7 @@ trait CodeGenerator {
     val variablesChoco = sourcesvariablesChoco ++ operationvariablesChoco ++ collectorvariablesChoco
 
     for (l <- p.links) yield {solver.post(IntConstraintFactory.arithm(variablesChoco.find(_.getName equals l.source.id).get, "<", variablesChoco.find(_.getName equals l.destination.id).get))}
-    solver.post(IntConstraintFactory.alldifferent(variablesChoco.toArray))
-    
+
     if (solver.findSolution()) {
       val namedOperationsOrder = solver.retrieveIntVars().map(v => (v.getValue, v.getName)).toList.sortBy(_._1).map(_._2).map(p.findConceptById(_).get)
       println(namedOperationsOrder)
