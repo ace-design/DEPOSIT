@@ -5,16 +5,37 @@ import org.chocosolver.solver.Solver
 import org.chocosolver.solver.constraints.IntConstraintFactory
 import org.chocosolver.solver.variables.VariableFactory
 
+import scala.io.Source
+
 /**
  * Code generator trait
  * Contains common methods shared by all code generators
  * Created by Cyril Cecchinel - I3S Laboratory on 05/10/15.
  */
 trait CodeGenerator {
+  // Path to template file
+  val templateFile: String
+
+  def apply(p:Policy) = generate(p)
+  def generateDataStructures(p:Policy):String
+
+  def generatePolicyBody(policy: Policy):String
+
+  def generateGlobalVariables(policy: Policy):String
+
+  def generate(p:Policy) = {
+    var generatedCode = Source.fromFile(templateFile).getLines().mkString("\n")
+    generatedCode = replace("data_structures", generateDataStructures(p), generatedCode)
+    generatedCode = replace("datacollectionpolicy", generatePolicyBody(p), generatedCode)
+    generatedCode = replace("global_variables", generateGlobalVariables(p), generatedCode)
+    generatedCode
+  }
+  
   def replace(parameter:String, value:String, source:String):String = source.replace("#@" + parameter + "@#", value)
 
-  case class Variable(name:String, t:String)
-  case class Instruction(inputs:Set[Variable], body:String, outputs:Set[Variable])
+  
+  
+  
 
   def orderedGenerationList(p:Policy) = {
     val totalConcepts = p.ios.size + p.operations.size
@@ -26,11 +47,13 @@ trait CodeGenerator {
     val variablesChoco = sourcesvariablesChoco ++ operationvariablesChoco ++ collectorvariablesChoco
 
     for (l <- p.links) yield {solver.post(IntConstraintFactory.arithm(variablesChoco.find(_.getName equals l.source.id).get, "<", variablesChoco.find(_.getName equals l.destination.id).get))}
-    solver.post(IntConstraintFactory.alldifferent(operationvariablesChoco.toArray))
+    solver.post(IntConstraintFactory.alldifferent(variablesChoco.toArray))
     
     if (solver.findSolution()) {
       val namedOperationsOrder = solver.retrieveIntVars().map(v => (v.getValue, v.getName)).toList.sortBy(_._1).map(_._2).map(p.findConceptById(_).get)
-      p.sources.toList ++ namedOperationsOrder ++ p.collectors.toList
+      println(namedOperationsOrder)
+
+      p.sources.toList ++ namedOperationsOrder
     }
     else {
       throw new NonGenerableException(p)
@@ -42,3 +65,6 @@ trait CodeGenerator {
 case class NonHandledSensorException(io:Any) extends Exception("Non handled sensor " + io)
 
 case class NonGenerableException(p:Policy) extends Exception(p.name + " is not generable")
+
+case class Variable(name:String, t:String)
+case class Instruction(inputs:Set[Variable], body:String, outputs:Set[Variable])

@@ -7,9 +7,9 @@
 
 #@data_structures@#
 
+#@global_variables@#
 #@global_sensor_values@#
 
-#@global_sensor_timpestamp@#
 
 void setup() {
   #@setup_instructions@#
@@ -18,6 +18,8 @@ void setup() {
   Serial.begin(9600);
 
 }
+
+#@update@#
 
 void start() {
  getTimestamp();
