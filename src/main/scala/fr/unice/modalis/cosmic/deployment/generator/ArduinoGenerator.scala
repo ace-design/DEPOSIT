@@ -19,15 +19,41 @@ object ArduinoGenerator extends CodeGenerator{
   def generatePolicyBody(policy: Policy) = generateInstructionList(policy).foldLeft(""){(acc, e) => acc + e.body + "\n"}
 
   def generateInstruction(c:Concept, policy: Policy):Instruction = c match {
-    case a:DataInput[_] => Instruction(Set(), a.id + "_" + a.output.name + " = " + LAST_VALUE_PREFIX + a.id + ";", Set(Variable(a.id + "_" + a.output.name, generateDataTypeName(a.dataType))))
+
+    case a:DataInput[_] => {
+      val output_var = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.dataType))
+      Instruction(Set(), output_var.name + " = " + LAST_VALUE_PREFIX + a.id + ";", Set(output_var))
+    }
+
     //TODO Arithmetic operation
     case a:Arithmetic[_] => Instruction(a.inputs.foldLeft(Set[Variable]()){(acc, e) => acc + Variable(a.id + "_" + e.name, generateDataTypeName(a.iType))}, "/* TODO Arithmetic operation */", Set(Variable(a.id + "_" + a.output.name, generateDataTypeName(a.oType))))
     //TODO Handle predicate in conditional operations
-    case a:Conditional[_] => Instruction(Set(Variable(c.id + "_" + a.input.name, generateDataTypeName(a.iType))), "if (" + a.predicate + ") " + a.id + "_" + a.thenOutput.name + " = " + c.id + "_" + a.input.name + "; else " + a.id + "_" +  a.elseOutput.name + " = " + c.id + "_" + a.input.name + ";", Set(Variable(a.id + "_" + a.thenOutput.name, generateDataTypeName(a.oType)), Variable(a.id + "_" + a.elseOutput.name, generateDataTypeName(a.oType))))
-    case a:DataOutput[_] => Instruction(Set(Variable(a.id + "_" + a.input.name, generateDataTypeName(a.dataType))), "send(" + a.id + "_" + a.input.name + "," + a.name + ");", Set())
-    case a:Extract[_, _] => Instruction(Set(Variable(a.id + "_" + a.input.name, generateDataTypeName(a.iType))), a.id + "_" + a.output.name + " = " + a.id + "_" + a.input.name + ".data." + a.field + ";", Set(Variable(a.id + "_" + a.output.name, generateDataTypeName(a.oType))))
+
+
+    case a:Conditional[_] => {
+      val input_var = Variable(c.id + "_" + a.input.name, generateDataTypeName(a.iType))
+      val then_var = Variable(a.id + "_" + a.thenOutput.name, generateDataTypeName(a.oType))
+      val else_var = Variable(a.id + "_" + a.elseOutput.name, generateDataTypeName(a.oType))
+      Instruction(Set(input_var), "if (" + a.predicate + ") " + then_var.name + " = " + input_var.name + "; " +
+        "else " + else_var.name + " = " + input_var.name + ";", Set(then_var, else_var))
+    }
+
+
+    case a:DataOutput[_] => {
+      val input_var = Variable(a.id + "_" + a.input.name, generateDataTypeName(a.dataType))
+      Instruction(Set(input_var), "send(" + input_var.name + "," + a.name + ");", Set())
+    }
+
+    case a:Extract[_, _] => {
+      val input_var = Variable(a.id + "_" + a.input.name, generateDataTypeName(a.iType))
+      val output_var = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.oType))
+      Instruction(Set(input_var), output_var.name + " = " + input_var.name + ".data." + a.field + ";", Set(output_var))
+    }
+
     case _ => throw new Exception("Can't generate concept " + c + " for Arduino platform")
   }
+
+
 
   def generateInstructionList(p:Policy) = {
     orderedGenerationList(p).map {generateInstruction(_,p)} map {i => i.copy(body = i.body + (if (i.outputs.nonEmpty) " update();" else ""))}
