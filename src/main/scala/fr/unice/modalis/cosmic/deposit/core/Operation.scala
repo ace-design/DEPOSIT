@@ -41,6 +41,25 @@ trait Operation[I<:DataType, O<:DataType] extends Concept with Properties{
 
 }
 
+/**
+ * Merge atomic types to a given composite type
+ * @param to Targeted composite type
+ */
+case class Merge[I<:AtomicType, O<:CompositeType](to:Class[O], iType:Class[I] = classOf[AtomicType]) extends Operation[I,O] {
+  override val inputsNames: Set[String] = DataType.factory(oType.getSimpleName).asInstanceOf[CompositeType].bindings.keySet
+  override val outputsNames: Set[String] = Set(DEFAULT_OUTPUT_NAME)
+  lazy val oType = to
+  val output = getOutput(DEFAULT_OUTPUT_NAME)
+
+  /**
+   * Return a copy of this concept (with different id)
+   * @return copy of this concept
+   */
+  override def duplicate: Concept = this.copy(to)
+
+  override val commonName: String = "Merge[to=" + to.getSimpleName + "]"
+}
+
 /** Classification of business concerns **/
 trait Arithmetic[T<:DataType] extends Operation[T, T] {
   val inputsNames:Set[String]
