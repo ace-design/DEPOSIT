@@ -28,28 +28,28 @@ trait SensorDataType extends CompositeType {
 /**
  * Represent Integer values
  */
-case class IntegerType(val value:Int) extends AtomicType {
+case class IntegerType(value:Int) extends AtomicType {
   override val name: String = "IntegerType"
 }
 
 /**
  * Represent Double values
  */
-case class DoubleType(val value:Double) extends AtomicType {
+case class DoubleType(value:Double) extends AtomicType {
   override val name: String = "DoubleType"
 }
 
 /**
  * Represent Long values
  */
-case class LongType(val value:Long) extends AtomicType {
+case class LongType(value:Long) extends AtomicType {
   override val name: String = "LongType"
 }
 
 /**
  * Represent String values
  */
-case class StringType(val value:String) extends AtomicType {
+case class StringType(value:String) extends AtomicType {
   override val name: String = "StringType"
 }
 
@@ -114,4 +114,9 @@ object DataType {
     case "DoubleType" => DoubleType(0)
     case _ => throw new Exception("Unknown data type")
   }
+}
+
+object DataField extends Enumeration {
+  type DataField = Value
+  val OBSERVATION, TIME, NAME = Value
 }
