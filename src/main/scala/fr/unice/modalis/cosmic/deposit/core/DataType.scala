@@ -18,6 +18,9 @@ trait CompositeType extends DataType {
 
   case class Field(n:String, dataType: Class[_<:AtomicType])
   val bindings:Map[String, Class[_<:AtomicType]]
+}
+
+trait SensorDataType extends CompositeType {
   def getNameField:Field
   def getObservationField:Field
   def getTimeField:Field
@@ -53,7 +56,7 @@ case class StringType(val value:String) extends AtomicType {
 /**
  * Represent SmartCampus Sensor Data
  */
-case class SmartCampusType() extends CompositeType {
+case class SmartCampusType() extends SensorDataType {
   val bindings = Map("n" -> classOf[StringType],
     "v" -> classOf[IntegerType],
     "t" -> classOf[LongType])
@@ -73,7 +76,7 @@ case class SmartCampusType() extends CompositeType {
 /**
  * Represent Santander Parking Sensor Data
  */
-case class SantanderParkingType() extends CompositeType {
+case class SantanderParkingType() extends SensorDataType {
   val bindings = Map("nodeId" -> classOf[IntegerType],
                      "date" -> classOf[StringType],
                      "battery" -> classOf[DoubleType],
@@ -88,7 +91,7 @@ case class SantanderParkingType() extends CompositeType {
   override val name: String = "SantanderParkingType"
 }
 
-case class IntegerSensorType() extends CompositeType {
+case class IntegerSensorType() extends SensorDataType {
   val bindings = Map("v" -> classOf[IntegerType],
                      "t" -> classOf[LongType])
 
