@@ -1,5 +1,7 @@
 package fr.unice.modalis.cosmic.deposit.core
 
+import fr.unice.modalis.cosmic.deposit.core.DataField.DataField
+
 import scala.collection.immutable.Set
 import scala.collection.mutable.ArrayBuffer
 
@@ -23,6 +25,7 @@ trait Operation[I<:DataType, O<:DataType] extends Concept with Properties{
   val oType:Class[O]
 
 
+
   /**
    * Get an input according its name
    * @param s Requested name
@@ -40,6 +43,19 @@ trait Operation[I<:DataType, O<:DataType] extends Concept with Properties{
   override val id:String = "concept_" + super.id
 
 }
+
+
+/**
+ * Operation on values
+ * @tparam T DataType
+ */
+trait ValueOperation[T<:DataType] extends Operation[T,T] {
+  val applicationField:DataField
+  val hasNewTimestamp:Boolean
+  val hasNewName:Boolean
+}
+
+
 
 /**
  * Merge atomic types to a given composite type
@@ -60,36 +76,6 @@ case class Merge[I<:AtomicType, O<:CompositeType](to:Class[O], iType:Class[I] = 
   override val commonName: String = "Merge[to=" + to.getSimpleName + "]"
 }
 
-/** Classification of business concerns **/
-trait Arithmetic[T<:DataType] extends Operation[T, T] {
-  val inputsNames:Set[String]
-
-  override val outputsNames: Set[String] = Set(DEFAULT_OUTPUT_NAME)
-
-  lazy val output = getOutput(DEFAULT_OUTPUT_NAME)
-
-  val oType = iType
-}
-
-trait Filtering[T<:DataType] extends Operation[T, T] {
-  val oType = iType
-}
-trait Comparison[T<:DataType] extends Operation[T, T] {
-  val oType = iType
-}
-
-case class Increment[T<:DataType](value:T, iType:Class[T]) extends Arithmetic[T] {
-  override val inputsNames: Set[String] = Set(DEFAULT_INPUT_NAME)
-  lazy val input = getInput()
-
-  /**
-   * Return a copy of this concept (with different id)
-   * @return copy of this concept
-   */
-  override def duplicate: Concept = new Increment[T](value, iType)
-
-  override val commonName: String = "INCREMENT(" + value + ")"
-}
 /**
  * Define a constant
  * @param v Constant
@@ -131,6 +117,47 @@ case class Extract[I<:CompositeType, O<:AtomicType](field:String, iType:Class[I]
   override def duplicate: Concept = new Extract[I,O](field, iType, oType)
 }
 
+trait Arithmetic[T<:DataType] extends ValueOperation[T] {
+  val inputsNames:Set[String]
+
+  override val outputsNames: Set[String] = Set(DEFAULT_OUTPUT_NAME)
+
+  lazy val output = getOutput(DEFAULT_OUTPUT_NAME)
+
+  val oType = iType
+
+  val applicationField = DataField.OBSERVATION
+  val hasNewName  = true
+  val hasNewTimestamp = true
+
+}
+
+trait Filtering[T<:DataType] extends ValueOperation[T] {
+  val oType = iType
+  val hasNewName  = false
+  val hasNewTimestamp = false
+}
+
+trait Comparison[T<:DataType] extends ValueOperation[T] {
+  val oType = iType
+  val hasNewName  = false
+  val hasNewTimestamp = false
+}
+
+case class Increment[T<:DataType](value:T, iType:Class[T]) extends Arithmetic[T] {
+  override val inputsNames: Set[String] = Set(DEFAULT_INPUT_NAME)
+  lazy val input = getInput()
+
+  /**
+   * Return a copy of this concept (with different id)
+   * @return copy of this concept
+   */
+  override def duplicate: Concept = new Increment[T](value, iType)
+
+  override val commonName: String = "INCREMENT(" + value + ")"
+}
+
+
 /*** FILTERING OPERATIONS ***/
 
 
@@ -139,7 +166,7 @@ case class Extract[I<:CompositeType, O<:AtomicType](field:String, iType:Class[I]
  * @param predicate Predicate
  * @tparam T DataType
  */
-case class Conditional[T<:DataType](predicate:String, iType:Class[T]) extends Filtering[T] {
+case class Conditional[T<:DataType](predicate:String, iType:Class[T], applicationField:DataField = DataField.OBSERVATION) extends Filtering[T] {
   final val THEN_OUTPUT_NAME = "then"
   final val ELSE_OUTPUT_NAME = "else"
 
@@ -158,7 +185,7 @@ case class Conditional[T<:DataType](predicate:String, iType:Class[T]) extends Fi
   override def duplicate: Concept = new Conditional[T](predicate, iType)
 }
 
-case class Switch[T<:DataType](switchMap:Map[String,String], inputsNames:Set[String], outputsNames:Set[String], iType:Class[T]) extends Filtering[T] {
+/*case class Switch[T<:DataType](switchMap:Map[String,String], inputsNames:Set[String], outputsNames:Set[String], iType:Class[T]) extends Filtering[T] {
   require(switchMap.keys.forall(inputsNames.contains))
   require(switchMap.values.forall(outputsNames.contains))
   override val commonName: String = "SWITCH(" + switchMap + ")"
@@ -168,7 +195,7 @@ case class Switch[T<:DataType](switchMap:Map[String,String], inputsNames:Set[Str
    * @return copy of this concept
    */
   override def duplicate: Concept = new Switch[T](switchMap, inputsNames, outputsNames, iType)
-}
+}*/
 /*** COMPARISON OPERATIONS ***/
 
 /**
@@ -176,7 +203,7 @@ case class Switch[T<:DataType](switchMap:Map[String,String], inputsNames:Set[Str
  * @param inputsNames Inputs names
  * @tparam T Inputs DataType
  */
-case class Max[T<:DataType](inputsNames:Set[String], iType:Class[T]) extends Comparison[T] {
+case class Max[T<:DataType](inputsNames:Set[String], iType:Class[T], applicationField:DataField = DataField.OBSERVATION) extends Comparison[T] {
   override val outputsNames: Set[String] = Set(DEFAULT_OUTPUT_NAME)
   lazy val output = getOutput(DEFAULT_OUTPUT_NAME)
   override val commonName: String = "MAX"
@@ -193,7 +220,7 @@ case class Max[T<:DataType](inputsNames:Set[String], iType:Class[T]) extends Com
  * @param inputsNames Inputs names
  * @tparam T Inputs DataType
  */
-case class Min[T<:DataType](inputsNames:Set[String], iType:Class[T]) extends Comparison[T] {
+case class Min[T<:DataType](inputsNames:Set[String], iType:Class[T], applicationField:DataField = DataField.OBSERVATION) extends Comparison[T] {
   override val outputsNames: Set[String] = Set(DEFAULT_OUTPUT_NAME)
   lazy val output = getOutput(DEFAULT_OUTPUT_NAME)
   override val commonName: String = "MIN"
@@ -224,7 +251,7 @@ trait BinaryComparison[T<:DataType] extends Comparison[T] {
 
 }
 
-case class Lower[T<:DataType](iType:Class[T]) extends BinaryComparison[T] {
+case class Lower[T<:DataType](iType:Class[T], applicationField:DataField = DataField.OBSERVATION) extends BinaryComparison[T] {
   override val commonName: String = "LOWER"
 
   /**
@@ -234,7 +261,7 @@ case class Lower[T<:DataType](iType:Class[T]) extends BinaryComparison[T] {
   override def duplicate: Concept = new Lower[T](iType)
 }
 
-case class LowerEq[T<:DataType](iType:Class[T]) extends BinaryComparison[T] {
+case class LowerEq[T<:DataType](iType:Class[T], applicationField:DataField = DataField.OBSERVATION) extends BinaryComparison[T] {
   override val commonName: String = "LOWEREQ"
 
   /**
@@ -244,7 +271,7 @@ case class LowerEq[T<:DataType](iType:Class[T]) extends BinaryComparison[T] {
   override def duplicate: Concept = new LowerEq[T](iType)
 }
 
-case class Higher[T<:DataType](iType:Class[T]) extends BinaryComparison[T] {
+case class Higher[T<:DataType](iType:Class[T], applicationField:DataField = DataField.OBSERVATION) extends BinaryComparison[T] {
   override val commonName: String = "HIGHER"
 
   /**
@@ -254,7 +281,7 @@ case class Higher[T<:DataType](iType:Class[T]) extends BinaryComparison[T] {
   override def duplicate: Concept = new Higher[T](iType)
 }
 
-case class HigherEq[T<:DataType](iType:Class[T]) extends BinaryComparison[T] {
+case class HigherEq[T<:DataType](iType:Class[T], applicationField:DataField = DataField.OBSERVATION) extends BinaryComparison[T] {
   override val commonName: String = "HIGHEREQ"
 
   /**
