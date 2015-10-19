@@ -16,6 +16,8 @@ trait CodeGenerator {
   // Path to template file
   val templateFile: String
 
+  val CURRENT_TIMESTAMP_METHOD:String
+
   def apply(p:Policy) = generate(p)
   def generateDataStructures(p:Policy):String
 

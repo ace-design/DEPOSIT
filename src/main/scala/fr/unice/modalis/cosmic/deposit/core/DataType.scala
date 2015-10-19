@@ -24,6 +24,7 @@ trait SensorDataType extends CompositeType {
   def getNameField:Field
   def getObservationField:Field
   def getTimeField:Field
+
 }
 /**
  * Represent Integer values
@@ -56,7 +57,8 @@ case class StringType(value:String) extends AtomicType {
 /**
  * Represent SmartCampus Sensor Data
  */
-case class SmartCampusType() extends SensorDataType {
+case class SmartCampusType(value:(StringType, IntegerType, LongType) = (StringType(""), IntegerType(0), LongType(0L))) extends SensorDataType {
+
   val bindings = Map("n" -> classOf[StringType],
     "v" -> classOf[IntegerType],
     "t" -> classOf[LongType])
@@ -76,7 +78,7 @@ case class SmartCampusType() extends SensorDataType {
 /**
  * Represent Santander Parking Sensor Data
  */
-case class SantanderParkingType() extends SensorDataType {
+case class SantanderParkingType(value:(IntegerType, StringType, DoubleType, IntegerType) = (IntegerType(0), StringType(""), DoubleType(0), IntegerType(0))) extends SensorDataType {
   val bindings = Map("nodeId" -> classOf[IntegerType],
                      "date" -> classOf[StringType],
                      "battery" -> classOf[DoubleType],
@@ -91,7 +93,7 @@ case class SantanderParkingType() extends SensorDataType {
   override val name: String = "SantanderParkingType"
 }
 
-case class IntegerSensorType() extends SensorDataType {
+case class IntegerSensorType(value:(IntegerType, LongType) = (IntegerType(0), LongType(0L))) extends SensorDataType {
   val bindings = Map("v" -> classOf[IntegerType],
                      "t" -> classOf[LongType])
 
@@ -114,6 +116,18 @@ object DataType {
     case "DoubleType" => DoubleType(0)
     case _ => throw new Exception("Unknown data type")
   }
+
+  def factory(name:String, values:Map[String, AtomicType]) = name match {
+    case "SmartCampusType" => SmartCampusType((values("n").asInstanceOf[StringType], values("v").asInstanceOf[IntegerType], values("t").asInstanceOf[LongType]))
+    case "SantanderParkingType" => SantanderParkingType((values("nodeId").asInstanceOf[IntegerType], values("date").asInstanceOf[StringType], values("batterie").asInstanceOf[DoubleType], values("status").asInstanceOf[IntegerType]))
+    case "IntegerSensorType" => IntegerSensorType(values("v").asInstanceOf[IntegerType], values("t").asInstanceOf[LongType])
+    case "IntegerType" => IntegerType(0)
+    case "LongType" => LongType(0)
+    case "StringType" => StringType("")
+    case "DoubleType" => DoubleType(0)
+    case _ => throw new Exception("Unknown data type")
+  }
+
 }
 
 object DataField extends Enumeration {

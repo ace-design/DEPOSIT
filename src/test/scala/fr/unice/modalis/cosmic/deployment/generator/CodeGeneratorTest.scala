@@ -19,6 +19,8 @@ class CodeGeneratorTest  extends SpecificationWithJUnit{
     override def generatePolicyBody(policy: Policy): String = ???
 
     override def generateDataStructures(p: Policy): String = ???
+
+    override val CURRENT_TIMESTAMP_METHOD: String = ""
   }
 
   "A code generator" should {

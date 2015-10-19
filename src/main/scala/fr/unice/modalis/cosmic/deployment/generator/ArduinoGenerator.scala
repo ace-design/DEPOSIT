@@ -13,38 +13,56 @@ object ArduinoGenerator extends CodeGenerator{
 
   val LAST_VALUE_PREFIX = "lastValue_"
   val LAST_UPDATE_PREFIX = "lastUpdate_"
+  val CURRENT_TIMESTAMP_METHOD:String = "currentTime()"
   val templateFile: String = "assets/generation/arduino/main.template"
+
 
   
   def generatePolicyBody(policy: Policy) = generateInstructionList(policy).foldLeft(""){(acc, e) => acc + e.body + "\n"}
 
-  def generateInstruction(c:Concept, policy: Policy):Instruction = c match {
+  def generateArithmeticInstruction(a: Arithmetic[_ <: SensorDataType]): Instruction = {
+    // An arithmetic operation is performed on the Observation Field
+    val operationFieldName = DataType.factory(a.iType.getSimpleName).asInstanceOf[SensorDataType].getObservationField.n
+    val operation = a.id + "_" + a.output.name + " = { "+  CURRENT_TIMESTAMP_METHOD + ", BOARD_ID, {\"name\"," + a.inputsNames.map(i => a.id + "_" + i + ".data." + operationFieldName).mkString("+") + ", " + CURRENT_TIMESTAMP_METHOD + "}};"
 
-    case a:DataInput[_] => {
+
+    val inputVariables = a.inputs.foldLeft(Set[Variable]()){(acc, e) => acc + Variable(a.id + "_" + e.name, generateDataTypeName(a.iType))}
+    val outputVariables = Set(Variable(a.id + "_" + a.output.name, generateDataTypeName(a.oType)))
+
+    Instruction(inputVariables, operation, outputVariables)
+  }
+
+
+  def generateConditionalInstruction(a: Conditional[_ <: SensorDataType]): Instruction = {
+    val input_var = Variable(a.id + "_" + a.input.name, generateDataTypeName(a.iType))
+    val then_var = Variable(a.id + "_" + a.thenOutput.name, generateDataTypeName(a.oType))
+    val else_var = Variable(a.id + "_" + a.elseOutput.name, generateDataTypeName(a.oType))
+
+    Instruction(Set(input_var), "if (" + a.predicate + ") " + then_var.name + " = " + input_var.name + "; " +
+      "else " + else_var.name + " = " + input_var.name + ";", Set(then_var, else_var))
+  }
+
+  def generateInstruction[T<:SensorDataType](c:Concept, policy: Policy):Instruction = c match {
+
+    case a:DataInput[T] => {
       val output_var = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.dataType))
       Instruction(Set(), output_var.name + " = " + LAST_VALUE_PREFIX + a.id + ";", Set(output_var))
     }
 
     //TODO Arithmetic operation
-    case a:Arithmetic[_] => Instruction(a.inputs.foldLeft(Set[Variable]()){(acc, e) => acc + Variable(a.id + "_" + e.name, generateDataTypeName(a.iType))}, "/* TODO Arithmetic operation */", Set(Variable(a.id + "_" + a.output.name, generateDataTypeName(a.oType))))
+    case a:Arithmetic[T] => generateArithmeticInstruction(a)
     //TODO Handle predicate in conditional operations
 
 
-    case a:Conditional[_] => {
-      val input_var = Variable(c.id + "_" + a.input.name, generateDataTypeName(a.iType))
-      val then_var = Variable(a.id + "_" + a.thenOutput.name, generateDataTypeName(a.oType))
-      val else_var = Variable(a.id + "_" + a.elseOutput.name, generateDataTypeName(a.oType))
-      Instruction(Set(input_var), "if (" + a.predicate + ") " + then_var.name + " = " + input_var.name + "; " +
-        "else " + else_var.name + " = " + input_var.name + ";", Set(then_var, else_var))
-    }
+    case a:Conditional[T] => generateConditionalInstruction(a)
 
 
-    case a:DataOutput[_] => {
+    case a:DataOutput[T] => {
       val input_var = Variable(a.id + "_" + a.input.name, generateDataTypeName(a.dataType))
       Instruction(Set(input_var), "send(" + input_var.name + "," + a.name + ");", Set())
     }
 
-    case a:Extract[_, _] => {
+    case a:Extract[T, T] => {
       val input_var = Variable(a.id + "_" + a.input.name, generateDataTypeName(a.iType))
       val output_var = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.oType))
       Instruction(Set(input_var), output_var.name + " = " + input_var.name + ".data." + a.field + ";", Set(output_var))
@@ -70,7 +88,7 @@ object ArduinoGenerator extends CodeGenerator{
 
   //TODO: Passer en private def
   //TODO: refactoring (code duplication with generatePeriodicSensor)
-  def generateEventSensor(s:EventSensor[_<:DataType]) = {
+  def generateEventSensor(s:EventSensor[_<:SensorDataType]) = {
     val template = "assets/generation/arduino/eventsensor.template"
     val name = "event_" + s.id
     var body = Source.fromFile(template).getLines().mkString("\n")
@@ -84,7 +102,7 @@ object ArduinoGenerator extends CodeGenerator{
   }
   //TODO: Passer en private def
 
-  def generatePeriodicSensor(s:PeriodicSensor[_<:DataType]) = {
+  def generatePeriodicSensor(s:PeriodicSensor[_<:SensorDataType]) = {
     val template = "assets/generation/arduino/periodicsensor.template"
     val name = "periodic_" + s.id
     var body = Source.fromFile(template).getLines().mkString("\n")
@@ -138,7 +156,7 @@ object ArduinoGenerator extends CodeGenerator{
       case "LongType" => "long"
       case "StringType" => "String"
       case "DoubleType" => "double"
-      case "SmartCampusType" => "struct SmartCampus"
+      case "SmartCampusType" => "struct SmartCampusType"
       case "SantanderParkingType" => "struct SantanderParkingType"
       case "IntegerSensorType" => "struct IntegerSensorType"
       case _ => throw new Exception("Unknown data type name")

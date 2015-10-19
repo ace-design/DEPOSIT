@@ -1,7 +1,6 @@
 #include <AnalogEvent.h>
 #include <TimedEvent.h>
 
-#define CONTROLLED_TIMER #@nb_periodic_sensors@#
 #define BOARD_ID #@board_id@#
 #define OFFSET #@offset@#
 
@@ -9,12 +8,10 @@
 
 #@global_variables@#
 #@global_sensor_values@#
-
+int timestamp0 = 0;
 
 void setup() {
   #@setup_instructions@#
-  TimedEvent.start(CONTROLLED_TIMER);
-
   Serial.begin(9600);
 
 }
