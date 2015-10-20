@@ -312,26 +312,6 @@ case class Sub[I<:DataType](inputsNames:Set[String], iType:Class[I]) extends Ari
   override def duplicate: Concept = new Sub[I](inputsNames, iType)
 }
 
-case class Multiply[I<:DataType](inputsNames:Set[String], iType:Class[I]) extends Arithmetic[I] {
-  override val commonName: String = "MULTIPLY"
-
-  /**
-   * Return a copy of this concept (with different id)
-   * @return copy of this concept
-   */
-  override def duplicate: Concept = new Multiply[I](inputsNames, iType)
-}
-
-case class Divide[I<:DataType](inputsNames:Set[String], iType:Class[I]) extends Arithmetic[I] {
-  override val commonName: String = "DIVIDE"
-
-  /**
-   * Return a copy of this concept (with different id)
-   * @return copy of this concept
-   */
-  override def duplicate: Concept = new Divide[I](inputsNames, iType)
-}
-
 case class Average[I<:DataType](inputsNames:Set[String], iType:Class[I]) extends Arithmetic[I] {
   override val commonName: String = "AVERAGE"
 

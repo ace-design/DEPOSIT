@@ -24,9 +24,19 @@ object ArduinoGenerator extends CodeGenerator{
   def generatePolicyBody(policy: Policy) = generateInstructionList(policy).foldLeft(""){(acc, e) => acc + e.body + "\n"}
 
   def generateArithmeticInstruction(a: Arithmetic[_ <: SensorDataType]): Instruction = {
+
     // An arithmetic operation is performed on the Observation Field
     val operationFieldName = DataType.factory(a.iType.getSimpleName).asInstanceOf[SensorDataType].getObservationField.n
-    val operation = "{\"name\"," + a.inputsNames.map(i => a.id + "_" + i + ".data." + operationFieldName).mkString("+") + ", " + CURRENT_TIMESTAMP_METHOD + "}"
+
+    val operationBody = a match {
+
+      case _:Add[_] => a.inputsNames.map(i => a.id + "_" + i + ".data." + operationFieldName).mkString("+")
+      case _:Sub[_] => a.inputsNames.map(i => a.id + "_" + i + ".data." + operationFieldName).mkString("-")
+      case _:Average[_] => "(" + a.inputsNames.map(i => a.id + "_" + i + ".data." + operationFieldName).mkString("+") + ")/" + a.inputsNames.size
+      case inc:Increment[_] => a.id + "_" + inc.input + " + " + inc.value
+    }
+
+    val operation = "{\"name\"," + operationBody + ", " + CURRENT_TIMESTAMP_METHOD + "}"
 
 
     val inputVariables = a.inputs.foldLeft(Set[Variable]()){(acc, e) => acc + Variable(a.id + "_" + e.name, generateDataTypeName(a.iType))}
@@ -38,6 +48,7 @@ object ArduinoGenerator extends CodeGenerator{
 
 
   def generateConditionalInstruction(a: Conditional[_ <: SensorDataType]): Instruction = {
+    //TODO Handle predicate in conditional operations
     val input_var = Variable(a.id + "_" + a.input.name, generateDataTypeName(a.iType))
     val then_var = Variable(a.id + "_" + a.thenOutput.name, generateDataTypeName(a.oType))
     val else_var = Variable(a.id + "_" + a.elseOutput.name, generateDataTypeName(a.oType))
@@ -53,9 +64,7 @@ object ArduinoGenerator extends CodeGenerator{
       Instruction(Set(), output_var.name + " = " + LAST_VALUE_PREFIX + a.id + ";", Set(output_var))
     }
 
-    //TODO Arithmetic operation
     case a:Arithmetic[T] => generateArithmeticInstruction(a)
-    //TODO Handle predicate in conditional operations
 
 
     case a:Conditional[T] => generateConditionalInstruction(a)
