@@ -1,7 +1,7 @@
 void #@name@#(TimerInformation * Sender) {
     int value = analogRead(#@port@#);
-    Data d = {'#@common_name@#', value};
-    last_#@id@# = {currentTime(), d, BOARD_ID};
+    inner_SmartCampusType d = {'#@common_name@#', value, currentTime()}; //SmartCampus format
+    last_#@id@# = {currentTime(), BOARD_ID, d};
     lastUpdate_#@id@# = last_#@id@#.t;
     program();
 }
