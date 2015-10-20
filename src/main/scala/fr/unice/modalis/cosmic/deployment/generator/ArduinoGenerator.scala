@@ -16,20 +16,24 @@ object ArduinoGenerator extends CodeGenerator{
   val CURRENT_TIMESTAMP_METHOD:String = "currentTime()"
   val templateFile: String = "assets/generation/arduino/main.template"
 
-
+  object MessageBuilder {
+    def apply(instruction: Instruction) = generate(instruction)
+    def generate(instruction: Instruction) = Instruction(instruction.inputs,instruction.outputs.head.name +  " = {" + CURRENT_TIMESTAMP_METHOD + ", BOARD_ID," + instruction.body + "};", instruction.outputs)
+  }
   
   def generatePolicyBody(policy: Policy) = generateInstructionList(policy).foldLeft(""){(acc, e) => acc + e.body + "\n"}
 
   def generateArithmeticInstruction(a: Arithmetic[_ <: SensorDataType]): Instruction = {
     // An arithmetic operation is performed on the Observation Field
     val operationFieldName = DataType.factory(a.iType.getSimpleName).asInstanceOf[SensorDataType].getObservationField.n
-    val operation = a.id + "_" + a.output.name + " = { "+  CURRENT_TIMESTAMP_METHOD + ", BOARD_ID, {\"name\"," + a.inputsNames.map(i => a.id + "_" + i + ".data." + operationFieldName).mkString("+") + ", " + CURRENT_TIMESTAMP_METHOD + "}};"
+    val operation = "{\"name\"," + a.inputsNames.map(i => a.id + "_" + i + ".data." + operationFieldName).mkString("+") + ", " + CURRENT_TIMESTAMP_METHOD + "}"
 
 
     val inputVariables = a.inputs.foldLeft(Set[Variable]()){(acc, e) => acc + Variable(a.id + "_" + e.name, generateDataTypeName(a.iType))}
     val outputVariables = Set(Variable(a.id + "_" + a.output.name, generateDataTypeName(a.oType)))
 
-    Instruction(inputVariables, operation, outputVariables)
+
+    MessageBuilder(Instruction(inputVariables, operation, outputVariables))
   }
 
 
