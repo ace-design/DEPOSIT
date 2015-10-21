@@ -25,11 +25,16 @@ trait CodeGenerator {
 
   def generateGlobalVariables(policy: Policy):String
 
+  def generateInputs(policy: Policy):(String,String)
+
   def generate(p:Policy) = {
     var generatedCode = Source.fromFile(templateFile).getLines().mkString("\n")
     generatedCode = replace("data_structures", generateDataStructures(p), generatedCode)
     generatedCode = replace("datacollectionpolicy", generatePolicyBody(p), generatedCode)
     generatedCode = replace("global_variables", generateGlobalVariables(p), generatedCode)
+    val inputsTxt = generateInputs(p)
+    generatedCode = replace("sensor_instructions", inputsTxt._1, generatedCode)
+    generatedCode = replace("dataacquisition", inputsTxt._2, generatedCode)
     generatedCode
   }
   

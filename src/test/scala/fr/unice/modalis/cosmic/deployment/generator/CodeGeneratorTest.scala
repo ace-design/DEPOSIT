@@ -4,6 +4,7 @@ import fr.unice.modalis.cosmic.deposit.core.{DCPTest, Policy}
 import org.specs2.mutable.SpecificationWithJUnit
 
 /**
+ * Code generator test
  * Created by Cyril Cecchinel - I3S Laboratory on 13/10/2015.
  */
 class CodeGeneratorTest  extends SpecificationWithJUnit{
@@ -21,6 +22,8 @@ class CodeGeneratorTest  extends SpecificationWithJUnit{
     override def generateDataStructures(p: Policy): String = ???
 
     override val CURRENT_TIMESTAMP_METHOD: String = ""
+
+    override def generateInputs(policy: Policy): (String,String) = ???
   }
 
   "A code generator" should {

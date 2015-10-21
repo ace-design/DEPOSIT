@@ -5,6 +5,7 @@ import fr.unice.modalis.cosmic.deposit.core._
 import scala.io.Source
 
 /**
+ * Arduino Code generator
  * Created by Cyril Cecchinel - I3S Laboratory on 02/10/15.
  */
 
@@ -16,12 +17,35 @@ object ArduinoGenerator extends CodeGenerator{
   val CURRENT_TIMESTAMP_METHOD:String = "currentTime()"
   val templateFile: String = "assets/generation/arduino/main.template"
 
-  object MessageBuilder {
-    def apply(instruction: Instruction) = generate(instruction)
-    def generate(instruction: Instruction) = Instruction(instruction.inputs,instruction.outputs.head.name +  " = {" + CURRENT_TIMESTAMP_METHOD + ", BOARD_ID," + instruction.body + "};", instruction.outputs)
-  }
-  
   def generatePolicyBody(policy: Policy) = generateInstructionList(policy).foldLeft(""){(acc, e) => acc + e.body + "\n"}
+  
+  def generateInstructionList(p:Policy) = {
+    orderedGenerationList(p).map {generateInstruction(_,p)} map {i => i.copy(body = i.body + (if (i.outputs.nonEmpty) " update();" else ""))}
+  }
+
+  def generateInstruction[T<:SensorDataType](c:Concept, policy: Policy):Instruction = c match {
+
+    case a:DataInput[T] =>
+      val output_var = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.dataType))
+      Instruction(Set(), output_var.name + " = " + LAST_VALUE_PREFIX + a.id + ";", Set(output_var))
+
+    case a:Arithmetic[T] => generateArithmeticInstruction(a)
+
+
+    case a:Conditional[T] => generateConditionalInstruction(a)
+
+
+    case a:DataOutput[T] =>
+      val input_var = Variable(a.id + "_" + a.input.name, generateDataTypeName(a.dataType))
+      Instruction(Set(input_var), "send(" + input_var.name + "," + a.name + ");", Set())
+
+    case a:Extract[T, T] =>
+      val input_var = Variable(a.id + "_" + a.input.name, generateDataTypeName(a.iType))
+      val output_var = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.oType))
+      Instruction(Set(input_var), output_var.name + " = " + input_var.name + ".data." + a.field + ";", Set(output_var))
+
+    case _ => throw new Exception("Can't generate concept " + c + " for Arduino platform")
+  }
 
   def generateArithmeticInstruction(a: Arithmetic[_ <: SensorDataType]): Instruction = {
 
@@ -46,7 +70,6 @@ object ArduinoGenerator extends CodeGenerator{
     MessageBuilder(Instruction(inputVariables, operation, outputVariables))
   }
 
-
   def generateConditionalInstruction(a: Conditional[_ <: SensorDataType]): Instruction = {
     //TODO Handle predicate in conditional operations
     val input_var = Variable(a.id + "_" + a.input.name, generateDataTypeName(a.iType))
@@ -56,79 +79,6 @@ object ArduinoGenerator extends CodeGenerator{
     Instruction(Set(input_var), "if (" + a.predicate + ") " + then_var.name + " = " + input_var.name + "; " +
       "else " + else_var.name + " = " + input_var.name + ";", Set(then_var, else_var))
   }
-
-  def generateInstruction[T<:SensorDataType](c:Concept, policy: Policy):Instruction = c match {
-
-    case a:DataInput[T] => {
-      val output_var = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.dataType))
-      Instruction(Set(), output_var.name + " = " + LAST_VALUE_PREFIX + a.id + ";", Set(output_var))
-    }
-
-    case a:Arithmetic[T] => generateArithmeticInstruction(a)
-
-
-    case a:Conditional[T] => generateConditionalInstruction(a)
-
-
-    case a:DataOutput[T] => {
-      val input_var = Variable(a.id + "_" + a.input.name, generateDataTypeName(a.dataType))
-      Instruction(Set(input_var), "send(" + input_var.name + "," + a.name + ");", Set())
-    }
-
-    case a:Extract[T, T] => {
-      val input_var = Variable(a.id + "_" + a.input.name, generateDataTypeName(a.iType))
-      val output_var = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.oType))
-      Instruction(Set(input_var), output_var.name + " = " + input_var.name + ".data." + a.field + ";", Set(output_var))
-    }
-
-    case _ => throw new Exception("Can't generate concept " + c + " for Arduino platform")
-  }
-
-
-
-  def generateInstructionList(p:Policy) = {
-    orderedGenerationList(p).map {generateInstruction(_,p)} map {i => i.copy(body = i.body + (if (i.outputs.nonEmpty) " update();" else ""))}
-  }
-
-  def generateVariablesDeclaration(variables:Set[Variable]) = variables.foldLeft(""){(acc, e) => acc + e.t + " " + e.name + ";\n"}
-
-
-
-  def generateUpdateMethod(policy: Policy) = {
-    "void update() { \n" +
-    policy.links.foldLeft(""){(acc, e) => acc + e.destination.id + "_" + e.destination_input.name + " = " + e.source.id + "_" + e.source_output.name + ";\n"} + "}"
-  }
-
-  //TODO: Passer en private def
-  //TODO: refactoring (code duplication with generatePeriodicSensor)
-  def generateEventSensor(s:EventSensor[_<:SensorDataType]) = {
-    val template = "assets/generation/arduino/eventsensor.template"
-    val name = "event_" + s.id
-    var body = Source.fromFile(template).getLines().mkString("\n")
-    body = replace("name", name, body)
-    body = replace("id", s.id, body)
-    body = replace("port", Utils.lookupSensorAssignment(s.name), body)
-    body = replace("common_name", s.name, body)
-    val vars = Set(Variable(LAST_VALUE_PREFIX + s.id, generateDataTypeName(s.dataType)), Variable("lastUpdate_" + s.id, "long"))
-    (name, body, vars)
-
-  }
-  //TODO: Passer en private def
-
-  def generatePeriodicSensor(s:PeriodicSensor[_<:SensorDataType]) = {
-    val template = "assets/generation/arduino/periodicsensor.template"
-    val name = "periodic_" + s.id
-    var body = Source.fromFile(template).getLines().mkString("\n")
-    body = replace("name", name, body)
-    body = replace("id", s.id, body)
-    body = replace("port", Utils.lookupSensorAssignment(s.name), body)
-    body = replace("common_name", s.name, body)
-
-    val vars = Set(Variable(LAST_VALUE_PREFIX + s.id, generateDataTypeName(s.dataType)), Variable("lastUpdate_" + s.id, "long"))
-    (name, body, vars)
-
-  }
-
 
   def generateDataStructures(p:Policy) = {
     def generateStruct(dType:DataType) = {
@@ -160,9 +110,16 @@ object ArduinoGenerator extends CodeGenerator{
     generatedCode
   }
 
+  def generateUpdateMethod(policy: Policy) = {
+    "void update() { \n" +
+    policy.links.foldLeft(""){(acc, e) => acc + e.destination.id + "_" + e.destination_input.name + " = " + e.source.id + "_" + e.source_output.name + ";\n"} + "}"
+  }
+
   def generateSensorValues(p:Policy) = {
     p.sources.foldLeft(""){(acc, e) => acc + generateDataTypeName(e.dataType) + " " + LAST_VALUE_PREFIX + e.id + ";\n" + "long " + LAST_UPDATE_PREFIX + e.id + ";\n"}
   }
+  //TODO: Passer en private def
+
   def generateDataTypeName[T<:DataType](d:Class[T]) = {
     d.getSimpleName match {
       case "IntegerType" => "int"
@@ -193,4 +150,61 @@ object ArduinoGenerator extends CodeGenerator{
   }
 
   override def generateGlobalVariables(policy: Policy): String = generateVariablesDeclaration(generateInstructionList(policy).flatMap(i => Set(i.inputs, i.outputs)).flatten.toSet)
+
+  def generateVariablesDeclaration(variables:Set[Variable]) = variables.foldLeft(""){(acc, e) => acc + e.t + " " + e.name + ";\n"}
+
+  override def generateInputs(policy: Policy): (String, String) = {
+    def generatePeriodicDeclaration(a:PeriodicSensor[_], f:String) = "TimedEvent.addTimer(" + a.wishedPeriod * 1000 + ", " + f + ");\n"
+    def generateEventDeclaration(a:EventSensor[_], f:String) = "AnalogEvent.addAnalogPort(" + Utils.lookupSensorAssignment(a.name) + ", " + f + ", 500);\n"
+    var body = ""
+    var declaration = ""
+    for (s <- policy.sources) {
+      s match {
+        case a:EventSensor[_] =>
+          val res = generateEventSensor(a);
+          declaration = declaration + generateEventDeclaration(a, res._1);
+          body = body + res._2
+        case a:PeriodicSensor[_] =>
+          val res = generatePeriodicSensor(a);
+          declaration = declaration + generatePeriodicDeclaration(a, res._1);
+          body = body + res._2
+      }
+    }
+    (declaration, body)
+  }
+
+  //TODO: Passer en private def
+  //TODO: refactoring (code duplication with generatePeriodicSensor)
+  def generateEventSensor(s:EventSensor[_<:DataType]) = {
+    val template = "assets/generation/arduino/eventsensor.template"
+    val name = "event_" + s.id
+    var body = Source.fromFile(template).getLines().mkString("\n")
+    body = replace("name", name, body)
+    body = replace("id", s.id, body)
+    body = replace("port", Utils.lookupSensorAssignment(s.name), body)
+    body = replace("common_name", s.name, body)
+    val vars = Set(Variable(LAST_VALUE_PREFIX + s.id, generateDataTypeName(s.dataType)), Variable("lastUpdate_" + s.id, "long"))
+    (name, body + "\n", vars)
+
+  }
+
+  def generatePeriodicSensor(s:PeriodicSensor[_<:DataType]) = {
+    val template = "assets/generation/arduino/periodicsensor.template"
+    val name = "periodic_" + s.id
+    var body = Source.fromFile(template).getLines().mkString("\n")
+    body = replace("name", name, body)
+    body = replace("id", s.id, body)
+    body = replace("port", Utils.lookupSensorAssignment(s.name), body)
+    body = replace("common_name", s.name, body)
+
+    val vars = Set(Variable(LAST_VALUE_PREFIX + s.id, generateDataTypeName(s.dataType)), Variable("lastUpdate_" + s.id, "long"))
+    (name, body + "\n", vars)
+
+  }
+
+
+  object MessageBuilder {
+    def apply(instruction: Instruction) = generate(instruction)
+    def generate(instruction: Instruction) = Instruction(instruction.inputs,instruction.outputs.head.name +  " = {" + CURRENT_TIMESTAMP_METHOD + ", BOARD_ID," + instruction.body + "};", instruction.outputs)
+  }
 }
