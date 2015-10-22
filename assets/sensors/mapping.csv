@@ -10,3 +10,6 @@ PRESSUREM3,pressure,FIT_IOT,M3,Pressure Sensor
 TEMP_SENSOR,1,ARDUINO_SIM,ARDUINO,ICSR Temperature Sensor
 HUM_SENSOR,2,ARDUINO_SIM,ARDUINO,ICSR Humidity Sensor
 TEST,3,ARDUINO_TEST,Testing sensor
+BUTTON1, 0, ARDUINO_TEST, Testing sensor
+BUTTON2, 1, ARDUINO_TEST, Testing sensor
+BUTTON3, 2, ARDUINO_TEST, Testing sensor
