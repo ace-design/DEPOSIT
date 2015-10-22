@@ -11,9 +11,9 @@
 int timestamp0 = 0;
 
 void setup() {
-#@setup_instructions@#
-#@sensor_instructions@#
 Serial.begin(9600);
+start();
+#@sensor_instructions@#
 }
 
 #@update@#

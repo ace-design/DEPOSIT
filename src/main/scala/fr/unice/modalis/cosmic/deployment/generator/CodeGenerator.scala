@@ -57,7 +57,6 @@ trait CodeGenerator {
 
     if (solver.findSolution()) {
       val namedOperationsOrder = solver.retrieveIntVars().map(v => (v.getValue, v.getName)).toList.sortBy(_._1).map(_._2).map(p.findConceptById(_).get)
-      println(namedOperationsOrder)
 
       p.sources.toList ++ namedOperationsOrder
     }
