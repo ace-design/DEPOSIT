@@ -18,16 +18,42 @@ trait CodeGenerator {
 
   val CURRENT_TIMESTAMP_METHOD:String
 
+
   def apply(p:Policy) = generate(p)
 
+  /**
+   * Generate associated Data Structures
+   * @param p Data collection policy
+   * @return Compilable code defining data structures
+   */
   def generateDataStructures(p:Policy):String
 
+  /**
+   * Generate the executable data collection policy
+   * @param policy Data collection policy
+   * @return Compilable code defining the policy body
+   */
   def generatePolicyBody(policy: Policy):String
 
+  /**
+   * Generate global variables
+   * @param policy Data collection policy
+   * @return Compilable code defining global variables
+   */
   def generateGlobalVariables(policy: Policy):String
 
+  /**
+   * Generate the data inputs
+   * @param policy Data collection policy
+   * @return Compilable code defining data inputs
+   */
   def generateInputs(policy: Policy):(String,String)
 
+  /**
+   * Generate data collection policy
+   * @param p Data collection policy
+   * @return Compilable code defining the data collection policy
+   */
   def generate(p:Policy) = {
     var generatedCode = Source.fromFile(templateFile).getLines().mkString("\n")
     generatedCode = replace("data_structures", generateDataStructures(p), generatedCode)
@@ -38,13 +64,22 @@ trait CodeGenerator {
     generatedCode = replace("dataacquisition", inputsTxt._2, generatedCode)
     generatedCode
   }
-  
+
+  /**
+   * Replace method
+   * @param parameter Parameter
+   * @param value Value
+   * @param source Source
+   * @return Source code with parameter replaced by its value
+   */
   def replace(parameter:String, value:String, source:String):String = source.replace("#@" + parameter + "@#", value)
 
-  
-  
-  
 
+  /**
+   * Compute an ordered generation list (with Choco solver)
+   * @param p Data collection policy
+   * @return An ordered generation list
+   */
   def orderedGenerationList(p:Policy) = {
     val totalConcepts = p.ios.size + p.operations.size
     val solver = new Solver("Generation ordering problem")
@@ -67,6 +102,11 @@ trait CodeGenerator {
 
   }
 
+  /**
+   * Compute the period of a policy (lcm of periodic sensors)
+   * @param p Data collection policy
+   * @return Data collection policy's period
+   */
   def computePeriod(p:Policy) = {
     //Compute the data acquisition period (lcm of overall periodic sensor periods)
     Utils.lcmm(p.sources.collect({case x:PeriodicSensor[_] => x}).map{_.wishedPeriod}.toList)
@@ -77,5 +117,17 @@ case class NonHandledSensorException(io:Any) extends Exception("Non handled sens
 
 case class NonGenerableException(p:Policy) extends Exception(p.name + " is not generable")
 
+/**
+ * Define a variable
+ * @param name Name
+ * @param t Data type
+ */
 case class Variable(name:String, t:String)
+
+/**
+ * Define an instruction
+ * @param inputs Set of input variables
+ * @param body Instruction body
+ * @param outputs Set of output variables
+ */
 case class Instruction(inputs:Set[Variable], body:String, outputs:Set[Variable])
