@@ -50,6 +50,6 @@ long currentTime() {
 }
 
 void send(struct SmartCampusType s){
-  String json = "{\"t\":" + String(s.t) + ",\"src\":" + String(s.src) + ",data: { \"n\":\"" + s.data.n + "\", \"v\":" + String(s.data.v) + ", \"t\":" + String(s.data.v) + "}}";
+  String json = "{\"t\":" + String(s.t) + ",\"src\":" + String(s.src) + ",data: { \"n\":\"" + s.data.n + "\", \"v\":" + String(s.data.v) + ", \"t\":" + String(s.data.t) + "}}";
   Serial.println(json);
 }
