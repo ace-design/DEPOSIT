@@ -31,6 +31,8 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   def findConceptById(id:String) = ios ++ operations find {_.id equals id}
 
+  def hasPeriodicSensors = sources.collect{case x:PeriodicSensor[_] => x}.nonEmpty
+
   /**
    * Graph representation
    * @return A Graph representation of this workflow

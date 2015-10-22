@@ -107,9 +107,20 @@ object ArduinoGenerator extends CodeGenerator{
 
     generatedCode = replace("update", generateUpdateMethod(p), generatedCode)
     generatedCode = replace("global_sensor_values", generateSensorValues(p), generatedCode)
+    generatedCode = replace("setup_instructions", generateSetupInstructions(p), generatedCode)
+    generatedCode = replace("period", if (p.hasPeriodicSensors) computePeriod(p).toString else "", generatedCode)
     generatedCode
   }
 
+  def generateSetupInstructions(p:Policy) = {
+    try {
+      val period = computePeriod(p)
+      "TimedEvent.addTimer("+ period * 1000 + ", program_call);"
+    } catch {
+      case e:Exception => ""
+
+    }
+  }
   def generateUpdateMethod(policy: Policy) = {
     "void update() { \n" +
     policy.links.foldLeft(""){(acc, e) => acc + e.destination.id + "_" + e.destination_input.name + " = " + e.source.id + "_" + e.source_output.name + ";\n"} + "}"

@@ -2,7 +2,7 @@
 #include <TimedEvent.h>
 
 #define BOARD_ID #@board_id@#
-#define OFFSET #@offset@#
+#define OFFSET #@period@#
 
 #@data_structures@#
 
@@ -14,6 +14,7 @@ void setup() {
 Serial.begin(9600);
 start();
 #@sensor_instructions@#
+#@setup_instructions@#
 }
 
 #@update@#
@@ -35,6 +36,8 @@ void program() {
 }
 
 #@dataacquisition@#
+
+void program_call(TimerInformation * Sender) { program(); }
 
 void getTimestamp() {
     Serial.println("timestamp?");

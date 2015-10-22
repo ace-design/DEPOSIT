@@ -1,6 +1,6 @@
 package fr.unice.modalis.cosmic.deployment.generator
 
-import fr.unice.modalis.cosmic.deposit.core.Policy
+import fr.unice.modalis.cosmic.deposit.core.{PeriodicSensor, Policy}
 import org.chocosolver.solver.Solver
 import org.chocosolver.solver.constraints.IntConstraintFactory
 import org.chocosolver.solver.variables.VariableFactory
@@ -19,6 +19,7 @@ trait CodeGenerator {
   val CURRENT_TIMESTAMP_METHOD:String
 
   def apply(p:Policy) = generate(p)
+
   def generateDataStructures(p:Policy):String
 
   def generatePolicyBody(policy: Policy):String
@@ -64,6 +65,11 @@ trait CodeGenerator {
       throw new NonGenerableException(p)
     }
 
+  }
+
+  def computePeriod(p:Policy) = {
+    //Compute the data acquisition period (lcm of overall periodic sensor periods)
+    Utils.lcmm(p.sources.collect({case x:PeriodicSensor[_] => x}).map{_.wishedPeriod}.toList)
   }
 }
 
