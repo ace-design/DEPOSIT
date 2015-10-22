@@ -128,6 +128,14 @@ object DataType {
     case _ => throw new Exception("Unknown data type")
   }
 
+  def getValue(v:AtomicType) = {
+    v match {
+      case IntegerType(v) => v
+      case StringType(v) => v
+      case DoubleType(v) => v
+      case LongType(v) => v
+    }
+  }
 }
 
 object DataField extends Enumeration {

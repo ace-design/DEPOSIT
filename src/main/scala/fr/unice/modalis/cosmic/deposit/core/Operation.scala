@@ -144,7 +144,7 @@ trait Comparison[T<:DataType] extends ValueOperation[T] {
   val hasNewTimestamp = false
 }
 
-case class Increment[T<:DataType](value:T, iType:Class[T], rename:Option[String] = None) extends Arithmetic[T] {
+case class Increment[D<:AtomicType,T<:DataType](value:T, iType:Class[T], rename:Option[String] = None) extends Arithmetic[T] {
   override val inputsNames: Set[String] = Set(DEFAULT_INPUT_NAME)
   lazy val input = getInput()
 
@@ -152,9 +152,22 @@ case class Increment[T<:DataType](value:T, iType:Class[T], rename:Option[String]
    * Return a copy of this concept (with different id)
    * @return copy of this concept
    */
-  override def duplicate: Concept = new Increment[T](value, iType, rename)
+  override def duplicate: Concept = new Increment[D,T](value, iType, rename)
 
   override val commonName: String = "INCREMENT(" + value + ")"
+}
+
+case class Divide[D<:AtomicType,T<:DataType](value:D, iType:Class[T], rename:Option[String] = None) extends Arithmetic[T] {
+  override val inputsNames: Set[String] = Set(DEFAULT_INPUT_NAME)
+  lazy val input = getInput()
+
+  /**
+   * Return a copy of this concept (with different id)
+   * @return copy of this concept
+   */
+  override def duplicate: Concept = new Divide[D,T](value, iType, rename)
+
+  override val commonName: String = "DIVIDE(" + value + ")"
 }
 
 

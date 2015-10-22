@@ -57,11 +57,12 @@ object ArduinoGenerator extends CodeGenerator{
       case _:Add[_] => a.inputsNames.map(i => a.id + "_" + i + ".data." + operationFieldName).mkString("+")
       case _:Sub[_] => a.inputsNames.map(i => a.id + "_" + i + ".data." + operationFieldName).mkString("-")
       case _:Average[_] => "(" + a.inputsNames.map(i => a.id + "_" + i + ".data." + operationFieldName).mkString("+") + ")/" + a.inputsNames.size
-      case inc:Increment[_] => a.id + "_" + inc.input + " + " + inc.value
+      case inc:Increment[_,_] => a.id + "_" + inc.input.name + ".data." + operationFieldName + " + " + DataType.getValue(inc.value.asInstanceOf[AtomicType])
+      case div:Divide[_,_] => a.id + "_" + div.input.name + ".data." + operationFieldName + " / " + DataType.getValue(div.value.asInstanceOf[AtomicType])
     }
 
 
-    val operation = "{\""+ a.rename.getOrElse("ADD_RESULT_" + a.id)+"\"," + operationBody + ", " + CURRENT_TIMESTAMP_METHOD + "}"
+    val operation = "{\""+ a.rename.getOrElse("OP_RESULT_" + a.id)+"\"," + operationBody + ", " + CURRENT_TIMESTAMP_METHOD + "}"
 
 
     val inputVariables = a.inputs.foldLeft(Set[Variable]()){(acc, e) => acc + Variable(a.id + "_" + e.name, generateDataTypeName(a.iType))}
