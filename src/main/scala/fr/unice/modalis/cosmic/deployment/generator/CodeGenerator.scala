@@ -1,5 +1,7 @@
 package fr.unice.modalis.cosmic.deployment.generator
 
+import java.io.PrintWriter
+
 import fr.unice.modalis.cosmic.deposit.core.{PeriodicSensor, Policy}
 import org.chocosolver.solver.Solver
 import org.chocosolver.solver.constraints.IntConstraintFactory
@@ -74,6 +76,12 @@ trait CodeGenerator {
    */
   def replace(parameter:String, value:String, source:String):String = source.replace("#@" + parameter + "@#", value)
 
+  def produceSourceFile(name:String, target:String, extension:String, code:String) = {
+    val file = new PrintWriter("out/"+ target + "/" + name + "." + extension.replace(".", ""))
+    file.println(code)
+    file.close()
+
+  }
 
   /**
    * Compute an ordered generation list (with Choco solver)

@@ -103,6 +103,14 @@ object ArduinoGenerator extends CodeGenerator{
     p.dataTypesInvolved.foldLeft(""){(acc, e) => acc + generateStruct(DataType.factory(e.getSimpleName)) + "\n"}
   }
 
+  def produceSourceFile(name:String, code:String) = {
+    super.produceSourceFile(name + "_" + System.currentTimeMillis() , "arduino", "ino", code)
+  }
+
+  def apply(p:Policy, toFile:Boolean = false) = {
+    if (toFile) produceSourceFile(p.name, generate(p)) else generate(p)
+  }
+
   override def generate(p:Policy) = {
     var generatedCode = super.generate(p)
 

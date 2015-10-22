@@ -1,7 +1,5 @@
 package fr.unice.modalis.cosmic.deployment.generator
 
-import java.io.PrintWriter
-
 import scala.io.Source
 
 /**
@@ -70,15 +68,4 @@ object Utils {
       case a :: b :: tail => lcmm(lcm(a, b) :: tail)
     }
 
-
-  /**
-   * Write text to a file located in the out/ directory
-   * @param name Name of the file (will be completed with the current timestap)
-   * @param text Text
-   */
-  def writefile(name:String, text:String):Unit = {
-    val file = new PrintWriter("out/"+ name + System.currentTimeMillis())
-    file.println(text)
-    file.close()
-  }
 }
