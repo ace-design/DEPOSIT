@@ -130,9 +130,8 @@ object ArduinoGenerator extends CodeGenerator{
   def generateSensorValues(p:Policy) = {
     p.sources.foldLeft(""){(acc, e) => acc + generateDataTypeName(e.dataType) + " " + LAST_VALUE_PREFIX + e.id + ";\n" + "long " + LAST_UPDATE_PREFIX + e.id + ";\n"}
   }
-  //TODO: Passer en private def
 
-  def generateDataTypeName[T<:DataType](d:Class[T]) = {
+  private def generateDataTypeName[T<:DataType](d:Class[T]) = {
     d.getSimpleName match {
       case "IntegerType" => "int"
       case "LongType" => "long"
@@ -185,9 +184,8 @@ object ArduinoGenerator extends CodeGenerator{
     (declaration, body)
   }
 
-  //TODO: Passer en private def
-  //TODO: refactoring (code duplication with generatePeriodicSensor)
-  def generateEventSensor(s:EventSensor[_<:DataType]) = {
+
+  private def generateEventSensor(s:EventSensor[_<:DataType]) = {
     val template = "assets/generation/arduino/eventsensor.template"
     val name = "event_" + s.id
     var body = Source.fromFile(template).getLines().mkString("\n")
@@ -200,7 +198,7 @@ object ArduinoGenerator extends CodeGenerator{
 
   }
 
-  def generatePeriodicSensor(s:PeriodicSensor[_<:DataType]) = {
+  private def generatePeriodicSensor(s:PeriodicSensor[_<:DataType]) = {
     val template = "assets/generation/arduino/periodicsensor.template"
     val name = "periodic_" + s.id
     var body = Source.fromFile(template).getLines().mkString("\n")
