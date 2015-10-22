@@ -48,3 +48,8 @@ void getTimestamp() {
 long currentTime() {
   return millis() + timestamp0;
 }
+
+void send(struct SmartCampusType s){
+  String json = "{\"t\":" + String(s.t) + ",\"src\":" + String(s.src) + ",data: { \"n\":\"" + s.data.n + "\", \"v\":" + String(s.data.v) + ", \"t\":" + String(s.data.v) + "}}";
+  Serial.println(json);
+}

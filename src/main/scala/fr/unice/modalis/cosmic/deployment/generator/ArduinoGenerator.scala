@@ -37,7 +37,7 @@ object ArduinoGenerator extends CodeGenerator{
 
     case a:DataOutput[T] =>
       val input_var = Variable(a.id + "_" + a.input.name, generateDataTypeName(a.dataType))
-      Instruction(Set(input_var), "send(" + input_var.name + "," + a.name + ");", Set())
+      Instruction(Set(input_var), "send(" + input_var.name +");", Set())
 
     case a:Extract[T, T] =>
       val input_var = Variable(a.id + "_" + a.input.name, generateDataTypeName(a.iType))
