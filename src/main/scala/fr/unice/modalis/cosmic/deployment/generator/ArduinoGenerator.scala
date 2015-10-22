@@ -20,7 +20,7 @@ object ArduinoGenerator extends CodeGenerator{
   def generatePolicyBody(policy: Policy) = generateInstructionList(policy).foldLeft(""){(acc, e) => acc + e.body + "\n"}
   
   def generateInstructionList(p:Policy) = {
-    orderedGenerationList(p).map {generateInstruction(_,p)} map {i => i.copy(body = i.body + (if (i.outputs.nonEmpty) " update();" else ""))}
+    orderedGenerationList(p).map {generateInstruction(_,p)} map {i => i.copy(body = i.body + (if (i.outputs.nonEmpty) " update();" else ""))} map {i => i.copy(body = if (i.inputs.nonEmpty) "if (" + i.inputs.map{_.name + ".t != 0"}.mkString(" && ") + ") {" + i.body + "}" else i.body)}
   }
 
   def generateInstruction[T<:SensorDataType](c:Concept, policy: Policy):Instruction = c match {
