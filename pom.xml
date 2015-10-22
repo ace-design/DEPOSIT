@@ -7,8 +7,8 @@
     <description>Scala implementation of the DEPOSIT Architecture (Data collEction POlicies for Sensing InfrasTructures)</description>
     <inceptionYear>2014</inceptionYear>
     <properties>
-        <maven.compiler.source>1.6</maven.compiler.source>
-        <maven.compiler.target>1.6</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <encoding>UTF-8</encoding>
         <scala.tools.version>2.11</scala.tools.version>
         <scala.version>2.11.0</scala.version>
@@ -94,7 +94,11 @@
             <artifactId>graph-core_2.11</artifactId>
             <version>1.8.1</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.choco-solver</groupId>
+            <artifactId>choco-solver</artifactId>
+            <version>3.3.1</version>
+        </dependency>
         <!-- Test -->
         <dependency>
             <groupId>junit</groupId>

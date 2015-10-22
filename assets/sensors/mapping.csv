@@ -1,0 +1,15 @@
+common_name,pin,platform_name,platform_type,description
+TEMP,1,ARDUINO442,ARDUINO,Temperature sensor
+TEMP442,4,ARDUINO442,ARDUINO,Temperature sensor
+PRESENCE442,5,ARDUINO442,ARDUINO,Presence sensor
+WINDOW442,3,ARDUINO442,ARDUINO,Window opening sensor
+LIGHT442,2,ARDUINO442,ARDUINO,Light sensor
+ROTATION,4,ARDUINO442,ARDUINO,Rotation sensor
+LIGHTM3,light,FIT_IOT,M3,Light Sensor
+PRESSUREM3,pressure,FIT_IOT,M3,Pressure Sensor
+TEMP_SENSOR,1,ARDUINO_SIM,ARDUINO,ICSR Temperature Sensor
+HUM_SENSOR,2,ARDUINO_SIM,ARDUINO,ICSR Humidity Sensor
+TEST,3,ARDUINO_TEST,Testing sensor
+BUTTON1, 0, ARDUINO_TEST, Testing sensor
+BUTTON2, 1, ARDUINO_TEST, Testing sensor
+BUTTON3, 2, ARDUINO_TEST, Testing sensor

@@ -1,0 +1,7 @@
+void #@name@#(AnalogPortInformation * Sender) {
+    int value = Sender->value;
+    inner_SmartCampusType d = {"#@common_name@#", value, currentTime()}; //SmartCampus format
+    lastValue_#@id@# = {currentTime(), BOARD_ID, d};
+    lastUpdate_#@id@# = lastValue_#@id@#.t;
+    program();
+}

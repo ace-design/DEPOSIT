@@ -1,0 +1,55 @@
+#include <AnalogEvent.h>
+#include <TimedEvent.h>
+
+#define BOARD_ID #@board_id@#
+#define OFFSET #@period@#
+
+#@data_structures@#
+
+#@global_variables@#
+#@global_sensor_values@#
+int timestamp0 = 0;
+
+void setup() {
+Serial.begin(9600);
+start();
+#@sensor_instructions@#
+#@setup_instructions@#
+}
+
+#@update@#
+
+void start() {
+ getTimestamp();
+}
+
+void loop() {
+  if (timestamp0 < 0)
+    start();
+  else {
+    AnalogEvent.loop();
+    TimedEvent.loop();
+  }
+}
+void program() {
+#@datacollectionpolicy@#
+}
+
+#@dataacquisition@#
+
+void program_call(TimerInformation * Sender) { program(); }
+
+void getTimestamp() {
+    Serial.println("timestamp?");
+    if (Serial.available() > 0)
+      timestamp0 = Serial.parseInt();
+}
+
+long currentTime() {
+  return millis() + timestamp0;
+}
+
+void send(struct SmartCampusType s){
+  String json = "{\"t\":" + String(s.t) + ",\"src\":" + String(s.src) + ",data: { \"n\":\"" + s.data.n + "\", \"v\":" + String(s.data.v) + ", \"t\":" + String(s.data.v) + "}}";
+  Serial.println(json);
+}

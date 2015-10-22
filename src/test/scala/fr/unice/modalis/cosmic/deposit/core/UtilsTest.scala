@@ -10,13 +10,13 @@ class UtilsTest extends SpecificationWithJUnit{
 
   "Utils methods" should {
     "Create n instances of Event sensors" in {
-      Utils.createEventSensors[IntegerType]("test_",10) must have size 10
+      Utils.createEventSensors("test_",10, classOf[IntegerType]) must have size 10
     }
     "Create n instances of collector" in {
-      Utils.createCollectors[IntegerType]("test_",10) must have size 10
+      Utils.createCollectors("test_",10, classOf[IntegerType]) must have size 10
     }
     "Create n instances of Periodic sensors" in {
-      val res = Utils.createPeriodicSensors[IntegerType](5, "test_",10)
+      val res = Utils.createPeriodicSensors(5, "test_",10, classOf[IntegerType])
       "check n instances" in {
         res must have size 10
       }
