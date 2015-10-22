@@ -60,7 +60,8 @@ object ArduinoGenerator extends CodeGenerator{
       case inc:Increment[_] => a.id + "_" + inc.input + " + " + inc.value
     }
 
-    val operation = "{\"name\"," + operationBody + ", " + CURRENT_TIMESTAMP_METHOD + "}"
+
+    val operation = "{\""+ a.rename.getOrElse("ADD_RESULT_" + a.id)+"\"," + operationBody + ", " + CURRENT_TIMESTAMP_METHOD + "}"
 
 
     val inputVariables = a.inputs.foldLeft(Set[Variable]()){(acc, e) => acc + Variable(a.id + "_" + e.name, generateDataTypeName(a.iType))}

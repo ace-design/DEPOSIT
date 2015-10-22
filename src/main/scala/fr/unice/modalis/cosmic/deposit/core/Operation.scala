@@ -119,7 +119,7 @@ case class Extract[I<:CompositeType, O<:AtomicType](field:String, iType:Class[I]
 
 trait Arithmetic[T<:DataType] extends ValueOperation[T] {
   val inputsNames:Set[String]
-
+  val rename:Option[String]
   override val outputsNames: Set[String] = Set(DEFAULT_OUTPUT_NAME)
 
   lazy val output = getOutput(DEFAULT_OUTPUT_NAME)
@@ -144,7 +144,7 @@ trait Comparison[T<:DataType] extends ValueOperation[T] {
   val hasNewTimestamp = false
 }
 
-case class Increment[T<:DataType](value:T, iType:Class[T]) extends Arithmetic[T] {
+case class Increment[T<:DataType](value:T, iType:Class[T], rename:Option[String] = None) extends Arithmetic[T] {
   override val inputsNames: Set[String] = Set(DEFAULT_INPUT_NAME)
   lazy val input = getInput()
 
@@ -152,7 +152,7 @@ case class Increment[T<:DataType](value:T, iType:Class[T]) extends Arithmetic[T]
    * Return a copy of this concept (with different id)
    * @return copy of this concept
    */
-  override def duplicate: Concept = new Increment[T](value, iType)
+  override def duplicate: Concept = new Increment[T](value, iType, rename)
 
   override val commonName: String = "INCREMENT(" + value + ")"
 }
@@ -292,34 +292,34 @@ case class HigherEq[T<:DataType](iType:Class[T], applicationField:DataField = Da
 }
 
 /*** ARITHMETIC OPERATIONS ***/
-case class Add[I<:DataType](inputsNames:Set[String], iType:Class[I]) extends Arithmetic[I] {
+case class Add[I<:DataType](inputsNames:Set[String], iType:Class[I], rename:Option[String] = None) extends Arithmetic[I] {
   override val commonName: String = "ADD"
 
   /**
    * Return a copy of this concept (with different id)
    * @return copy of this concept
    */
-  override def duplicate: Concept = new Add[I](inputsNames, iType)
+  override def duplicate: Concept = new Add[I](inputsNames, iType, rename)
 }
 
-case class Sub[I<:DataType](inputsNames:Set[String], iType:Class[I]) extends Arithmetic[I] {
+case class Sub[I<:DataType](inputsNames:Set[String], iType:Class[I], rename:Option[String] = None) extends Arithmetic[I] {
   override val commonName: String = "SUB"
 
   /**
    * Return a copy of this concept (with different id)
    * @return copy of this concept
    */
-  override def duplicate: Concept = new Sub[I](inputsNames, iType)
+  override def duplicate: Concept = new Sub[I](inputsNames, iType, rename)
 }
 
-case class Average[I<:DataType](inputsNames:Set[String], iType:Class[I]) extends Arithmetic[I] {
+case class Average[I<:DataType](inputsNames:Set[String], iType:Class[I], rename:Option[String] = None) extends Arithmetic[I] {
   override val commonName: String = "AVERAGE"
 
   /**
    * Return a copy of this concept (with different id)
    * @return copy of this concept
    */
-  override def duplicate: Concept = new Average[I](inputsNames, iType)
+  override def duplicate: Concept = new Average[I](inputsNames, iType, rename)
 }
 
 /*** PROCESS OPERATION ***/
