@@ -157,6 +157,18 @@ case class Increment[D<:AtomicType,T<:DataType](value:T, iType:Class[T], rename:
   override val commonName: String = "INCREMENT(" + value + ")"
 }
 
+case class Multiply[D<:AtomicType, T<:DataType](value:D, iType:Class[T], rename:Option[String] = None) extends Arithmetic[T] {
+  override val inputsNames: Set[String] = Set(DEFAULT_INPUT_NAME)
+  lazy val input = getInput()
+
+  /**
+   * Return a copy of this concept (with different id)
+   * @return copy of this concept
+   */
+  override def duplicate: Concept = new Multiply[D,T](value, iType, rename)
+
+  override val commonName: String = "MULTIPKY(" + value + ")"
+}
 case class Divide[D<:AtomicType,T<:DataType](value:D, iType:Class[T], rename:Option[String] = None) extends Arithmetic[T] {
   override val inputsNames: Set[String] = Set(DEFAULT_INPUT_NAME)
   lazy val input = getInput()

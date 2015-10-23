@@ -58,6 +58,7 @@ object ArduinoGenerator extends CodeGenerator{
       case _:Sub[_] => a.inputsNames.map(i => a.id + "_" + i + ".data." + operationFieldName).mkString("-")
       case _:Average[_] => "(" + a.inputsNames.map(i => a.id + "_" + i + ".data." + operationFieldName).mkString("+") + ")/" + a.inputsNames.size
       case inc:Increment[_,_] => a.id + "_" + inc.input.name + ".data." + operationFieldName + " + " + DataType.getValue(inc.value.asInstanceOf[AtomicType])
+      case mul:Multiply[_,_] => a.id + "_" + mul.input.name + ".data." + operationFieldName + " * " + DataType.getValue(mul.value.asInstanceOf[AtomicType])
       case div:Divide[_,_] => a.id + "_" + div.input.name + ".data." + operationFieldName + " / " + DataType.getValue(div.value.asInstanceOf[AtomicType])
     }
 
@@ -181,12 +182,12 @@ object ArduinoGenerator extends CodeGenerator{
     for (s <- policy.sources) {
       s match {
         case a:EventSensor[_] =>
-          val res = generateEventSensor(a);
-          declaration = declaration + generateEventDeclaration(a, res._1);
+          val res = generateEventSensor(a)
+          declaration = declaration + generateEventDeclaration(a, res._1)
           body = body + res._2
         case a:PeriodicSensor[_] =>
-          val res = generatePeriodicSensor(a);
-          declaration = declaration + generatePeriodicDeclaration(a, res._1);
+          val res = generatePeriodicSensor(a)
+          declaration = declaration + generatePeriodicDeclaration(a, res._1)
           body = body + res._2
       }
     }
