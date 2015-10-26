@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<sensornetwork>
+    <entities>
+        <entity id="SmartCampus">
+            <features>
+                <feature>Remote</feature>
+                <feature>SmartCampus</feature>
+            </features>
+        </entity>
+        <entity id="RP_443_XBEE">
+            <features>
+                <feature>Bridge</feature>
+                <feature>Communication</feature>
+                <feature>Programmable</feature>
+                <feature>Raspberry</feature>
+                <feature>Serial</feature>
+                <feature>Wired</feature>
+                <feature>Wireless</feature>
+                <feature>XBEE</feature>
+            </features>
+        </entity>
+        <entity id="ARD_1_443">
+            <features>
+                <feature>SensorPlatform</feature>
+                <feature>Communication</feature>
+                <feature>Platform</feature>
+                <feature>Wired</feature>
+                <feature>Programmable</feature>
+                <feature>Arduino</feature>
+                <feature>Serial</feature>
+                <feature>Uno</feature>
+                <feature>Shield</feature>
+                <feature>Wireless</feature>
+                <feature>XBEE</feature>
+                <feature>XbeeShield</feature>
+                <feature>Grove</feature>
+            </features>
+        </entity>
+        <entity id="DOOR_443">
+            <features>
+                <feature>Sensor</feature>
+                <feature>Magnetic</feature>
+                <feature>GroveMagnetic</feature>
+            </features>
+        </entity>
+        <entity id="PRESENCE_443">
+            <features>
+                <feature>Sensor</feature>
+                <feature>Presence</feature>
+                <feature>GrovePresence</feature>
+            </features>
+        </entity>
+        <entity id="NOISE_SPARKS_CORRIDOR">
+            <features>
+                <feature>Sensor</feature>
+                <feature>GroveTemperature</feature>
+                <feature>Temperature</feature>
+            </features>
+        </entity>
+        <entity id="ARD_2_443">
+            <features>
+                <feature>SensorPlatform</feature>
+                <feature>Communication</feature>
+                <feature>Platform</feature>
+                <feature>Wired</feature>
+                <feature>Programmable</feature>
+                <feature>Serial</feature>
+                <feature>Arduino</feature>
+                <feature>Uno</feature>
+                <feature>Wireless</feature>
+                <feature>Shield</feature>
+                <feature>XbeeShield</feature>
+                <feature>XBEE</feature>
+                <feature>Grove</feature>
+            </features>
+        </entity>
+        <entity id="WINDOW_443">
+            <features>
+                <feature>Sensor</feature>
+                <feature>Magnetic</feature>
+                <feature>GroveMagnetic</feature>
+            </features>
+        </entity>
+        <entity id="TEMP_443">
+            <features>
+                <feature>Sensor</feature>
+                <feature>GroveTemperature</feature>
+                <feature>Temperature</feature>
+            </features>
+        </entity>
+        <entity id="AC_443">
+            <features>
+                <feature>Sensor</feature>
+                <feature>GroveTemperature</feature>
+                <feature>Temperature</feature>
+            </features>
+        </entity>
+        <entity id="ARD_1_442">
+            <features>
+                <feature>SensorPlatform</feature>
+                <feature>Communication</feature>
+                <feature>Platform</feature>
+                <feature>Wired</feature>
+                <feature>Programmable</feature>
+                <feature>Serial</feature>
+                <feature>Arduino</feature>
+                <feature>Uno</feature>
+                <feature>Wireless</feature>
+                <feature>XBEE</feature>
+                <feature>Shield</feature>
+                <feature>XbeeShield</feature>
+                <feature>Grove</feature>
+            </features>
+        </entity>
+        <entity id="LIGHT_442">
+            <features>
+                <feature>Sensor</feature>
+                <feature>Light</feature>
+                <feature>GroveLight</feature>
+            </features>
+        </entity>
+        <entity id="TEMP_442">
+            <features>
+                <feature>Sensor</feature>
+                <feature>GroveTemperature</feature>
+                <feature>Temperature</feature>
+            </features>
+        </entity>
+        <entity id="ARD_CAFE">
+            <features>
+                <feature>SensorPlatform</feature>
+                <feature>Communication</feature>
+                <feature>Platform</feature>
+                <feature>Programmable</feature>
+                <feature>Arduino</feature>
+                <feature>Wired</feature>
+                <feature>Serial</feature>
+                <feature>Uno</feature>
+                <feature>Wireless</feature>
+                <feature>Shield</feature>
+                <feature>XbeeShield</feature>
+                <feature>XBEE</feature>
+                <feature>ElectronicEB</feature>
+            </features>
+        </entity>
+        <entity id="TEMP_CAFE">
+            <features>
+                <feature>Sensor</feature>
+                <feature>EBTemperature</feature>
+                <feature>Temperature</feature>
+            </features>
+        </entity>
+    </entities>
+    <connections>
+        <connection from="RP_443_XBEE" to="SmartCampus"/>
+        <connection from="ARD_1_443" to="RP_443_XBEE"/>
+        <connection from="DOOR_443" to="ARD_1_443"/>
+        <connection from="PRESENCE_443" to="ARD_1_443"/>
+        <connection from="NOISE_SPARKS_CORRIDOR" to="ARD_1_443"/>
+        <connection from="ARD_2_443" to="RP_443_XBEE"/>
+        <connection from="WINDOW_443" to="ARD_2_443"/>
+        <connection from="TEMP_443" to="ARD_2_443"/>
+        <connection from="AC_443" to="ARD_2_443"/>
+        <connection from="ARD_1_442" to="RP_443_XBEE"/>
+        <connection from="LIGHT_442" to="ARD_1_442"/>
+        <connection from="TEMP_442" to="ARD_1_442"/>
+        <connection from="ARD_CAFE" to="RP_443_XBEE"/>
+        <connection from="TEMP_CAFE" to="ARD_CAFE"/>
+    </connections>
+</sensornetwork>
