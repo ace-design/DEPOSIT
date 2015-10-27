@@ -79,7 +79,8 @@ object ArduinoGenerator extends CodeGenerator{
     val then_var = Variable(a.id + "_" + a.thenOutput.name, generateDataTypeName(a.oType))
     val else_var = Variable(a.id + "_" + a.elseOutput.name, generateDataTypeName(a.oType))
 
-    Instruction(Set(input_var), "if (" + a.predicate + ") " + then_var.name + " = " + input_var.name + "; " +
+    val predicate = a.predicate.replace("value", input_var.name + ".data." + DataType.factory(a.iType.getSimpleName).asInstanceOf[SensorDataType].getObservationField.n)
+    Instruction(Set(input_var), "if (" + predicate + ") " + then_var.name + " = " + input_var.name + "; " +
       "else " + else_var.name + " = " + input_var.name + ";", Set(then_var, else_var))
   }
 
