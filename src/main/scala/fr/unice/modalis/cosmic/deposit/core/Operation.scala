@@ -210,17 +210,19 @@ case class Conditional[T<:DataType](predicate:String, iType:Class[T], applicatio
   override def duplicate: Concept = new Conditional[T](predicate, iType)
 }
 
-/*case class Switch[T<:DataType](switchMap:Map[String,String], inputsNames:Set[String], outputsNames:Set[String], iType:Class[T]) extends Filtering[T] {
-  require(switchMap.keys.forall(inputsNames.contains))
-  require(switchMap.values.forall(outputsNames.contains))
-  override val commonName: String = "SWITCH(" + switchMap + ")"
+case class Produce[I<:DataType, O<:DataType](inputsNames:Set[String], onSuccess:O, onFailure:O, iType:Class[I], oType:Class[O]) extends Operation[I,O] {
+  override val outputsNames: Predef.Set[String] = Set(DEFAULT_OUTPUT_NAME)
+  val output = getOutput()
 
   /**
    * Return a copy of this concept (with different id)
    * @return copy of this concept
    */
-  override def duplicate: Concept = new Switch[T](switchMap, inputsNames, outputsNames, iType)
-}*/
+  override def duplicate: Concept = new Produce[I,O](inputsNames, onSuccess, onFailure, iType, oType)
+
+  override val commonName: String = "PRODUCE[" + onSuccess + "/" + onFailure + "]"
+}
+
 /*** COMPARISON OPERATIONS ***/
 
 /**

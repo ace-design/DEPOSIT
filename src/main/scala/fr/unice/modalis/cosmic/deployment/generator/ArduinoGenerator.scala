@@ -20,10 +20,10 @@ object ArduinoGenerator extends CodeGenerator{
   def generatePolicyBody(policy: Policy) = generateInstructionList(policy).foldLeft(""){(acc, e) => acc + e.body + "\n"}
   
   def generateInstructionList(p:Policy) = {
-    orderedGenerationList(p).map {generateInstruction(_,p)} map {i => i.copy(body = i.body + (if (i.outputs.nonEmpty) " update();" else ""))} map {i => i.copy(body = if (i.inputs.nonEmpty) "if (" + i.inputs.map{_.name + ".t != 0"}.mkString(" && ") + ") {" + i.body + "}" else i.body)}
+    orderedGenerationList(p).map {generateInstruction(_,p)} map {i => i.copy(body = i.body + (if (i.outputs.nonEmpty) " update();" else ""))} //map {i => i.copy(body = if (i.inputs.nonEmpty) "if (" + i.inputs.map{_.name + ".t != 0"}.mkString(" && ") + ") {" + i.body + "}" else i.body)}
   }
 
-  def generateInstruction[T<:SensorDataType](c:Concept, policy: Policy):Instruction = c match {
+  def generateInstruction[T<:SensorDataType, U<:SensorDataType](c:Concept, policy: Policy):Instruction = c match {
 
     case a:DataInput[T] =>
       val output_var = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.dataType))
@@ -44,9 +44,23 @@ object ArduinoGenerator extends CodeGenerator{
       val output_var = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.oType))
       Instruction(Set(input_var), output_var.name + " = " + input_var.name + ".data." + a.field + ";", Set(output_var))
 
+
+    case a:Produce[T,U] =>
+      val inputVariables = a.inputs.foldLeft(Set[Variable]()){(acc, e) => acc + Variable(a.id + "_" + e.name, generateDataTypeName(a.iType))}
+      val outputVariable = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.oType))
+      val bodyInstruction = "if (" + a.inputsNames.map(i => a.id + "_" + i + ".t != 0").mkString(" && ") + ")" + MessageBuilder(Instruction(Set(),generateConstant(a.onSuccess),Set(outputVariable))).body + " else " + MessageBuilder(Instruction(Set(),generateConstant(a.onFailure),Set(outputVariable))).body
+      Instruction(inputVariables, bodyInstruction, Set(outputVariable))
+
+
     case _ => throw new Exception("Can't generate concept " + c + " for Arduino platform")
   }
 
+  def generateConstant(s:SensorDataType) = {
+    s match {
+      case SmartCampusType((n, v, t)) if t.value == 0 => "{\"" + n.value + "\"," + v.value + ", currentTime()}"
+      case SmartCampusType((n, v, t)) => "{\"" + n.value + "\"," + v.value + "," + t.value + "}"
+    }
+  }
   def generateArithmeticInstruction(a: Arithmetic[_ <: SensorDataType]): Instruction = {
 
     // An arithmetic operation is performed on the Observation Field

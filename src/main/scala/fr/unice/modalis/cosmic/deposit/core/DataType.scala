@@ -58,6 +58,7 @@ case class StringType(value:String) extends AtomicType {
  * Represent SmartCampus Sensor Data
  */
 case class SmartCampusType(value:(StringType, IntegerType, LongType) = (StringType(""), IntegerType(0), LongType(0L))) extends SensorDataType {
+  def this(value:(String, Int)) = this((StringType(value._1),IntegerType(value._2), LongType(0L)))
 
   val bindings = Map("n" -> classOf[StringType],
     "v" -> classOf[IntegerType],
