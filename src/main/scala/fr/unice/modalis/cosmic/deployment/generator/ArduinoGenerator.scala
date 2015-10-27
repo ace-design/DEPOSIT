@@ -48,7 +48,10 @@ object ArduinoGenerator extends CodeGenerator{
     case a:Produce[T,U] =>
       val inputVariables = a.inputs.foldLeft(Set[Variable]()){(acc, e) => acc + Variable(a.id + "_" + e.name, generateDataTypeName(a.iType))}
       val outputVariable = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.oType))
-      val bodyInstruction = "if (" + a.inputsNames.map(i => a.id + "_" + i + ".t != 0").mkString(" && ") + ")" + MessageBuilder(Instruction(Set(),generateConstant(a.onSuccess),Set(outputVariable))).body + " else " + MessageBuilder(Instruction(Set(),generateConstant(a.onFailure),Set(outputVariable))).body
+      val bodyInstruction =
+        "if (" + a.inputsNames.map(i => a.id + "_" + i + ".t != 0").mkString(" && ") + ")" + MessageBuilder(Instruction(Set(),generateConstant(a.onSuccess),Set(outputVariable))).body +
+          (if (a.onFailure.isDefined) " else " + MessageBuilder(Instruction(Set(),generateConstant(a.onFailure.get),Set(outputVariable))).body else "")
+
       Instruction(inputVariables, bodyInstruction, Set(outputVariable))
 
 

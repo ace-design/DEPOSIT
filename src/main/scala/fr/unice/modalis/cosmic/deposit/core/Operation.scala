@@ -210,7 +210,7 @@ case class Conditional[T<:DataType](predicate:String, iType:Class[T], applicatio
   override def duplicate: Concept = new Conditional[T](predicate, iType)
 }
 
-case class Produce[I<:DataType, O<:DataType](inputsNames:Set[String], onSuccess:O, onFailure:O, iType:Class[I], oType:Class[O]) extends Operation[I,O] {
+case class Produce[I<:DataType, O<:DataType](inputsNames:Set[String], onSuccess:O, onFailure:Option[O], iType:Class[I], oType:Class[O]) extends Operation[I,O] {
   override val outputsNames: Predef.Set[String] = Set(DEFAULT_OUTPUT_NAME)
   val output = getOutput()
 
