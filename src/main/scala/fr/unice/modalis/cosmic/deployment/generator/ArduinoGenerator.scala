@@ -132,6 +132,7 @@ object ArduinoGenerator extends CodeGenerator{
     var generatedCode = super.generate(p)
 
     generatedCode = replace("update", generateUpdateMethod(p), generatedCode)
+    generatedCode = replace("flush", generateFlushMethod(p), generatedCode)
     generatedCode = replace("global_sensor_values", generateSensorValues(p), generatedCode)
     generatedCode = replace("setup_instructions", generateSetupInstructions(p), generatedCode)
     generatedCode = replace("period", if (p.hasPeriodicSensors) computePeriod(p).toString else "", generatedCode)
@@ -150,6 +151,11 @@ object ArduinoGenerator extends CodeGenerator{
   def generateUpdateMethod(policy: Policy) = {
     "void update() { \n" +
     policy.links.foldLeft(""){(acc, e) => acc + e.destination.id + "_" + e.destination_input.name + " = " + e.source.id + "_" + e.source_output.name + ";\n"} + "}"
+  }
+
+  def generateFlushMethod(policy: Policy) = {
+    "void flush() {\n" +
+     policy.links.foldLeft(""){(acc, e) => acc + e.source.id + "_" + e.source_output.name + " = {};\n"} + "}"
   }
 
   def generateSensorValues(p:Policy) = {

@@ -18,6 +18,7 @@ start();
 }
 
 #@update@#
+#@flush@#
 
 void start() {
  getTimestamp();
@@ -33,6 +34,7 @@ void loop() {
 }
 void program() {
 #@datacollectionpolicy@#
+flush();
 }
 
 #@dataacquisition@#
