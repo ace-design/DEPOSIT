@@ -76,12 +76,7 @@ trait CodeGenerator {
    */
   def replace(parameter:String, value:String, source:String):String = source.replace("#@" + parameter + "@#", value)
 
-  def produceSourceFile(name:String, target:String, extension:String, code:String) = {
-    val file = new PrintWriter("out/"+ target + "/" + name + "." + extension.replace(".", ""))
-    file.println(code)
-    file.close()
 
-  }
 
   /**
    * Compute an ordered generation list (with Choco solver)
@@ -118,6 +113,15 @@ trait CodeGenerator {
   def computePeriod(p:Policy) = {
     //Compute the data acquisition period (lcm of overall periodic sensor periods)
     Utils.lcmm(p.sources.collect({case x:PeriodicSensor[_] => x}).map{_.wishedPeriod}.toList)
+  }
+}
+
+object CodeGenerator {
+  def produceSourceFile(name:String, target:String, extension:String, code:String) = {
+    val file = new PrintWriter("out/"+ target + "/" + name + "." + extension.replace(".", ""))
+    file.println(code)
+    file.close()
+
   }
 }
 

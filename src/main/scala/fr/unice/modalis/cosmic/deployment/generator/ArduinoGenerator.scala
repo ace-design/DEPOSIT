@@ -124,7 +124,7 @@ object ArduinoGenerator extends CodeGenerator{
   }
 
   def produceSourceFile(name:String, code:String) = {
-    super.produceSourceFile(name + "_" + System.currentTimeMillis() , "arduino", "ino", code)
+    CodeGenerator.produceSourceFile(name + "_" + System.currentTimeMillis() , "arduino", "ino", code)
   }
 
   def apply(p:Policy, toFile:Boolean = false) = {

@@ -1,5 +1,6 @@
 package fr.unice.modalis.cosmic.deposit.converter
 
+import fr.unice.modalis.cosmic.deployment.generator.CodeGenerator
 import fr.unice.modalis.cosmic.deposit.core._
 
 /**
@@ -23,7 +24,9 @@ object ToGraphviz {
     }
   }
 
-def apply(w: Policy): String = generateCode(w)
+  def apply(w: Policy): String = generateCode(w)
+
+  def writeSource(p:Policy):Unit = CodeGenerator.produceSourceFile(p.name , "graphviz", "dot", generateCode(p))
 
   def generateCode(w: Policy): String = {
     val s = new StringBuilder

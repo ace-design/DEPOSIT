@@ -2,7 +2,8 @@ package fr.unice.modalis.cosmic.deployment
 
 import fr.unice.modalis.cosmic.deployment.exception.NoTargetFoundException
 import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.{GenericNode, NetworkTopology}
-import fr.unice.modalis.cosmic.deposit.core.{DataType, Operation, Policy, Process, Sensor}
+import fr.unice.modalis.cosmic.deposit.converter.ToGraphviz
+import fr.unice.modalis.cosmic.deposit.core._
 
 import scala.collection.mutable
 
@@ -52,12 +53,12 @@ object PreDeploy {
     val policy = expandProcesses(p)
 
     // Step 1: compute Sensors involved for each operation of the policy
-    policy.operations.foreach(o => o.addProperty("sensors", policy.sensorsInvolved(o)))
+    policy.concepts.foreach(c => c.addProperty("sensors", policy.sensorsInvolved(c)))
     // Step 2: compute which sensors are reachable from each point of the sensing infrastructure topology
     topology.resources.foreach(r => r.addProperty("sensors", topology.getSensorsFromNode(r)))
 
     // Step 3: compute where operations can be projected
-    for (operation <- policy.operations; sensorsNeeded = operation.readProperty("sensors").getOrElse(Set[Sensor[_]]()).asInstanceOf[Set[Sensor[_]]].map(_.url)) yield {
+    for (concept <- policy.concepts; sensorsNeeded = concept.readProperty("sensors").getOrElse(Set[Sensor[_]]()).asInstanceOf[Set[Sensor[_]]].map(_.url)) yield {
       var targets:Set[GenericNode] = Set.empty
       for (resource <- topology.resources; sensorsConnected = resource.readProperty("sensors").getOrElse(Set[Sensor[_]]()).asInstanceOf[Set[fr.unice.modalis.cosmic.deployment.network.dsl.kernel.Sensor]].map(_.name)) yield {
 
@@ -69,8 +70,8 @@ object PreDeploy {
         }
       }
       if (targets.nonEmpty)
-        operation.addProperty("targets", targets)
-      else throw new NoTargetFoundException(operation) //If no target has been found for an operation, the policy can not be deployed
+        concept.addProperty("targets", targets)
+      else throw new NoTargetFoundException(concept) //If no target has been found for an concept, the policy can not be deployed
     }
 
     // Return the policy
@@ -82,10 +83,13 @@ object PreDeploy {
 
 object Deploy {
 
-  def deploy (policy:Policy, topology: NetworkTopology, targets: Map[Operation[_<:DataType, _<:DataType], GenericNode]) = {
-    require(targets.keys.forall(policy.operations.contains))
-    require(targets.values.forall(topology.resources.contains))
+  def deploy (policy:Policy, topology: NetworkTopology, targets: Map[Concept, String]) = {
+    val projection = targets.map(t => (t._1, topology.resources.find(r => r.name equals t._2 ).get))
+    val projectionGrouped = projection.toSeq.groupBy(_._2).map { e => e._1 -> e._2.map(_._1)}
 
+    val policiesPerPlatform = projectionGrouped.map(e => policy.select(e._2.toSet, policy.name + "_" + e._1.name))
+    policiesPerPlatform.foreach(ToGraphviz.writeSource)
+    println(policiesPerPlatform)
 
   }
 }

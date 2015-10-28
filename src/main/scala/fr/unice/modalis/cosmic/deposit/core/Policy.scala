@@ -23,13 +23,13 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   lazy val collectors = ios.filter(_.isInstanceOf[DataOutput[_<:DataType]]).asInstanceOf[Set[DataOutput[_<:DataType]]]
   lazy val inputJoinPoints = ios.filter(_.isInstanceOf[JoinPointInput[_<:DataType]]).asInstanceOf[Set[JoinPointInput[_<:DataType]]]
   lazy val outputJoinPoints = ios.filter(_.isInstanceOf[JoinPointOutput[_<:DataType]]).asInstanceOf[Set[JoinPointOutput[_<:DataType]]]
-
+  lazy val concepts = ios ++ operations
   lazy val isExtendable = inputJoinPoints.nonEmpty || outputJoinPoints.nonEmpty
 
   addProperty("name", name) //Add name as a property
 
 
-  def findConceptById(id:String) = ios ++ operations find {_.id equals id}
+  def findConceptById(id:String) = concepts find {_.id equals id}
 
   def hasPeriodicSensors = sources.collect{case x:PeriodicSensor[_] => x}.nonEmpty
 
