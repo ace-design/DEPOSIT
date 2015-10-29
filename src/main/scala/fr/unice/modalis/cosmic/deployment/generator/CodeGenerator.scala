@@ -86,11 +86,11 @@ trait CodeGenerator {
   def orderedGenerationList(p:Policy) = {
     val totalConcepts = p.ios.size + p.operations.size
     val solver = new Solver("Generation ordering problem")
-    val sourcesvariablesChoco = for (s <- p.sources) yield { VariableFactory.fixed(s.id, 1, solver)}
-    val operationvariablesChoco = for (o <- p.operations) yield { VariableFactory.bounded(o.id, 2, totalConcepts, solver)}
-    val collectorvariablesChoco = for (c <- p.collectors) yield {VariableFactory.fixed(c.id, totalConcepts, solver)}
+    val inputVariablesChoco = for (s <- p.inputs) yield { VariableFactory.fixed(s.id, 1, solver)}
+    val operationVariablesChoco = for (o <- p.operations) yield { VariableFactory.bounded(o.id, 2, totalConcepts, solver)}
+    val outputVariablesChoco = for (c <- p.outputs) yield {VariableFactory.fixed(c.id, totalConcepts, solver)}
 
-    val variablesChoco = sourcesvariablesChoco ++ operationvariablesChoco ++ collectorvariablesChoco
+    val variablesChoco = inputVariablesChoco ++ operationVariablesChoco ++ outputVariablesChoco
 
     for (l <- p.links) yield {solver.post(IntConstraintFactory.arithm(variablesChoco.find(_.getName equals l.source.id).get, "<", variablesChoco.find(_.getName equals l.destination.id).get))}
 

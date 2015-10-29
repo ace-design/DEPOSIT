@@ -89,19 +89,30 @@ object Deploy {
 
 
   def deploy (policy:Policy, topology: NetworkTopology, targets: Map[Concept, String]) = {
+    def deleteNonRevelantJoinPoints(notUsedPorts:Set[Port[_]], policy:Policy) = {
+      val links = policy.links.filter(l =>(notUsedPorts contains l.destination_input) || (notUsedPorts contains l.source_output))
+      val toDelete = links.flatMap(l => Seq(l.source, l.destination)).collect {case x:JoinPoint[_] => x}
+      var sanitizedPolicy = policy
+      toDelete.foreach(c => sanitizedPolicy = sanitizedPolicy.delete(c))
+      sanitizedPolicy
+    }
+    // Associating a concept to a platform
     val projection = targets.map(t => (t._1, topology.resources.find(r => r.name equals t._2 ).get))
     val projectionGrouped = projection.toSeq.groupBy(_._2).map { e => e._1 -> e._2.map(_._1)}
 
+    // Split the global policies into sub-policy and extend it with Join Points
     val rawPolicies = projectionGrouped.map(e => ExtendPolicy(policy.select(e._2.toSet, policy.name + "_" + e._1.name),emptyIOonly = true))
+
+    // Compute which join points are network-related
     val networkLinks = getNetworkLinks(rawPolicies.toSet, policy)
     for (l <- networkLinks; src = l.source_output; dst = l.destination_input) {
       val uid = scala.util.Random.alphanumeric.take(5).mkString
       rawPolicies.find(aPolicy => aPolicy.concepts contains src.parent).get.nextElements(src.parent).collect {case (x:JoinPointOutput[_], _) => x}.find(_.fromConceptOutput == src).get.addProperty("network",uid)
       rawPolicies.find(aPolicy => aPolicy.concepts contains dst.parent).get.previousElements(dst.parent).collect {case (x:JoinPointInput[_], _) => x}.find(_.toConceptInput == dst).get.addProperty("network",uid)
-
     }
 
-    rawPolicies
+    // Delete non-relevant join points
+    rawPolicies.map { deleteNonRevelantJoinPoints(policy.nonConnectedPorts, _)}
 
 
   }

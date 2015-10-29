@@ -23,6 +23,8 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   lazy val collectors = ios.filter(_.isInstanceOf[DataOutput[_<:DataType]]).asInstanceOf[Set[DataOutput[_<:DataType]]]
   lazy val inputJoinPoints = ios.filter(_.isInstanceOf[JoinPointInput[_<:DataType]]).asInstanceOf[Set[JoinPointInput[_<:DataType]]]
   lazy val outputJoinPoints = ios.filter(_.isInstanceOf[JoinPointOutput[_<:DataType]]).asInstanceOf[Set[JoinPointOutput[_<:DataType]]]
+  lazy val outputs = collectors ++ outputJoinPoints
+  lazy val inputs = sources ++ inputJoinPoints
   lazy val concepts = ios ++ operations
   lazy val isExtendable = inputJoinPoints.nonEmpty || outputJoinPoints.nonEmpty
 
@@ -178,19 +180,6 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     links.toSet
   }
 
-  def allInputs[T<:DataType] = {
-    val array = ArrayBuffer[Input[_<:DataType]]()
-    ios.collect{case x:Collector[T] => x}.foreach(c => array += c.input)
-    operations.foreach(a => array ++= a.inputs)
-    array.toSet
-  }
-
-  def allOutputs[T<:DataType] = {
-    val array = ArrayBuffer[Output[_<:DataType]]()
-    ios.collect{case x:Sensor[T] => x}.foreach(c => array += c.output)
-    operations.foreach(a => array ++= a.outputs)
-    array.toSet
-  }
 
   /**
    * Return the set of sensors needed for a concept
@@ -230,6 +219,21 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     ios.map {_.dataType} ++ operations.map {_.iType} ++ operations.map {_.oType}
   }
 
+  def nonConnectedPorts = {
+    // Compute list of ports
+    val ports = concepts.foldLeft(List[Port[_]]()) { (acc, e) => e match {
+      case x:DataInput[_] => x.output :: acc
+      case x:DataOutput[_] => x.input :: acc
+      case x:JoinPointInput[_] => x.output :: acc
+      case x:JoinPointOutput[_] => x.input :: acc
+      case x:Operation[_, _] => x.inputs.toList ::: x.outputs.toList ::: acc
+    }}.toSet
+
+    val portsInUse = links.foldLeft(List[Port[_]]()) { (acc ,e) => e.destination_input :: e.source_output :: acc}.toSet
+
+    ports -- portsInUse
+
+  }
   def duplicate = {
     // Convert links between operations
     val corr = (this.links.map {l => l.source } ++ this.links.map{l => l.destination}).map{c => (c, c.duplicate)} toMap

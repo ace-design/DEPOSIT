@@ -35,9 +35,15 @@ object ArduinoGenerator extends CodeGenerator{
     case a:Conditional[T] => generateConditionalInstruction(a)
 
 
-    case a:DataOutput[T] =>
+    case a:Collector[T] =>
       val input_var = Variable(a.id + "_" + a.input.name, generateDataTypeName(a.dataType))
       Instruction(Set(input_var), "send(" + input_var.name +");", Set())
+
+    case a:JoinPointOutput[T] =>
+      val id = a.readProperty("network")
+      val origin = if (id.isDefined) "\"" + id.get + "\"" else "String(BOARD_ID)"
+      val input_var = Variable(a.id + "_" + a.input.name, generateDataTypeName(a.dataType))
+      Instruction(Set(input_var), "send(" + input_var.name + "," + origin + ");", Set())
 
     case a:Extract[T, T] =>
       val input_var = Variable(a.id + "_" + a.input.name, generateDataTypeName(a.iType))
