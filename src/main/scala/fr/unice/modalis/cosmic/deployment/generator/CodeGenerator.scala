@@ -2,7 +2,7 @@ package fr.unice.modalis.cosmic.deployment.generator
 
 import java.io.PrintWriter
 
-import fr.unice.modalis.cosmic.deposit.core.{PeriodicSensor, Policy}
+import fr.unice.modalis.cosmic.deposit.core.{Concept, PeriodicSensor, Policy, SensorDataType}
 import org.chocosolver.solver.Solver
 import org.chocosolver.solver.constraints.IntConstraintFactory
 import org.chocosolver.solver.variables.VariableFactory
@@ -52,6 +52,31 @@ trait CodeGenerator {
   def generateInputs(policy: Policy):(String,String)
 
   /**
+   * Generate constant
+   * @param s Sensor data value
+   * @return Compilable code defining a constant
+   */
+  def generateConstant(s:SensorDataType):String
+
+  /**
+   * Building an instruction from a concept
+   * @param c Concept
+   * @param policy Data collection policy
+   * @tparam T Input sensor data type
+   * @tparam U Output sensor data type
+   * @return An instruction
+   */
+  def generateInstruction[T<:SensorDataType, U<:SensorDataType](c:Concept, policy: Policy):Instruction
+
+
+  /**
+   * Produce a compilable source file
+   * @param name File name
+   * @param code Compilable code
+   */
+  def produceSourceFile(name:String, code:String):Unit
+
+  /**
    * Generate data collection policy
    * @param p Data collection policy
    * @return Compilable code defining the data collection policy
@@ -76,7 +101,9 @@ trait CodeGenerator {
    */
   def replace(parameter:String, value:String, source:String):String = source.replace("#@" + parameter + "@#", value)
 
-
+  def apply(p:Policy, toFile:Boolean = false) = {
+    if (toFile) produceSourceFile(p.name, generate(p)) else generate(p)
+  }
 
   /**
    * Compute an ordered generation list (with Choco solver)
@@ -104,6 +131,7 @@ trait CodeGenerator {
     }
 
   }
+
 
   /**
    * Compute the period of a policy (lcm of periodic sensors)

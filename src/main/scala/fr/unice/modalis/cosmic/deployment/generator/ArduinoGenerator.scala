@@ -133,9 +133,7 @@ object ArduinoGenerator extends CodeGenerator{
     CodeGenerator.produceSourceFile(name + "_" + System.currentTimeMillis() , "arduino", "ino", code)
   }
 
-  def apply(p:Policy, toFile:Boolean = false) = {
-    if (toFile) produceSourceFile(p.name, generate(p)) else generate(p)
-  }
+
 
   override def generate(p:Policy) = {
     var generatedCode = super.generate(p)

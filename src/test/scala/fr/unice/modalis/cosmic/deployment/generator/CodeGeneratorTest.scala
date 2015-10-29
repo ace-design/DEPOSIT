@@ -1,6 +1,6 @@
 package fr.unice.modalis.cosmic.deployment.generator
 
-import fr.unice.modalis.cosmic.deposit.core.{DCPTest, Policy}
+import fr.unice.modalis.cosmic.deposit.core.{Concept, DCPTest, Policy, SensorDataType}
 import org.specs2.mutable.SpecificationWithJUnit
 
 /**
@@ -24,6 +24,12 @@ class CodeGeneratorTest  extends SpecificationWithJUnit{
     override val CURRENT_TIMESTAMP_METHOD: String = ""
 
     override def generateInputs(policy: Policy): (String,String) = ???
+
+    override def generateConstant(s: SensorDataType): String = ???
+
+    override def generateInstruction[T <: SensorDataType, U <: SensorDataType](c: Concept, policy: Policy): Instruction = ???
+
+    override def produceSourceFile(name: String, code: String): Unit = ???
   }
 
   "A code generator" should {
