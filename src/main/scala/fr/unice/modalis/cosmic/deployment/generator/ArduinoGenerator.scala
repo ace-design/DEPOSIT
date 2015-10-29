@@ -117,7 +117,7 @@ object ArduinoGenerator extends CodeGenerator{
       (dType match {
         case c:CompositeType => _innerstruct(c)
         case _ => ""
-      }) + "struct " + dType.name + "{\n" + "long t;\nint src;\n" + (
+      }) + "struct " + dType.name + "{\n" + "long t;\nString src;\n" + (
         dType match {
           case a:AtomicType => generateDataTypeName(dType.getClass)
           case a:CompositeType => "struct inner_" + dType.name
