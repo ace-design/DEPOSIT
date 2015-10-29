@@ -139,6 +139,15 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     res
   }
 
+  def previousElements(e:Concept):Set[(Concept, Link[_<:DataType])] = {
+    var res = Set[(Concept, Link[_<:DataType])]()
+    for (l <- links) {
+      if (l.destination == e)
+        res = res ++ links.filter(l => l.destination == e).foldLeft(Set.empty[(Concept, Link[_<:DataType])]){(acc, e) => acc.+((e.source, l))}
+    }
+    res
+  }
+
   /**
    * Delete a link in the current workflow
    * @param l Link

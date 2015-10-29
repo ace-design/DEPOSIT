@@ -17,6 +17,8 @@ trait Properties {
     case None => None
   }
 
+  def hasProperty(s:String) = properties.find(_.name equalsIgnoreCase s)
+
 }
 class Property[T](val name:String, val value:T) {
   override def toString:String = name + "-->" + value

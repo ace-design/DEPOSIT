@@ -2,7 +2,7 @@ package fr.unice.modalis.cosmic.deployment
 
 import fr.unice.modalis.cosmic.deployment.exception.NoTargetFoundException
 import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.{GenericNode, NetworkTopology}
-import fr.unice.modalis.cosmic.deposit.converter.ToGraphviz
+import fr.unice.modalis.cosmic.deposit.algo.ExtendPolicy
 import fr.unice.modalis.cosmic.deposit.core._
 
 import scala.collection.mutable
@@ -83,13 +83,26 @@ object PreDeploy {
 
 object Deploy {
 
+  def getNetworkLinks(policies:Set[Policy], ref:Policy) = {
+    ref.links -- policies.foldLeft(new Policy()){(acc, e) => acc ++ e}.links
+  }
+
+
   def deploy (policy:Policy, topology: NetworkTopology, targets: Map[Concept, String]) = {
     val projection = targets.map(t => (t._1, topology.resources.find(r => r.name equals t._2 ).get))
     val projectionGrouped = projection.toSeq.groupBy(_._2).map { e => e._1 -> e._2.map(_._1)}
 
-    val policiesPerPlatform = projectionGrouped.map(e => policy.select(e._2.toSet, policy.name + "_" + e._1.name))
-    policiesPerPlatform.foreach(ToGraphviz.writeSource)
-    println(policiesPerPlatform)
+    val rawPolicies = projectionGrouped.map(e => ExtendPolicy(policy.select(e._2.toSet, policy.name + "_" + e._1.name),emptyIOonly = true))
+    val networkLinks = getNetworkLinks(rawPolicies.toSet, policy)
+    for (l <- networkLinks; src = l.source_output; dst = l.destination_input) {
+      val uid = scala.util.Random.alphanumeric.take(5).mkString
+      rawPolicies.find(aPolicy => aPolicy.concepts contains src.parent).get.nextElements(src.parent).collect {case (x:JoinPointOutput[_], _) => x}.find(_.fromConceptOutput == src).get.addProperty("network",uid)
+      rawPolicies.find(aPolicy => aPolicy.concepts contains dst.parent).get.previousElements(dst.parent).collect {case (x:JoinPointInput[_], _) => x}.find(_.toConceptInput == dst).get.addProperty("network",uid)
+
+    }
+
+    rawPolicies
+
 
   }
 }
