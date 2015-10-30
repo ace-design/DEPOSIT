@@ -49,7 +49,7 @@ object PythonGenerator extends CodeGenerator{
       val inputVariables = a.inputs.foldLeft(Set[Variable]()){(acc, e) => acc + Variable(a.id + "_" + e.name, generateDataTypeName(a.iType))}
       val outputVariable = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.oType))
       val bodyInstruction =
-        "if " + a.inputsNames.map(i => a.id + "_" + i + "[t] != 0").mkString(" && ") + ":\n\t\t" + MessageBuilder(Instruction(Set(),generateConstant(a.onSuccess),Set(outputVariable))).body +
+        "if " + a.inputsNames.map(i => a.id + "_" + i + "[t] != 0").mkString(" and ") + ":\n\t\t" + MessageBuilder(Instruction(Set(),generateConstant(a.onSuccess),Set(outputVariable))).body +
           (if (a.onFailure.isDefined) "\n\telse:\n\t\t" + MessageBuilder(Instruction(Set(),generateConstant(a.onFailure.get),Set(outputVariable))).body else "")
 
       Instruction(inputVariables, bodyInstruction, Set(outputVariable))
@@ -99,7 +99,7 @@ object PythonGenerator extends CodeGenerator{
    * @param policy Data collection policy
    * @return Compilable code defining data inputs
    */
-  override def generateInputs(policy: Policy): (String, String) = ???
+  override def generateInputs(policy: Policy): (String, String) = ("","")
 
   /**
    * Generate global variables
@@ -120,8 +120,18 @@ object PythonGenerator extends CodeGenerator{
     orderedGenerationList(p).map {generateInstruction(_,p)} map {i => i.copy(body = i.body + (if (i.outputs.nonEmpty) "; update()" else ""))}
   }
 
-  def generateVariablesDeclaration(variables:Set[Variable], inBody:Boolean = false) = variables.foldLeft(""){(acc, e) => acc + (if (inBody) "global " else "") + e.name + "\n"}
+  def generateVariablesDeclaration(variables:Set[Variable], inBody:Boolean = false) = variables.foldLeft(""){(acc, e) => acc + (if (inBody) "\tglobal " else "") + e.name + "\n"}
 
+  def generateUpdateMethod(policy: Policy) = {
+    "def update(): \n" +
+      generateGlobalVariables(policy, inBody = true) + "\n" +
+      policy.links.foldLeft(""){(acc, e) => acc + "\t" + e.destination.id + "_" + e.destination_input.name + " = " + e.source.id + "_" + e.source_output.name + ";\n"}
+  }
+
+  def generateFlushMethod(policy: Policy) = {
+    "def flush(): \n" +
+      policy.links.foldLeft(""){(acc, e) => acc + "\t" + e.source.id + "_" + e.source_output.name + " = []\n"}
+  }
   /**
    * Generate constant
    * @param s Sensor data value
@@ -154,6 +164,8 @@ object PythonGenerator extends CodeGenerator{
 
   override def generate(p:Policy) = {
     var generatedCode = super.generate(p)
+    generatedCode = replace("update", generateUpdateMethod(p), generatedCode)
+    generatedCode = replace("flush", generateFlushMethod(p), generatedCode)
 
     generatedCode = replace("use_global_variables", generateGlobalVariables(p, inBody = true), generatedCode)
 
