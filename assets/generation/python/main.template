@@ -1,0 +1,29 @@
+import serial
+import re
+import threading
+import time
+import datetime
+
+BOARD_ID = #@board_id@#
+OFFSET = #@period@#
+#@global_variables@#
+
+#@update@#
+#@flush@#
+
+def program():
+    global BOARD_ID
+    global OFFSET
+    #@use_global_variables@#
+    #@datacollectionpolicy@#
+    flush()
+
+def currentTime():
+    datetime.datetime.now().time()
+
+def send(v):
+    send(v, v["src"]);
+
+def send(v, from):
+    v["src"] = from
+    print(v)
