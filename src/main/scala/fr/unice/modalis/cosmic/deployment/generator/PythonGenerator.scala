@@ -2,6 +2,8 @@ package fr.unice.modalis.cosmic.deployment.generator
 
 import fr.unice.modalis.cosmic.deposit.core._
 
+import scala.io.Source
+
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 29/10/2015.
  */
@@ -12,6 +14,9 @@ object PythonGenerator extends CodeGenerator{
   val LAST_VALUE_PREFIX = "lastValue_"
   val LAST_UPDATE_PREFIX = "lastUpdate_"
 
+  def generateReadingPorts(policy: Policy) = {
+    policy.inputJoinPoints.map(i => i.id + "_" + i.output.name + "_PORT = #@fill port here@#\n").mkString
+  }
   /**
    * Building an instruction from a concept
    * @param c Concept
@@ -38,6 +43,11 @@ object PythonGenerator extends CodeGenerator{
       val origin = if (id.isDefined) "\"" + id.get + "\"" else "String(BOARD_ID)"
       val input_var = Variable(a.id + "_" + a.input.name, generateDataTypeName(a.dataType))
       Instruction(Set(input_var), "send(" + input_var.name + "," + origin + ");", Set())
+
+    case a:JoinPointInput[T] if a.hasProperty("network").isDefined =>
+      val output_var = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.dataType))
+      Instruction(Set(), output_var.name + " = " + LAST_VALUE_PREFIX + a.id, Set(output_var))
+
 
     case a:Extract[T, T] =>
       val input_var = Variable(a.id + "_" + a.input.name, generateDataTypeName(a.iType))
@@ -99,7 +109,21 @@ object PythonGenerator extends CodeGenerator{
    * @param policy Data collection policy
    * @return Compilable code defining data inputs
    */
-  override def generateInputs(policy: Policy): (String, String) = ("","")
+  override def generateInputs(policy: Policy): (String, String) = {
+    def generateJoinPointDeclaration(a:JoinPoint[_], f:String) = "joinpoint_" + a.id + "\n"
+    var body = ""
+    var declaration = ""
+    for (s <- policy.inputs) {
+      s match {
+        case a:JoinPointInput[_] =>
+          val res = generateJoinPointInput(a)
+          declaration = declaration + generateJoinPointDeclaration(a, res._1)
+          body = body + res._2
+      }
+    }
+
+    (declaration, body)
+  }
 
   /**
    * Generate global variables
@@ -156,17 +180,33 @@ object PythonGenerator extends CodeGenerator{
    * @param name File name
    * @param code Compilable code
    */
-  override def produceSourceFile(name: String, code: String): Unit = ???
+  override def produceSourceFile(name: String, code: String): Unit = {
+    CodeGenerator.produceSourceFile(name + "_" + System.currentTimeMillis() , "python", "py", code)
+  }
 
 
   private def generateDataTypeName[T<:DataType](d:Class[T]) = ""
 
+  private def generateJoinPointInput(j:JoinPointInput[_<:DataType]) = {
+    val template = "assets/generation/python/readJoinPoint.template"
+    val name = "joinpoint_" + j.id
+    var body = Source.fromFile(template).getLines().mkString("\n")
+    body = replace("name", name, body)
+    body = replace("id", j.id + "_" + j.output.name, body)
+    val vars = Set(Variable(j.id + "_" + j.output.name, ""))
+    (name, body + "\n", vars)
+  }
+
+  def generateExecution(p:Policy) = {
+    generateInputs(p)._1.split("\n").map(i => "threading.Thread(None," + i + ",None).start()\n").mkString
+  }
 
   override def generate(p:Policy) = {
     var generatedCode = super.generate(p)
+    generatedCode = replace("exec", generateExecution(p), generatedCode)
     generatedCode = replace("update", generateUpdateMethod(p), generatedCode)
     generatedCode = replace("flush", generateFlushMethod(p), generatedCode)
-
+    generatedCode = replace("readingports", generateReadingPorts(p), generatedCode)
     generatedCode = replace("use_global_variables", generateGlobalVariables(p, inBody = true), generatedCode)
 
     generatedCode

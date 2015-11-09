@@ -1,0 +1,5 @@
+def #@name@#():
+	global #@id@#
+	ser = serial.Serial(#@id@#_PORT, 9600, timeout=1)
+	lastValue_#@id@# = json.loads(ser.readline().decode("ascii"))
+	lastUpdate_#@id@# = lastValue_#@id@#["t"]

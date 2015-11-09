@@ -6,6 +6,7 @@ import datetime
 
 BOARD_ID = #@board_id@#
 OFFSET = #@period@#
+#@readingports@#
 
 #@update@#
 #@flush@#
@@ -17,6 +18,8 @@ def program():
 #@datacollectionpolicy@#
 	flush()
 
+#@dataacquisition@#
+
 def currentTime():
 	datetime.datetime.now().time()
 
@@ -26,3 +29,6 @@ def send(v):
 def send(v, origin):
 	v["src"] = origin
 	print(v)
+
+
+#@exec@#
