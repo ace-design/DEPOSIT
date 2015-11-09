@@ -63,7 +63,7 @@ case class GenericOutput[T<:DataType](name:String, dataType: Class[T]) extends D
 
 trait JoinPoint[T<:DataType] extends PolicyIO[T]
 
-case class JoinPointInput[I<:DataType](toConceptInput:Input[I], dataType: Class[I]) extends JoinPoint[I]{
+case class JoinPointInput[I<:DataType](toConceptInput:Input[I], dataType: Class[I]) extends JoinPoint[I] with DataInput[I]{
   val output = new Output[I](this)
   override def toString:String = "JOIN_POINT_INPUT[to=" + toConceptInput + "]"
 
@@ -77,7 +77,7 @@ case class JoinPointInput[I<:DataType](toConceptInput:Input[I], dataType: Class[
   override def duplicate: Concept = new JoinPointInput[I](toConceptInput, dataType)
 }
 
-case class JoinPointOutput[O<:DataType](fromConceptOutput:Output[O], dataType: Class[O]) extends JoinPoint[O]{
+case class JoinPointOutput[O<:DataType](fromConceptOutput:Output[O], dataType: Class[O]) extends JoinPoint[O] with DataOutput[O]{
   val input = new Input[O](this)
   override def toString:String = "JOIN_POINT_OUTPUT[from=" + fromConceptOutput + "]"
   override val name: String = "JointPoint" + id
