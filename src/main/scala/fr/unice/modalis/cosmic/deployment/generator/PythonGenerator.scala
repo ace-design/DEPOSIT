@@ -26,10 +26,10 @@ object PythonGenerator extends CodeGenerator{
    * @return An instruction
    */
   override def generateInstruction[T <: SensorDataType, U <: SensorDataType](c: Concept, policy: Policy): Instruction = c match {
-    case a:DataInput[T] =>
+    /*case a:DataInput[T] =>
       val output_var = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.dataType))
       Instruction(Set(), output_var.name + " = " + LAST_VALUE_PREFIX + a.id, Set(output_var))
-
+*/
     case a:Arithmetic[T] => generateArithmeticInstruction(a)
 
     case a:Conditional[T] => generateConditionalInstruction(a)
@@ -46,7 +46,7 @@ object PythonGenerator extends CodeGenerator{
 
     case a:JoinPointInput[T] if a.hasProperty("network").isDefined =>
       val output_var = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.dataType))
-      Instruction(Set(), output_var.name + " = " + LAST_VALUE_PREFIX + a.id, Set(output_var))
+      Instruction(Set(), "if " + LAST_VALUE_PREFIX + a.id + "[src] == \"" + a.readProperty("network").get + "\":\n\t\t" + output_var.name + " = " + LAST_VALUE_PREFIX + a.id, Set(output_var))
 
 
     case a:Extract[T, T] =>
