@@ -61,5 +61,6 @@ void send(struct SmartCampusType s, String from){
   if (s.t != 0) {
     String json = "{\"t\":" + String(s.t) + ",\"src\":\"" + from + "\",\"data\": { \"n\":\"" + s.data.n + "\", \"v\":" + String(s.data.v) + ", \"t\":" + String(s.data.t) + "}}";
     Serial.println(json);
+    delay(100);
   }
 }
