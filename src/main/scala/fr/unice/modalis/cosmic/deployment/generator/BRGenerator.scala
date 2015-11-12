@@ -7,7 +7,7 @@ import scala.io.Source
 /**
  * Created by Cyril Cecchinel - I3S Laboratory on 29/10/2015.
  */
-object PythonGenerator extends CodeGenerator{
+object BRGenerator extends CodeGenerator{
   override val templateFile: String = "assets/generation/python/main.template"
   override val CURRENT_TIMESTAMP_METHOD: String = "currentTime()"
 
@@ -16,6 +16,26 @@ object PythonGenerator extends CodeGenerator{
 
   def generateReadingPorts(policy: Policy) = {
     policy.inputJoinPoints.map(i => i.id + "_" + i.output.name + "_PORT = #@fill port here@#\n").mkString
+  }
+
+  def generateSerialReadingMethodForJoinPoints(policy: Policy) = {
+    "def readSerial(port):\n" +
+      policy.inputJoinPoints.map(i => "\tglobal " + LAST_VALUE_PREFIX + i.id + "\n").mkString +
+      policy.inputJoinPoints.map(i => "\t" +LAST_VALUE_PREFIX + i.id + "= []\n").mkString +
+      "\tflush()\n" +
+      "\twhile True:\n" +
+      "\t\tser = serial.Serial(port, 9600)\n" +
+      "\t\ttry:\n" +
+      "\t\t\tvalueRead = json.loads(ser.readline().decode(\"ascii\"))\n" +
+      policy.inputJoinPoints.map(i => {
+        val network = i.readProperty("network").get
+        "\t\t\tif valueRead[\"src\"] == \"" +  network + "\":\n" +
+        "\t\t\t\t" + LAST_VALUE_PREFIX + i.id + " = valueRead\n"
+      }).mkString +
+      "\t\t\tprogram()\n" +
+      "\t\texcept Exception:\n\t\t\tpass"
+
+
   }
   /**
    * Building an instruction from a concept
@@ -46,7 +66,7 @@ object PythonGenerator extends CodeGenerator{
 
     case a:JoinPointInput[T] if a.hasProperty("network").isDefined =>
       val output_var = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.dataType))
-      Instruction(Set(), "if " + LAST_VALUE_PREFIX + a.id + "[src] == \"" + a.readProperty("network").get + "\":\n\t\t" + output_var.name + " = " + LAST_VALUE_PREFIX + a.id, Set(output_var))
+      Instruction(Set(), output_var.name + " = " + LAST_VALUE_PREFIX + a.id, Set(output_var))
 
 
     case a:Extract[T, T] =>
@@ -59,7 +79,7 @@ object PythonGenerator extends CodeGenerator{
       val inputVariables = a.inputs.foldLeft(Set[Variable]()){(acc, e) => acc + Variable(a.id + "_" + e.name, generateDataTypeName(a.iType))}
       val outputVariable = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.oType))
       val bodyInstruction =
-        "if " + a.inputsNames.map(i => a.id + "_" + i + "[t] != 0").mkString(" and ") + ":\n\t\t" + MessageBuilder(Instruction(Set(),generateConstant(a.onSuccess),Set(outputVariable))).body +
+        "if " + a.inputsNames.map(i => a.id + "_" + i + "[\"t\"] != 0").mkString(" and ") + ":\n\t\t" + MessageBuilder(Instruction(Set(),generateConstant(a.onSuccess),Set(outputVariable))).body +
           (if (a.onFailure.isDefined) "\n\telse:\n\t\t" + MessageBuilder(Instruction(Set(),generateConstant(a.onFailure.get),Set(outputVariable))).body else "")
 
       Instruction(inputVariables, bodyInstruction, Set(outputVariable))
@@ -154,6 +174,7 @@ object PythonGenerator extends CodeGenerator{
 
   def generateFlushMethod(policy: Policy) = {
     "def flush(): \n" +
+      policy.links.foldLeft(""){(acc, e) => acc + "\tglobal " + e.source.id + "_" + e.source_output.name + "\n"} +
       policy.links.foldLeft(""){(acc, e) => acc + "\t" + e.source.id + "_" + e.source_output.name + " = []\n"}
   }
   /**
@@ -197,16 +218,13 @@ object PythonGenerator extends CodeGenerator{
     (name, body + "\n", vars)
   }
 
-  def generateExecution(p:Policy) = {
-    generateInputs(p)._1.split("\n").map(i => "threading.Thread(None," + i + ",None).start()\n").mkString
-  }
+
 
   override def generate(p:Policy) = {
     var generatedCode = super.generate(p)
-    generatedCode = replace("exec", generateExecution(p), generatedCode)
+    generatedCode = replace("serial", generateSerialReadingMethodForJoinPoints(p), generatedCode)
     generatedCode = replace("update", generateUpdateMethod(p), generatedCode)
     generatedCode = replace("flush", generateFlushMethod(p), generatedCode)
-    generatedCode = replace("readingports", generateReadingPorts(p), generatedCode)
     generatedCode = replace("use_global_variables", generateGlobalVariables(p, inBody = true), generatedCode)
 
     generatedCode

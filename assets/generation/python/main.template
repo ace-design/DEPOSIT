@@ -7,7 +7,6 @@ import json
 
 BOARD_ID = "TEST"
 OFFSET = 0
-#@readingports@#
 
 #@update@#
 #@flush@#
@@ -19,17 +18,15 @@ def program():
 #@datacollectionpolicy@#
 	flush()
 
-#@dataacquisition@#
-
 def currentTime():
-	datetime.datetime.now().time()
+	return int(time.time())
 
 def send(v):
-	send(v, v["src"]);
-
-def send(v, origin):
-	v["src"] = origin
-	print(v)
+	print(str(v))
 
 
-#@exec@#
+#@serial@#
+##LAUCH SERIAL PROCESSES HERE
+##threading.Thread(None,readSerial,["/dev/tty.usbmodem14xxx"]).start()
+threading.Thread(None,readSerial,args=["/dev/tty.usbmodem14231"]).start()
+threading.Thread(None,readSerial,args=["/dev/tty.usbmodem14241"]).start()

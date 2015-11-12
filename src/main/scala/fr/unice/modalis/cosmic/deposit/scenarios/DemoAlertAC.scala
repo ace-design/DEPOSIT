@@ -1,6 +1,8 @@
 package fr.unice.modalis.cosmic.deposit.scenarios
 
-import fr.unice.modalis.cosmic.deployment.generator.ArduinoGenerator
+import fr.unice.modalis.cosmic.deployment.generator.{ArduinoGenerator, BRGenerator}
+import fr.unice.modalis.cosmic.deployment.utils.InfrastructureModelBuilder
+import fr.unice.modalis.cosmic.deployment.{Deploy, PreDeploy}
 import fr.unice.modalis.cosmic.deposit.core._
 
 /**
@@ -57,6 +59,35 @@ object DemoAlertAC extends App{
     .add(temp_filter).add(door_filter).add(window_filter).add(produce)
     .addLink(l1).addLink(l2).addLink(l3).addLink(l4).addLink(l5).addLink(l6).addLink(l7)
 
-  // We generate Arduino code
-  ArduinoGenerator(p, true)
+
+  // We prepare the policy to be deployed over the SmartCampus infrastructure
+  val topology = InfrastructureModelBuilder("assets/configurations/smartcampus_xbeenetwork.xml")
+  val predeployed = PreDeploy(p, topology)
+
+  // We display the possible concept repartition (1) and we decide where to deploy a concept (2)
+  println("Concept repartition:")
+  predeployed.concepts.foreach(concept => println("\t* " + concept + ": " + concept.readProperty("targets"))) // (1)
+
+  val policies = Deploy.deploy(p, topology, Map(
+    ac443 -> "ARD_2_443",
+    door443 -> "ARD_1_443",
+    window443 -> "ARD_2_443",
+    collector -> "RP_443_XBEE",
+    temp_filter -> "ARD_2_443",
+    door_filter -> "ARD_1_443",
+    window_filter -> "ARD_2_443",
+    produce -> "RP_443_XBEE")) // (2)
+
+  // We display available policies
+  println("Available policies:")
+  policies.foreach(p => println("\t" + "* " + p.name))
+
+
+  val policyArd1 = policies.find(_.name equals "ALERT_AC_ARD_1_443").getOrElse(throw new Exception("Non found policy"))
+  val policyArd2 = policies.find(_.name equals "ALERT_AC_ARD_2_443").getOrElse(throw new Exception("Non found policy"))
+  val policyRp = policies.find(_.name equals "ALERT_AC_RP_443_XBEE").getOrElse(throw new Exception("Non found policy"))
+
+  ArduinoGenerator(policyArd1, toFile = true)
+  ArduinoGenerator(policyArd2, toFile = true)
+  BRGenerator(policyRp, toFile = true)
 }
