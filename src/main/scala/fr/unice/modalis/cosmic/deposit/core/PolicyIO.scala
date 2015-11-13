@@ -42,7 +42,7 @@ case class GenericInput[T<:DataType](name:String, dataType: Class[T]) extends Da
    * Return a copy of this concept (with different id)
    * @return copy of this concept
    */
-  override def duplicate: Concept = new GenericInput[T](name, dataType)
+  override def duplicate: GenericInput[T] = new GenericInput[T](name, dataType)
 
   val url: String = ""
 }
@@ -56,7 +56,7 @@ case class GenericOutput[T<:DataType](name:String, dataType: Class[T]) extends D
    * Return a copy of this concept (with different id)
    * @return copy of this concept
    */
-  override def duplicate: Concept = new GenericOutput[T](name, dataType)
+  override def duplicate: GenericOutput[T] = new GenericOutput[T](name, dataType)
 }
 
 
@@ -87,7 +87,7 @@ case class JoinPointOutput[O<:DataType](fromConceptOutput:Output[O], dataType: C
    * Return a copy of this concept (with different id)
    * @return copy of this concept
    */
-  override def duplicate: Concept = new JoinPointOutput[O](fromConceptOutput, dataType)
+  override def duplicate: JoinPointOutput[O] = new JoinPointOutput[O](fromConceptOutput, dataType)
 }
 
 
@@ -117,7 +117,7 @@ case class PeriodicSensor[T<:DataType](wishedPeriod:Int, override val url: Strin
    * Return a copy of this concept (with different id)
    * @return copy of this concept
    */
-  override def duplicate: Concept = new PeriodicSensor[T](wishedPeriod, url, dataType)
+  override def duplicate: PeriodicSensor[T] = new PeriodicSensor[T](wishedPeriod, url, dataType)
 }
 
 /**
@@ -133,7 +133,7 @@ case class EventSensor[T<:DataType](override val url:String, dataType: Class[T])
    * Return a copy of this concept (with different id)
    * @return copy of this concept
    */
-  override def duplicate: Concept = new EventSensor[T](url, dataType)
+  override def duplicate: EventSensor[T] = new EventSensor[T](url, dataType)
 }
 
 
@@ -153,5 +153,5 @@ case class Collector[T<:DataType](endpoint:String, dataType: Class[T]) extends D
    * Return a copy of this concept (with different id)
    * @return copy of this concept
    */
-  override def duplicate: Concept = new Collector[T](endpoint, dataType)
+  override def duplicate: Collector[T] = new Collector[T](endpoint, dataType)
 }
