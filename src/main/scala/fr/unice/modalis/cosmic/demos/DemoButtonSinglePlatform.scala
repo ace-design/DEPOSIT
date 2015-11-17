@@ -1,4 +1,4 @@
-package fr.unice.modalis.cosmic.deposit.scenarios
+package fr.unice.modalis.cosmic.demos
 
 import fr.unice.modalis.cosmic.deployment.generator.ArduinoGenerator
 import fr.unice.modalis.cosmic.deposit.converter.ToGraphviz

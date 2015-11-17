@@ -1,4 +1,4 @@
-package fr.unice.modalis.cosmic.deposit.scenarios
+package fr.unice.modalis.cosmic.demos
 
 import fr.unice.modalis.cosmic.deployment.generator.{ArduinoGenerator, BRGenerator}
 import fr.unice.modalis.cosmic.deployment.utils.InfrastructureModelBuilder
