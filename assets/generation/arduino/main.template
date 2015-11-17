@@ -9,10 +9,11 @@
 #@global_variables@#
 #@global_sensor_values@#
 int timestamp0 = 0;
+struct SmartCampusType nullValue = {-1, BOARD_ID, {"", 0, -1}};
 
 void setup() {
 Serial.begin(9600);
-start();
+//start();
 #@sensor_instructions@#
 #@setup_instructions@#
 }

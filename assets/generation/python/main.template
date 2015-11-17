@@ -7,7 +7,7 @@ import json
 
 BOARD_ID = "TEST"
 OFFSET = 0
-
+nullValue = {"t":-1,"src": BOARD_ID, "data":{"n":"","v":0, "t": -1}}
 #@update@#
 #@flush@#
 
