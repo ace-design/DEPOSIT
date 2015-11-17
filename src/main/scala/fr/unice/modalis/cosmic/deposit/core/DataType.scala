@@ -24,6 +24,7 @@ trait SensorDataType extends CompositeType {
   def getNameField:Field
   def getObservationField:Field
   def getTimeField:Field
+  def getNullValue:SensorDataType
 
 }
 /**
@@ -71,6 +72,8 @@ case class SmartCampusType(value:(StringType, IntegerType, LongType) = (StringTy
   override def getObservationField: Field = Field("v", bindings("v"))
 
   override val name: String = "SmartCampusType"
+
+  override def getNullValue: SmartCampusType = SmartCampusType()
 }
 
 
@@ -92,6 +95,8 @@ case class SantanderParkingType(value:(IntegerType, StringType, DoubleType, Inte
   override def getObservationField: Field = Field("status", classOf[IntegerType])
 
   override val name: String = "SantanderParkingType"
+
+  override def getNullValue: SensorDataType = SantanderParkingType()
 }
 
 case class IntegerSensorType(value:(IntegerType, LongType) = (IntegerType(0), LongType(0L))) extends SensorDataType {
@@ -105,6 +110,8 @@ case class IntegerSensorType(value:(IntegerType, LongType) = (IntegerType(0), Lo
   override def getObservationField: Field = Field("v", classOf[IntegerType])
 
   override val name: String = "IntegerSensorType"
+
+  override def getNullValue: SensorDataType = IntegerSensorType()
 }
 object DataType {
   def factory(name:String) = name match {
