@@ -22,7 +22,7 @@ def currentTime():
 	return int(time.time())
 
 def send(v):
-	print(str(v))
+	print(str(v.data))
 
 
 #@serial@#
