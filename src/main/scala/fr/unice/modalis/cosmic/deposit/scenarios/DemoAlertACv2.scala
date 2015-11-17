@@ -13,7 +13,7 @@ object DemoAlertACv2 extends App{
 
   /**
     * This demonstration illustrates how three sensors can infer a new information
-    * Scenario: Send an alert (ALERT_AC) if window (WINDOW_443) OR door (DOOR_443) are opened
+    * Scenario: Produce an virtual sensor "ALERT_AC" retrieving if window or door are opened
     *           while air conditioning is powered on
     *
     * Concepts demonstrated :
@@ -28,11 +28,11 @@ object DemoAlertACv2 extends App{
     */
 
   // Air conditioning temperature sensor (Period = 60s, value in celsius degrees)
-  val ac443 = PeriodicSensor(60, "AC_443", classOf[SmartCampusType]) //Pin 0
+  val ac443 = PeriodicSensor(60, "AC_443", classOf[SmartCampusType])
 
   // Door and window opening sensors (Event-based, value : < 500 Open, >= 500 Closed)
-  val door443 = EventSensor("DOOR_443", classOf[SmartCampusType]) //Pin 1
-  val window443 = EventSensor("WINDOW_443", classOf[SmartCampusType]) //Pin 2
+  val door443 = EventSensor("DOOR_443", classOf[SmartCampusType])
+  val window443 = EventSensor("WINDOW_443", classOf[SmartCampusType])
 
   // We use filter operations to check if air conditioning is on (temperature < 18°C)
   // and door/window opened (value < 500 => Open)
@@ -76,7 +76,7 @@ object DemoAlertACv2 extends App{
   val topology = InfrastructureModelBuilder("assets/configurations/smartcampus_xbeenetwork.xml")
   val predeployed = PreDeploy(p, topology)
 
-  // We display the possible concept repartition (1) and we decide where to deploy a concept (2)
+  // We display the possible concept repartition (1) and we decide (manually) where to deploy a concept (2)
   println("Concept repartition:")
   predeployed.concepts.foreach(concept => println("\t* " + concept + ": " + concept.readProperty("targets"))) // (1)
 
