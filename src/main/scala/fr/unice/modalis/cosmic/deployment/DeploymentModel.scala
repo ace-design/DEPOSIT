@@ -105,10 +105,13 @@ object Deploy {
 
     // Compute which join points are network-related
     val networkLinks = getNetworkLinks(rawPolicies.toSet, policy)
-    for (l <- networkLinks; src = l.source_output; dst = l.destination_input) {
+    for (l <- networkLinks.groupBy(_.source_output); src = l._1; dsts = l._2.map(_.destination_input)) {
+
       val uid = scala.util.Random.alphanumeric.take(5).mkString
       rawPolicies.find(aPolicy => aPolicy.concepts contains src.parent).get.nextElements(src.parent).collect {case (x:JoinPointOutput[_], _) => x}.find(_.fromConceptOutput == src).get.addProperty("network",uid)
-      rawPolicies.find(aPolicy => aPolicy.concepts contains dst.parent).get.previousElements(dst.parent).collect {case (x:JoinPointInput[_], _) => x}.find(_.toConceptInput == dst).get.addProperty("network",uid)
+      for (dst <- dsts) {
+        rawPolicies.find(aPolicy => aPolicy.concepts contains dst.parent).get.previousElements(dst.parent).collect {case (x:JoinPointInput[_], _) => x}.find(_.toConceptInput == dst).get.addProperty("network",uid)
+      }
     }
 
     // Delete non-relevant join points
