@@ -79,7 +79,7 @@ object BRGenerator extends CodeGenerator{
       val inputVariables = a.inputs.foldLeft(Set[Variable]()){(acc, e) => acc + Variable(a.id + "_" + e.name, generateDataTypeName(a.iType))}
       val outputVariable = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.oType))
       val bodyInstruction =
-        "if " + a.inputsNames.map(i => a.id + "_" + i + "[\"t\"] != 0").mkString(" and ") + ":\n\t\t" + MessageBuilder(Instruction(Set(),generateConstant(a.onSuccess),Set(outputVariable))).body +
+        "if " + a.inputsNames.map(i => a.id + "_" + i + "[\"t\"] != -1").mkString(" and ") + ":\n\t\t" + MessageBuilder(Instruction(Set(),generateConstant(a.onSuccess),Set(outputVariable))).body +
           (if (a.onFailure.isDefined) "\n\telse:\n\t\t" + MessageBuilder(Instruction(Set(),generateConstant(a.onFailure.get),Set(outputVariable))).body else "")
 
       Instruction(inputVariables, bodyInstruction, Set(outputVariable))
@@ -121,8 +121,8 @@ object BRGenerator extends CodeGenerator{
     val else_var = Variable(a.id + "_" + a.elseOutput.name, generateDataTypeName(a.oType))
 
     val predicate = a.predicate.replace("value", input_var.name + "[\"data\"][\"" + DataType.factory(a.iType.getSimpleName).asInstanceOf[SensorDataType].getObservationField.n + "\"]")
-    Instruction(Set(input_var), "if " + predicate + ":\n\t\t" + then_var.name + " = " + input_var.name + "\n" +
-      "\telse:\n\t\t" + else_var.name + " = " + input_var.name, Set(then_var, else_var))
+    Instruction(Set(input_var), "if " + predicate + ":\n\t\t" + then_var.name + " = " + input_var.name + ";" + else_var.name + " = nullValue\n" +
+      "\telse:\n\t\t" + else_var.name + " = " + input_var.name + ";" + then_var.name + " = nullValue", Set(then_var, else_var))
   }
   /**
    * Generate the data inputs
