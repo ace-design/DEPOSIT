@@ -20,7 +20,7 @@ object ArduinoGenerator extends CodeGenerator{
   def generatePolicyBody(policy: Policy) = generateInstructionList(policy).foldLeft(""){(acc, e) => acc + e.body + "\n"}
   
   def generateInstructionList(p:Policy) = {
-    orderedGenerationList(p).map {generateInstruction(_,p)} map {i => i.copy(body = i.body + (if (i.outputs.nonEmpty) " update();" else ""))} //map {i => i.copy(body = if (i.inputs.nonEmpty) "if (" + i.inputs.map{_.name + ".t != 0"}.mkString(" && ") + ") {" + i.body + "}" else i.body)}
+    orderedGenerationList(p).map {generateInstruction(_,p)} map {i => i.copy(body = i.body + (if (i.outputs.nonEmpty) " update();" else ""))}
   }
 
   def generateInstruction[T<:SensorDataType, U<:SensorDataType](c:Concept, policy: Policy):Instruction = c match {
@@ -55,7 +55,7 @@ object ArduinoGenerator extends CodeGenerator{
       val inputVariables = a.inputs.foldLeft(Set[Variable]()){(acc, e) => acc + Variable(a.id + "_" + e.name, generateDataTypeName(a.iType))}
       val outputVariable = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.oType))
       val bodyInstruction =
-        "if (" + a.inputsNames.map(i => a.id + "_" + i + ".t != 0").mkString(" && ") + ")" + MessageBuilder(Instruction(Set(),generateConstant(a.onSuccess),Set(outputVariable))).body +
+        "if (" + a.inputsNames.map(i => a.id + "_" + i + ".t != -1").mkString(" && ") + ")" + MessageBuilder(Instruction(Set(),generateConstant(a.onSuccess),Set(outputVariable))).body +
           (if (a.onFailure.isDefined) " else " + MessageBuilder(Instruction(Set(),generateConstant(a.onFailure.get),Set(outputVariable))).body else "")
 
       Instruction(inputVariables, bodyInstruction, Set(outputVariable))
@@ -162,7 +162,7 @@ object ArduinoGenerator extends CodeGenerator{
 
   def generateFlushMethod(policy: Policy) = {
     "void flush() {\n" +
-     policy.links.foldLeft(""){(acc, e) => acc + e.source.id + "_" + e.source_output.name + " = {};\n"} + "}"
+     policy.links.foldLeft(""){(acc, e) => acc + e.source.id + "_" + e.source_output.name + " = nullValue;\n"} + "}"
   }
 
   def generateSensorValues(p:Policy) = {
