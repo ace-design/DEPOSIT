@@ -74,7 +74,6 @@ object DemoAlertACv3 extends App{
     .addLink(l1).addLink(l2).addLink(l3).addLink(l4).addLink(l5).addLink(l6).addLink(l7).addLink(l8).addLink(l9)
     .addLink(l10).addLink(l11).addLink(l12)
 
-  ToGraphviz.writeSource(p)
   // We prepare the policy to be deployed over the SmartCampus infrastructure
   val topology = InfrastructureModelBuilder("assets/configurations/smartcampus_xbeenetwork.xml")
   val predeployed = PreDeploy(p, topology)
