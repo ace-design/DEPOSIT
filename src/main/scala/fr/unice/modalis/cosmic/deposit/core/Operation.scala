@@ -144,7 +144,7 @@ trait Comparison[T<:DataType] extends ValueOperation[T] {
   val hasNewTimestamp = false
 }
 
-case class Increment[D<:AtomicType,T<:DataType](value:T, iType:Class[T], rename:Option[String] = None) extends Arithmetic[T] {
+case class Increment[D<:AtomicType,T<:DataType](value:D, iType:Class[T], rename:Option[String] = None) extends Arithmetic[T] {
   override val inputsNames: Set[String] = Set(DEFAULT_INPUT_NAME)
   lazy val input = getInput()
 
