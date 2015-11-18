@@ -78,12 +78,11 @@ object DemoAlertACv3 extends App{
   // We prepare the policy to be deployed over the SmartCampus infrastructure
   val topology = InfrastructureModelBuilder("assets/configurations/smartcampus_xbeenetwork.xml")
   val predeployed = PreDeploy(p, topology)
-  // We display the possible concept repartition (1) and we decide (manually) where to deploy a concept (2)
+
+
+  // We display the possible concept repartition (1) and we rely on the heuristic to identify where to deploy a concept (2)
   println("Concept repartition:")
   predeployed.concepts.foreach(concept => println("\t* " + concept + ": " + concept.readProperty("targets"))) // (1)
-
-  Deploy(predeployed, topology, DeploymentHeuristic.CLOSER_TO_THE_SENSORS)
-
   val policies = Deploy(predeployed, topology, DeploymentHeuristic.CLOSER_TO_THE_SENSORS) // (2)
 
 
