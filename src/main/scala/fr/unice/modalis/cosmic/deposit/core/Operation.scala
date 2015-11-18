@@ -167,7 +167,7 @@ case class Multiply[D<:AtomicType, T<:DataType](value:D, iType:Class[T], rename:
    */
   override def duplicate: Multiply[D,T] = new Multiply[D,T](value, iType, rename)
 
-  override val commonName: String = "MULTIPKY(" + value + ")"
+  override val commonName: String = "MULTIPLY(" + value + ")"
 }
 case class Divide[D<:AtomicType,T<:DataType](value:D, iType:Class[T], rename:Option[String] = None) extends Arithmetic[T] {
   override val inputsNames: Set[String] = Set(DEFAULT_INPUT_NAME)
