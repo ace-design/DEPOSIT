@@ -68,7 +68,7 @@ object DemoAlertAC extends App{
   println("Concept repartition:")
   predeployed.concepts.foreach(concept => println("\t* " + concept + ": " + concept.readProperty("targets"))) // (1)
 
-  val policies = Deploy.deploy(p, topology, Map(
+  val policies = Deploy(p, topology, Map[Concept,String](
     ac443 -> "ARD_2_443",
     door443 -> "ARD_1_443",
     window443 -> "ARD_2_443",

@@ -1,8 +1,10 @@
 package fr.unice.modalis.cosmic.deployment
 
 import fr.unice.modalis.cosmic.deployment.exception.NoTargetFoundException
+import fr.unice.modalis.cosmic.deployment.heuristics.DeploymentHeuristic
 import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.{GenericNode, NetworkTopology}
 import fr.unice.modalis.cosmic.deposit.algo.ExtendPolicy
+import fr.unice.modalis.cosmic.deposit.converter.ToGraphviz
 import fr.unice.modalis.cosmic.deposit.core._
 
 import scala.collection.mutable
@@ -83,12 +85,24 @@ object PreDeploy {
 
 object Deploy {
 
-  def getNetworkLinks(policies:Set[Policy], ref:Policy) = {
+
+  def apply(policy: Policy, topology: NetworkTopology, targets: Map[Concept, String]) = deploy(policy, topology, targets)
+  def apply(policy: Policy, topology: NetworkTopology, heuristic: DeploymentHeuristic) = deploy(policy, topology, heuristic)
+
+
+  private def getNetworkLinks(policies:Set[Policy], ref:Policy) = {
     ref.links -- policies.foldLeft(new Policy()){(acc, e) => acc ++ e}.links
   }
 
 
-  def deploy (policy:Policy, topology: NetworkTopology, targets: Map[Concept, String]) = {
+  /**
+    * Manual deployment of a pre-deployed policy over a sensing infrastructure
+    * @param policy Pre-deployed policy
+    * @param topology Network topology model
+    * @param targets Manual association concept -> platform
+    * @return A policy for each platform of the sensing infrastructure
+    */
+  def deploy (policy:Policy, topology: NetworkTopology, targets: Map[Concept, String]):Iterable[Policy] = {
     def deleteNonRevelantJoinPoints(notUsedPorts:Set[Port[_]], policy:Policy) = {
       val links = policy.links.filter(l =>(notUsedPorts contains l.destination_input) || (notUsedPorts contains l.source_output))
       val toDelete = links.flatMap(l => Seq(l.source, l.destination)).collect {case x:JoinPoint[_] => x}
@@ -103,14 +117,20 @@ object Deploy {
     // Split the global policies into sub-policy and extend it with Join Points
     val rawPolicies = projectionGrouped.map(e => ExtendPolicy(policy.select(e._2.toSet, policy.name + "_" + e._1.name),emptyIOonly = true))
 
+    rawPolicies.foreach(p => ToGraphviz.writeSource(p))
     // Compute which join points are network-related
     val networkLinks = getNetworkLinks(rawPolicies.toSet, policy)
+
+
+    // Associating same network id to linked join points
     for (l <- networkLinks.groupBy(_.source_output); src = l._1; dsts = l._2.map(_.destination_input)) {
 
       val uid = scala.util.Random.alphanumeric.take(5).mkString
-      rawPolicies.find(aPolicy => aPolicy.concepts contains src.parent).get.nextElements(src.parent).collect {case (x:JoinPointOutput[_], _) => x}.find(_.fromConceptOutput == src).get.addProperty("network",uid)
+      val optionJoinPointOutput = rawPolicies.find(aPolicy => aPolicy.concepts contains src.parent).get.nextElements(src.parent).collect {case (x:JoinPointOutput[_], _) => x}.find(_.fromConceptOutput == src)
+      if (optionJoinPointOutput.isDefined) optionJoinPointOutput.get.addProperty("network",uid)
       for (dst <- dsts) {
-        rawPolicies.find(aPolicy => aPolicy.concepts contains dst.parent).get.previousElements(dst.parent).collect {case (x:JoinPointInput[_], _) => x}.find(_.toConceptInput == dst).get.addProperty("network",uid)
+        val optionJoinPointInput = rawPolicies.find(aPolicy => aPolicy.concepts contains dst.parent).get.previousElements(dst.parent).collect {case (x:JoinPointInput[_], _) => x}.find(_.toConceptInput == dst)
+        if (optionJoinPointInput.isDefined) optionJoinPointInput.get.addProperty("network",uid)
       }
     }
 
@@ -118,5 +138,21 @@ object Deploy {
     rawPolicies.map { deleteNonRevelantJoinPoints(policy.nonConnectedPorts, _)}
 
 
+  }
+
+  /**
+    * Deploy a policy over a sensing infrastructure according a heuristic
+    * @param policy Pre-deployed policy
+    * @param topology Network topology model
+    * @param heuristic Manual association concept -> platform
+    * @return A policy for each platform of the sensing infrastructure
+    */
+  def deploy(policy: Policy, topology: NetworkTopology, heuristic: DeploymentHeuristic):Iterable[Policy] = {
+    val targets = policy.concepts.map { c =>
+      val place = heuristic.place(c, topology)
+      c -> place.name
+    }.toMap[Concept, String]
+
+    deploy(policy, topology, targets)
   }
 }

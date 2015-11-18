@@ -4,6 +4,7 @@ import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.Media.Media
 
 import scalax.collection.Graph
 import scalax.collection.GraphPredef._
+import scalax.collection.edge.Implicits._
 /**
  * DSL to define a network topology
  * Created by Cyril Cecchinel - I3S Laboratory on 19/05/15.
@@ -132,7 +133,7 @@ trait NetworkTopology {
 
   def toGraph = {
     val _nodes = resources
-    val _edges = edges.map(l => l.source ~> l.destination)
+    val _edges = edges.map(l => l.source ~> l.destination % 1) //At the moment, we assume all edges weighted with the same weight
     Graph.from(_nodes, _edges)
   }
 

@@ -80,7 +80,7 @@ object DemoAlertACv2 extends App{
   println("Concept repartition:")
   predeployed.concepts.foreach(concept => println("\t* " + concept + ": " + concept.readProperty("targets"))) // (1)
 
-  val policies = Deploy.deploy(predeployed, topology, Map(
+  val policies = Deploy(predeployed, topology, Map[Concept,String](
     ac443 -> "ARD_2_443",
     door443 -> "ARD_1_443",
     window443 -> "ARD_2_443",
@@ -103,7 +103,6 @@ object DemoAlertACv2 extends App{
   val policyArd1 = policies.find(_.name equals "ALERT_AC2_ARD_1_443").getOrElse(throw new Exception("Non found policy"))
   val policyArd2 = policies.find(_.name equals "ALERT_AC2_ARD_2_443").getOrElse(throw new Exception("Non found policy"))
   val policyRp = policies.find(_.name equals "ALERT_AC2_RP_443_XBEE").getOrElse(throw new Exception("Non found policy"))
-
 
   ToGraphviz.writeSource(predeployed)
   ToGraphviz.writeSource(policyArd1)
