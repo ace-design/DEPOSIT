@@ -47,9 +47,6 @@ class PolicyTest extends SpecificationWithJUnit {
       testPolicy.readProperty("foo") must beSome("bar")
     }
 
-    "can be readen" in {
-      testPolicy.readProperty("name") must beSome(testPolicy.name)
-    }
 
     "throw exception when not found" in {
       testPolicy.readProperty("foo2") must beNone
