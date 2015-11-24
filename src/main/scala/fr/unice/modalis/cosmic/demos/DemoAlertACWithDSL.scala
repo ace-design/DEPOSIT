@@ -37,5 +37,5 @@ object DemoAlertACWithDSL extends App with DEPOSIT{
   this targets "assets/configurations/smartcampus_xbeenetwork.xml"
   val policies = deploy()
 
-  println(policies.map {_.name})
+  policies.foreach(_.exportToGraphviz)
 }
