@@ -1,5 +1,8 @@
 package fr.unice.modalis.cosmic.deposit.dsl
 
+import fr.unice.modalis.cosmic.deployment.heuristics.DeploymentHeuristic
+import fr.unice.modalis.cosmic.deployment.utils.InfrastructureModelBuilder
+import fr.unice.modalis.cosmic.deployment.{Deploy, PreDeploy}
 import fr.unice.modalis.cosmic.deposit.core._
 
 /**
@@ -9,7 +12,21 @@ trait DEPOSIT {
 
 
   protected def hasForName(n:String) { policy.name = n }
-  protected def hasForMappingFile(n:String) {mappingFile = Some(n)}
+  protected def uses(n:String) { associationFile = Some(n)}
+  protected def targets(n:String) {targetFile = Some(n)}
+
+  /***********************
+    * Deployment process *
+    **********************/
+
+  def deploy() = {
+    val infrastructure = InfrastructureModelBuilder(targetFile.getOrElse(throw new Exception("No mapping file provided")))
+    val predeployed = PreDeploy(policy, infrastructure)
+    Deploy.deploy(predeployed, infrastructure, DeploymentHeuristic.CLOSER_TO_THE_SENSORS)
+  }
+  /**************************
+    * Top level declaration *
+    *************************/
 
   protected def declare: IOBuilder = {
     flush()
@@ -194,8 +211,9 @@ trait DEPOSIT {
   protected var currentIO : Option[IOBuilder] = None
   protected var currentOperation: Option[OperationBuilder] = None
   protected var currentFlow: Option[FlowBuilder] = None
-  protected var mappingFile:Option[String] = None
 
+  protected var associationFile:Option[String] = None
+  protected var targetFile:Option[String] = None
 
 
 
