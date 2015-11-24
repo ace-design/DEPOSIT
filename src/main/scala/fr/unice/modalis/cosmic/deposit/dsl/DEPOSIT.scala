@@ -58,7 +58,9 @@ trait DEPOSIT {
     val PERIODIC, EVENT, COLLECTOR, GENERIC_OUTPUT, GENERIC_INPUT, UNKNOWN = Value
   }
 
-  trait ConceptBuilder
+  trait ConceptBuilder {
+    var conceptProduced:Option[Concept] = None
+  }
 
   case class InterfaceBuilder(builder: ConceptBuilder, name: String, way: InterfaceType.Value) {
     def ->(other:InterfaceBuilder):FlowBuilder = FlowBuilder(this, other)
@@ -67,10 +69,10 @@ trait DEPOSIT {
   case class FlowBuilder(source: InterfaceBuilder, destination: InterfaceBuilder) {
 
     val link = (source.builder,destination.builder) match {
-      case (a:IOBuilder,b:IOBuilder) => new Link(a.toIO.asInstanceOf[DataInput[_<:DataType]].output, b.toIO.asInstanceOf[DataOutput[_<:DataType]].input)
-      case (a:IOBuilder,b:OperationBuilder) => new Link(a.toIO.asInstanceOf[DataInput[_<:DataType]].output, b.toOperation.getInput(destination.name))
-      case (a:OperationBuilder, b:OperationBuilder) => new Link(a.toOperation.getOutput(source.name), b.toOperation.getInput(destination.name))
-      case (a:OperationBuilder, b:IOBuilder) => new Link(a.toOperation.getOutput(source.name), b.toIO.asInstanceOf[DataOutput[_<:DataType]].input)
+      case (a:IOBuilder,b:IOBuilder) => new Link(a.conceptProduced.get.asInstanceOf[DataInput[_<:DataType]].output, b.conceptProduced.get.asInstanceOf[DataOutput[_<:DataType]].input)
+      case (a:IOBuilder,b:OperationBuilder) => new Link(a.conceptProduced.get.asInstanceOf[DataInput[_<:DataType]].output, b.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getInput(destination.name))
+      case (a:OperationBuilder, b:OperationBuilder) => new Link(a.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getOutput(source.name), b.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getInput(destination.name))
+      case (a:OperationBuilder, b:IOBuilder) => new Link(a.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getOutput(source.name), b.conceptProduced.get.asInstanceOf[DataOutput[_<:DataType]].input)
     }
     policy = policy.copy(links = policy.links + link)
 
@@ -114,9 +116,9 @@ trait DEPOSIT {
     }
 
     def toIO = kind match {
-      case IOType.PERIODIC => new PeriodicSensor(period.get, name, dataType.get)
-      case IOType.EVENT => new EventSensor(name, dataType.get)
-      case IOType.COLLECTOR => new Collector(name, dataType.get)
+      case IOType.PERIODIC => val c = new PeriodicSensor(period.get, name, dataType.get); conceptProduced = Some(c); c;
+      case IOType.EVENT => val c = new EventSensor(name, dataType.get); conceptProduced = Some(c); c;
+      case IOType.COLLECTOR => val c = new Collector(name, dataType.get); conceptProduced = Some(c); c;
     }
 
   }
@@ -131,6 +133,7 @@ trait DEPOSIT {
                                         parameter:Option[String] = None,
                                         produceTrue:Option[SensorDataType] = None,
                                         produceFalse:Option[SensorDataType] = None,
+                                        atomicValue:Option[AtomicType] = None,
                                         dataTypeInput: Option[Class[_<:DataType]] = None,
                                         dataTypeOutput:Option[Class[_<:DataType]] = None) extends ConceptBuilder{
 
@@ -141,6 +144,10 @@ trait DEPOSIT {
       currentOperation.get
     }
 
+    def aDividerBy(s:AtomicType):OperationBuilder = {
+      currentOperation = Some(this.copy(kind = OperationType.DIVIDE, atomicValue = Some(s)))
+      currentOperation.get
+    }
     def anAdder():OperationBuilder = {
       currentOperation = Some(this.copy(kind = OperationType.ADD))
       currentOperation.get
@@ -184,9 +191,10 @@ trait DEPOSIT {
     }
 
     def toOperation = kind match {
-      case OperationType.ADD => new Add(inputs, dataTypeInput.get, rename)
-      case OperationType.CONDITIONAL => new Conditional(parameter.get, dataTypeInput.get)
-      case OperationType.PRODUCE => new Produce(inputs, produceTrue.get, produceFalse, dataTypeInput.get.asInstanceOf[Class[DataType]], dataTypeOutput.get.asInstanceOf[Class[DataType]])
+      case OperationType.ADD => val c = new Add(inputs, dataTypeInput.get, rename); conceptProduced = Some(c); c;
+      case OperationType.CONDITIONAL => val c = new Conditional(parameter.get, dataTypeInput.get); conceptProduced = Some(c); c;
+      case OperationType.PRODUCE => val c = new Produce(inputs, produceTrue.get, produceFalse, dataTypeInput.get.asInstanceOf[Class[DataType]], dataTypeOutput.get.asInstanceOf[Class[DataType]]); conceptProduced = Some(c); c;
+      case OperationType.DIVIDE => val c = new Divide(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
     }
   }
 
