@@ -9,8 +9,6 @@ import fr.unice.modalis.cosmic.deposit.dsl.DEPOSIT
 object DemoAlertACWithDSL extends App with DEPOSIT{
 
   this hasForName "DemoDSL"
-  this uses "assets/sensors/mapping.csv"
-  this targets "assets/configurations/smartcampus_xbeenetwork.xml"
 
   val ac_443 = declare aPeriodicSensor() named "AC_443" withPeriod 3 handling classOf[SmartCampusType]
   val door_443 = declare anEventSensor() named "DOOR_443" handling  classOf[SmartCampusType]
@@ -36,6 +34,7 @@ object DemoAlertACWithDSL extends App with DEPOSIT{
     produce("output") -> collector()
   }
 
+  this targets "assets/configurations/smartcampus_xbeenetwork.xml"
   val policies = deploy()
 
   println(policies.map {_.name})
