@@ -15,6 +15,11 @@ trait DEPOSIT {
   protected def uses(n:String) { associationFile = Some(n)}
   protected def targets(n:String) {targetFile = Some(n)}
 
+
+  protected def exportToWiring() = policy.exportToWiring
+  protected def exportToPython() = policy.exportToPython
+  protected def exportToGraphviz() = policy.exportToGraphviz
+
   /***********************
     * Deployment process *
     **********************/

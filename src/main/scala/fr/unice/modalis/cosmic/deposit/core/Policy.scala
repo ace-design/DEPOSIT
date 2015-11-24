@@ -1,6 +1,7 @@
 package fr.unice.modalis.cosmic.deposit.core
 
-import fr.unice.modalis.cosmic.deposit.converter.ToGraph
+import fr.unice.modalis.cosmic.deployment.generator.{ArduinoGenerator, BRGenerator}
+import fr.unice.modalis.cosmic.deposit.converter.{ToGraph, ToGraphviz}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -255,5 +256,8 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   override def toString = "Workflow[name=" + name + ";ios={" + ios + "};activites={" + operations + "};links={" + links + "}]"
 
+  def exportToWiring = ArduinoGenerator(this, toFile = true)
+  def exportToPython = BRGenerator(this, toFile = true)
+  def exportToGraphviz = ToGraphviz.writeSource(this)
 }
 
