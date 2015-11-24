@@ -24,15 +24,47 @@ trait DEPOSIT {
     currentOperation.get
   }
 
+  protected def flows(flowSystem : => Unit): Unit = {
+    flush()
+    flowSystem
+  }
+
   /**********************
     ** Method chaining **
     *********************/
+
+  protected object InterfaceType extends Enumeration {
+    val INPUT, OUTPUT = Value
+  }
 
   protected object IOType extends Enumeration {
     val PERIODIC, EVENT, COLLECTOR, GENERIC_OUTPUT, GENERIC_INPUT, UNKNOWN = Value
   }
 
-  protected case class IOBuilder(kind: IOType.Value = IOType.UNKNOWN, name: String = "", period: Option[Int] = None, dataType: Option[Class[_<:DataType]] = None) {
+  trait ConceptBuilder
+
+  case class InterfaceBuilder(builder: ConceptBuilder, name: String, way: InterfaceType.Value) {
+    def ->(other:InterfaceBuilder):FlowBuilder = FlowBuilder(this, other)
+  }
+
+  case class FlowBuilder(source: InterfaceBuilder, destination: InterfaceBuilder) {
+
+    val link = (source.builder,destination.builder) match {
+      case (a:IOBuilder,b:IOBuilder) => new Link(a.toIO.asInstanceOf[DataInput[_<:DataType]].output, b.toIO.asInstanceOf[DataOutput[_<:DataType]].input)
+      case (a:IOBuilder,b:OperationBuilder) => new Link(a.toIO.asInstanceOf[DataInput[_<:DataType]].output, b.toOperation.getInput(destination.name))
+      case (a:OperationBuilder, b:OperationBuilder) => new Link(a.toOperation.getOutput(source.name), b.toOperation.getInput(destination.name))
+      case (a:OperationBuilder, b:IOBuilder) => new Link(a.toOperation.getOutput(source.name), b.toIO.asInstanceOf[DataOutput[_<:DataType]].input)
+    }
+    policy = policy.copy(links = policy.links + link)
+
+  }
+
+
+  protected case class IOBuilder(kind: IOType.Value = IOType.UNKNOWN, name: String = "", period: Option[Int] = None, dataType: Option[Class[_<:DataType]] = None) extends ConceptBuilder{
+    def apply():InterfaceBuilder = kind match {
+      case IOType.COLLECTOR | IOType.GENERIC_INPUT => InterfaceBuilder(this, name, InterfaceType.INPUT)
+      case _ => InterfaceBuilder(this, name, InterfaceType.OUTPUT)
+    }
 
     def aPeriodicSensor(): IOBuilder = {
       currentIO = Some(this.copy(kind = IOType.PERIODIC))
@@ -73,12 +105,32 @@ trait DEPOSIT {
   }
 
   protected object OperationType extends Enumeration {
-    val ADD, AVG, CONDITIONAL, CONSTANT, DIVIDE, HIGHER, HIGHEREQ, INCREMENT, LOWER, LOWEREQ, MAX, MIN, MULTIPLY, PRODUCE, SUB = Value
+    val ADD, AVG, CONDITIONAL, CONSTANT, DIVIDE, HIGHER, HIGHEREQ, INCREMENT, LOWER, LOWEREQ, MAX, MIN, MULTIPLY, PRODUCE, SUB, UNKNOWN = Value
   }
-  protected case class OperationBuilder(kind: OperationType.Value = IOType.UNKNOWN, inputs:Set[String] = Set.empty, outputs:Set[String] = Set.empty, rename:Option[String] = None, dataTypeInput: Option[Class[_<:DataType]] = None, dataTypeOutput:Option[Class[_<:DataType]] = None){
+  protected case class OperationBuilder(kind: OperationType.Value = OperationType.UNKNOWN,
+                                        inputs:Set[String] = Set.empty,
+                                        outputs:Set[String] = Set.empty,
+                                        rename:Option[String] = None,
+                                        parameter:Option[String] = None,
+                                        produceTrue:Option[SensorDataType] = None,
+                                        produceFalse:Option[SensorDataType] = None,
+                                        dataTypeInput: Option[Class[_<:DataType]] = None,
+                                        dataTypeOutput:Option[Class[_<:DataType]] = None) extends ConceptBuilder{
 
-    def anAddOperation():OperationBuilder = {
+    def apply(s:String):InterfaceBuilder = InterfaceBuilder(this, s, InterfaceType.OUTPUT)
+
+    def aFilter(s:String):OperationBuilder = {
+      currentOperation = Some(this.copy(kind = OperationType.CONDITIONAL, parameter = Some(s)))
+      currentOperation.get
+    }
+
+    def anAdder():OperationBuilder = {
       currentOperation = Some(this.copy(kind = OperationType.ADD))
+      currentOperation.get
+    }
+
+    def aProducer(t:SensorDataType, s:Option[SensorDataType] = None) = {
+      currentOperation = Some(this.copy(kind = OperationType.PRODUCE, produceTrue = Some(t), produceFalse = s))
       currentOperation.get
     }
 
@@ -97,7 +149,7 @@ trait DEPOSIT {
       currentOperation.get
     }
 
-    def handlingOnOutputs(t:Class[_<:DataType]): OperationBuilder = {
+    def andHandlingOnOutputs(t:Class[_<:DataType]): OperationBuilder = {
       currentOperation = Some(this.copy(dataTypeOutput = Some(t)))
       currentOperation.get
     }
@@ -108,6 +160,7 @@ trait DEPOSIT {
     }
 
 
+
     def andRenameData(s:String): OperationBuilder = {
       currentOperation = Some(this.copy(rename = Some(s)))
       currentOperation.get
@@ -115,8 +168,11 @@ trait DEPOSIT {
 
     def toOperation = kind match {
       case OperationType.ADD => new Add(inputs, dataTypeInput.get, rename)
+      case OperationType.CONDITIONAL => new Conditional(parameter.get, dataTypeInput.get)
+      case OperationType.PRODUCE => new Produce(inputs, produceTrue.get, produceFalse, dataTypeInput.get.asInstanceOf[Class[DataType]], dataTypeOutput.get.asInstanceOf[Class[DataType]])
     }
   }
+
 
   /*********************
     ** Private helpers **
@@ -131,11 +187,16 @@ trait DEPOSIT {
       policy = policy.copy(operations = policy.operations + currentOperation.get.toOperation)
       currentOperation = None
     }
+
   }
 
   protected var policy = new Policy()
   protected var currentIO : Option[IOBuilder] = None
   protected var currentOperation: Option[OperationBuilder] = None
+  protected var currentFlow: Option[FlowBuilder] = None
   protected var mappingFile:Option[String] = None
+
+
+
 
 }
