@@ -1,6 +1,6 @@
 package fr.unice.modalis.cosmic.deposit.dsl
 
-import fr.unice.modalis.cosmic.deployment.heuristics.DeploymentHeuristic
+import fr.unice.modalis.cosmic.deployment.heuristics.DeploymentRepartition
 import fr.unice.modalis.cosmic.deployment.utils.InfrastructureModelBuilder
 import fr.unice.modalis.cosmic.deployment.{Deploy, PreDeploy}
 import fr.unice.modalis.cosmic.deposit.core._
@@ -27,7 +27,7 @@ trait DEPOSIT {
   def deploy() = {
     val infrastructure = InfrastructureModelBuilder(targetFile.getOrElse(throw new Exception("No mapping file provided")))
     val predeployed = PreDeploy(policy, infrastructure)
-    Deploy.deploy(predeployed, infrastructure, DeploymentHeuristic.CLOSER_TO_THE_SENSORS)
+    Deploy.deploy(predeployed, infrastructure, DeploymentRepartition.CLOSEST_TO_SENSORS)
   }
   /**************************
     * Top level declaration *

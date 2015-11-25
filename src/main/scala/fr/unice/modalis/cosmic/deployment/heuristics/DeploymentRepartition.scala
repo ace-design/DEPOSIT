@@ -8,7 +8,7 @@ import fr.unice.modalis.cosmic.deposit.core.Concept
   * We specify the different heuristics for the deployment over a sensing infrastructure
   * Created by Cyril Cecchinel - I3S Laboratory on 17/11/2015.
   */
-trait DeploymentHeuristic {
+trait DeploymentRepartition {
   /**
     * Place a concept over a network topology
     * @param concept Concept to place
@@ -19,14 +19,14 @@ trait DeploymentHeuristic {
 }
 
 
-object DeploymentHeuristic {
-  val CLOSER_TO_THE_SENSORS = CloserToTheSensorsHeuristic
+object DeploymentRepartition {
+  val CLOSEST_TO_SENSORS = ClosestToSensorsRepartition$
 }
 
 /**
   * This heuristic place the concepts with a "closer to the sensors" property
   */
-object CloserToTheSensorsHeuristic extends DeploymentHeuristic {
+object ClosestToSensorsRepartition$ extends DeploymentRepartition {
 
   override def place(concept: Concept, networkTopology: NetworkTopology): GenericNode = {
     // Generate the oriented weighted topology graph

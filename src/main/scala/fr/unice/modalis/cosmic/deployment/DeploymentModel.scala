@@ -1,7 +1,7 @@
 package fr.unice.modalis.cosmic.deployment
 
 import fr.unice.modalis.cosmic.deployment.exception.NoTargetFoundException
-import fr.unice.modalis.cosmic.deployment.heuristics.DeploymentHeuristic
+import fr.unice.modalis.cosmic.deployment.heuristics.DeploymentRepartition
 import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.{GenericNode, NetworkTopology}
 import fr.unice.modalis.cosmic.deposit.algo.ExtendPolicy
 import fr.unice.modalis.cosmic.deposit.converter.ToGraphviz
@@ -87,7 +87,7 @@ object Deploy {
 
 
   def apply(policy: Policy, topology: NetworkTopology, targets: Map[Concept, String]) = deploy(policy, topology, targets)
-  def apply(policy: Policy, topology: NetworkTopology, heuristic: DeploymentHeuristic) = deploy(policy, topology, heuristic)
+  def apply(policy: Policy, topology: NetworkTopology, heuristic: DeploymentRepartition) = deploy(policy, topology, heuristic)
 
 
   private def getNetworkLinks(policies:Set[Policy], ref:Policy) = {
@@ -147,7 +147,7 @@ object Deploy {
     * @param heuristic Manual association concept -> platform
     * @return A policy for each platform of the sensing infrastructure
     */
-  def deploy(policy: Policy, topology: NetworkTopology, heuristic: DeploymentHeuristic):Iterable[Policy] = {
+  def deploy(policy: Policy, topology: NetworkTopology, heuristic: DeploymentRepartition):Iterable[Policy] = {
     val targets = policy.concepts.map { c =>
       val place = heuristic.place(c, topology)
       c -> place.name

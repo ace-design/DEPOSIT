@@ -1,7 +1,7 @@
 package fr.unice.modalis.cosmic.demos
 
 import fr.unice.modalis.cosmic.deployment.generator.{ArduinoGenerator, BRGenerator}
-import fr.unice.modalis.cosmic.deployment.heuristics.DeploymentHeuristic
+import fr.unice.modalis.cosmic.deployment.heuristics.DeploymentRepartition
 import fr.unice.modalis.cosmic.deployment.utils.InfrastructureModelBuilder
 import fr.unice.modalis.cosmic.deployment.{Deploy, PreDeploy}
 import fr.unice.modalis.cosmic.deposit.converter.ToGraphviz
@@ -84,7 +84,7 @@ object DemoAlertACv4 extends App{
   // We display the possible concept repartition (1) and we rely on the heuristic to identify where to deploy a concept (2)
   println("Concept repartition:")
   predeployed.concepts.foreach(concept => println("\t* " + concept + ": " + concept.readProperty("targets"))) // (1)
-  val policies = Deploy(predeployed, topology, DeploymentHeuristic.CLOSER_TO_THE_SENSORS) // (2)
+  val policies = Deploy(predeployed, topology, DeploymentRepartition.CLOSEST_TO_SENSORS) // (2)
 
 
   // We display available policies
