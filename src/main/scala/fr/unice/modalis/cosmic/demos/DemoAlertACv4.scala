@@ -40,8 +40,8 @@ object DemoAlertACv4 extends App{
 
   // We use a standarized policy to assess the window/door state
   val temp_filter = Conditional("value < 18", classOf[SmartCampusType])
-  val door_process = Process(StandardizedPolicies.rawValueToOpeningSensor, classOf[SmartCampusType], classOf[SmartCampusType])
-  val window_process = Process(StandardizedPolicies.rawValueToOpeningSensor, classOf[SmartCampusType], classOf[SmartCampusType])
+  val door_process = Process(StandardizedPolicies.RawValueToOpeningSensor(), classOf[SmartCampusType], classOf[SmartCampusType])
+  val window_process = Process(StandardizedPolicies.RawValueToOpeningSensor(), classOf[SmartCampusType], classOf[SmartCampusType])
 
   // When all filter produce data (ie. air conditioning is on and Window/Door opened), produce
   // a data upon the SmartCampus format named ALERT_AC with value 1.
