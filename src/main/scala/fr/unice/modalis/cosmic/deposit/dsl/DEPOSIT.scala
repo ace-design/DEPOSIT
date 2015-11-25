@@ -90,6 +90,16 @@ trait DEPOSIT {
       case _ => InterfaceBuilder(this, name, InterfaceType.OUTPUT)
     }
 
+    def aGenericInput(): IOBuilder = {
+      currentIO = Some(this.copy(kind = IOType.GENERIC_INPUT))
+      currentIO.get
+    }
+
+    def aGenericOutput():IOBuilder = {
+      currentIO = Some(this.copy(kind = IOType.GENERIC_OUTPUT))
+      currentIO.get
+    }
+
     def aPeriodicSensor(): IOBuilder = {
       currentIO = Some(this.copy(kind = IOType.PERIODIC))
       currentIO.get
@@ -124,6 +134,8 @@ trait DEPOSIT {
       case IOType.PERIODIC => val c = new PeriodicSensor(period.get, name, dataType.get); conceptProduced = Some(c); c;
       case IOType.EVENT => val c = new EventSensor(name, dataType.get); conceptProduced = Some(c); c;
       case IOType.COLLECTOR => val c = new Collector(name, dataType.get); conceptProduced = Some(c); c;
+      case IOType.GENERIC_INPUT => val c = new GenericInput(name, dataType.get); conceptProduced = Some(c); c;
+      case IOType.GENERIC_OUTPUT => val c = new GenericOutput(name, dataType.get); conceptProduced = Some(c); c;
     }
 
   }
