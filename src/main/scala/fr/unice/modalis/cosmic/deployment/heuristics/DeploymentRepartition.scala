@@ -20,13 +20,13 @@ trait DeploymentRepartition {
 
 
 object DeploymentRepartition {
-  val CLOSEST_TO_SENSORS = ClosestToSensorsRepartition$
+  val CLOSEST_TO_SENSORS = ClosestToSensorsRepartition
 }
 
 /**
   * This heuristic place the concepts with a "closer to the sensors" property
   */
-object ClosestToSensorsRepartition$ extends DeploymentRepartition {
+object ClosestToSensorsRepartition extends DeploymentRepartition {
 
   override def place(concept: Concept, networkTopology: NetworkTopology): GenericNode = {
     // Generate the oriented weighted topology graph
