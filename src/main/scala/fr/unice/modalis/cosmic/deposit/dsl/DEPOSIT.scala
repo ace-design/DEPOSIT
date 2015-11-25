@@ -166,6 +166,13 @@ trait DEPOSIT {
       currentOperation = Some(this.copy(kind = OperationType.DIVIDE, atomicValue = Some(s)))
       currentOperation.get
     }
+
+    def aMultiplyBy(s:AtomicType):OperationBuilder = {
+      currentOperation = Some(this.copy(kind = OperationType.MULTIPLY, atomicValue = Some(s)))
+      currentOperation.get
+    }
+
+
     def anAdder():OperationBuilder = {
       currentOperation = Some(this.copy(kind = OperationType.ADD))
       currentOperation.get
@@ -213,6 +220,8 @@ trait DEPOSIT {
       case OperationType.CONDITIONAL => val c = new Conditional(parameter.get, dataTypeInput.get); conceptProduced = Some(c); c;
       case OperationType.PRODUCE => val c = new Produce(inputs, produceTrue.get, produceFalse, dataTypeInput.get.asInstanceOf[Class[DataType]], dataTypeOutput.get.asInstanceOf[Class[DataType]]); conceptProduced = Some(c); c;
       case OperationType.DIVIDE => val c = new Divide(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
+      case OperationType.MULTIPLY => val c = new Multiply(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
+
     }
   }
 
