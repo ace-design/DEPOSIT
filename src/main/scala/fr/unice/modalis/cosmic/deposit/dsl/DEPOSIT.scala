@@ -142,7 +142,7 @@ trait DEPOSIT {
   }
 
   protected object OperationType extends Enumeration {
-    val ADD, AVG, CONDITIONAL, CONSTANT, DIVIDE, HIGHER, HIGHEREQ, INCREMENT, LOWER, LOWEREQ, MAX, MIN, MULTIPLY, PRODUCE, SUB, UNKNOWN = Value
+    val ADD, AVG, CONDITIONAL, CONSTANT, DIVIDE, HIGHER, HIGHEREQ, INCREMENT, LOWER, LOWEREQ, MAX, MIN, MULTIPLY, PRODUCE, PROCESS, SUB, UNKNOWN = Value
   }
   protected case class OperationBuilder(kind: OperationType.Value = OperationType.UNKNOWN,
                                         inputs:Set[String] = Set.empty,
@@ -152,6 +152,7 @@ trait DEPOSIT {
                                         produceTrue:Option[SensorDataType] = None,
                                         produceFalse:Option[SensorDataType] = None,
                                         atomicValue:Option[AtomicType] = None,
+                                        innerPolicy:Option[Policy] = None,
                                         dataTypeInput: Option[Class[_<:DataType]] = defaultType,
                                         dataTypeOutput:Option[Class[_<:DataType]] = defaultType) extends ConceptBuilder{
 
@@ -177,7 +178,6 @@ trait DEPOSIT {
       currentOperation.get
     }
 
-
     def anAdder():OperationBuilder = {
       currentOperation = Some(this.copy(kind = OperationType.ADD))
       currentOperation.get
@@ -185,6 +185,11 @@ trait DEPOSIT {
 
     def aProducer(t:SensorDataType, s:Option[SensorDataType] = None) = {
       currentOperation = Some(this.copy(kind = OperationType.PRODUCE, produceTrue = Some(t), produceFalse = s))
+      currentOperation.get
+    }
+
+    def aProcess(p:Policy) = {
+      currentOperation = Some(this.copy(kind = OperationType.PROCESS, innerPolicy = Some(p)))
       currentOperation.get
     }
 
@@ -227,6 +232,7 @@ trait DEPOSIT {
       case OperationType.DIVIDE => val c = new Divide(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
       case OperationType.MULTIPLY => val c = new Multiply(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
       case OperationType.INCREMENT => val c = new Increment(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
+      case OperationType.PROCESS => val c = new Process(innerPolicy.get, dataTypeInput.get, dataTypeOutput.get); conceptProduced = Some(c); c;
     }
   }
 
