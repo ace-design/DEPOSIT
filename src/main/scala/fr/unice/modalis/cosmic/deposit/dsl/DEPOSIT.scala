@@ -14,7 +14,7 @@ trait DEPOSIT {
   protected def hasForName(n:String) { policy.name = n }
   protected def uses(n:String) { associationFile = Some(n)}
   protected def targets(n:String) {targetFile = Some(n)}
-
+  protected def handles(c:Class[_<:SensorDataType]) {defaultType = Some(c)}
 
   protected def exportToWiring() = policy.exportToWiring
   protected def exportToPython() = policy.exportToPython
@@ -84,7 +84,7 @@ trait DEPOSIT {
   }
 
 
-  protected case class IOBuilder(kind: IOType.Value = IOType.UNKNOWN, name: String = "", period: Option[Int] = None, dataType: Option[Class[_<:DataType]] = None) extends ConceptBuilder{
+  protected case class IOBuilder(kind: IOType.Value = IOType.UNKNOWN, name: String = "", period: Option[Int] = None, dataType: Option[Class[_<:DataType]] = defaultType) extends ConceptBuilder{
     def apply():InterfaceBuilder = kind match {
       case IOType.COLLECTOR | IOType.GENERIC_INPUT => InterfaceBuilder(this, name, InterfaceType.INPUT)
       case _ => InterfaceBuilder(this, name, InterfaceType.OUTPUT)
@@ -139,8 +139,8 @@ trait DEPOSIT {
                                         produceTrue:Option[SensorDataType] = None,
                                         produceFalse:Option[SensorDataType] = None,
                                         atomicValue:Option[AtomicType] = None,
-                                        dataTypeInput: Option[Class[_<:DataType]] = None,
-                                        dataTypeOutput:Option[Class[_<:DataType]] = None) extends ConceptBuilder{
+                                        dataTypeInput: Option[Class[_<:DataType]] = defaultType,
+                                        dataTypeOutput:Option[Class[_<:DataType]] = defaultType) extends ConceptBuilder{
 
     def apply(s:String):InterfaceBuilder = InterfaceBuilder(this, s, InterfaceType.OUTPUT)
 
@@ -224,7 +224,7 @@ trait DEPOSIT {
   protected var currentIO : Option[IOBuilder] = None
   protected var currentOperation: Option[OperationBuilder] = None
   protected var currentFlow: Option[FlowBuilder] = None
-
+  protected var defaultType:Option[Class[_<:SensorDataType]] = None
   protected var associationFile:Option[String] = None
   protected var targetFile:Option[String] = None
 

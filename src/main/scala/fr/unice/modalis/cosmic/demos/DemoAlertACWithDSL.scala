@@ -9,20 +9,22 @@ import fr.unice.modalis.cosmic.deposit.dsl.DEPOSIT
 object DemoAlertACWithDSL extends App with DEPOSIT{
 
   this hasForName "DemoDSL"
-
-  val ac_443 = declare aPeriodicSensor() named "AC_443" withPeriod 3 handling classOf[SmartCampusType]
-  val door_443 = declare anEventSensor() named "DOOR_443" handling  classOf[SmartCampusType]
-  val window_443 = declare anEventSensor() named "WINDOW_443" handling classOf[SmartCampusType]
+  this handles classOf[SmartCampusType]
 
 
+  val ac_443 = declare aPeriodicSensor() named "AC_443" withPeriod 3
+  val door_443 = declare anEventSensor() named "DOOR_443"
+  val window_443 = declare anEventSensor() named "WINDOW_443"
 
-  val temp_filter = define aFilter "value < 18" handling classOf[SmartCampusType]
-  val door_filter = define aFilter "value < 500" handling classOf[SmartCampusType]
-  val window_filter = define aFilter "value < 500" handling classOf[SmartCampusType]
 
-  val produce = define aProducer new SmartCampusType("ALERT_AC", 1) withInputs("i1", "i2", "i3") handingOnInputs classOf[SmartCampusType] andHandlingOnOutputs classOf[SmartCampusType]
 
-  val collector = declare aCollector() named "Collector" handling classOf[SmartCampusType]
+  val temp_filter = define aFilter "value < 18"
+  val door_filter = define aFilter "value < 500"
+  val window_filter = define aFilter "value < 500"
+
+  val produce = define aProducer new SmartCampusType("ALERT_AC", 1) withInputs("i1", "i2", "i3")
+
+  val collector = declare aCollector() named "Collector"
 
   flows {
     ac_443() -> temp_filter("input")
@@ -37,5 +39,6 @@ object DemoAlertACWithDSL extends App with DEPOSIT{
   this targets "assets/configurations/smartcampus_xbeenetwork.xml"
   val policies = deploy()
 
-  policies.foreach(_.exportToGraphviz)
+  policies foreach println
+
 }
