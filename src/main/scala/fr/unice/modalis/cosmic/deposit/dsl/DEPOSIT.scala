@@ -10,6 +10,7 @@ import fr.unice.modalis.cosmic.deposit.core._
   */
 trait DEPOSIT {
 
+  def apply() = this.policy
 
   protected def hasForName(n:String) { policy.name = n }
   protected def uses(n:String) { associationFile = Some(n)}
