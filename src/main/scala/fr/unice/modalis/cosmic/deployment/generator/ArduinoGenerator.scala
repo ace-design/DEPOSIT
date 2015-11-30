@@ -217,6 +217,7 @@ object ArduinoGenerator extends CodeGenerator{
           val res = generatePeriodicSensor(a)
           declaration = declaration + generatePeriodicDeclaration(a, res._1)
           body = body + res._2
+        case _ => throw new Exception(s + " is incompatible with Arduino platforms")
       }
     }
     (declaration, body)
