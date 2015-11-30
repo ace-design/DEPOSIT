@@ -18,7 +18,7 @@ import fr.unice.modalis.cosmic.deposit.core._
 object DemoCelsiusToFahrenheit extends App{
 
   val sensor = PeriodicSensor(2, "AC_443", classOf[SmartCampusType])
-  val convert = Process(StandardizedPolicies.celsiusToFahrenheit, classOf[SmartCampusType], classOf[SmartCampusType])
+  val convert = Process(StandardizedPolicies.CelsiusToFahrenheit(), classOf[SmartCampusType], classOf[SmartCampusType])
   val collectorfahrenheit = Collector("collectorFarenheit", classOf[SmartCampusType])
   val collectorcelsius = Collector("collectorCelsius", classOf[SmartCampusType])
 
