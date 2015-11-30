@@ -14,7 +14,7 @@ object ToGraph {
 
   def generateGraph(w:Policy) = {
     val nodes = w.ios ++ w.operations
-    val edges = w.links.map(l => l.source ~> l.destination)
+    val edges = w.flows.map(l => l.source ~> l.destination)
 
     Graph.from(nodes, edges)
 

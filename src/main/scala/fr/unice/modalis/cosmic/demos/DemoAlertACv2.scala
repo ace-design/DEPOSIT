@@ -53,24 +53,24 @@ object DemoAlertACv2 extends App{
   /**
     * We define data flows between the concepts
     */
-  val l1 = Link(ac443.output, temp_filter.input)
-  val l2 = Link(door443.output, door_filter.input)
-  val l3 = Link(window443.output, window_filter.input)
-  val l4 = Link(temp_filter.thenOutput, produce1.getInput("i1"))
-  val l5 = Link(door_filter.thenOutput, produce1.getInput("i2"))
-  val l6 = Link(window_filter.thenOutput, produce2.getInput("i1"))
-  val l7 = Link(temp_filter.thenOutput, produce2.getInput("i2"))
-  val l8 = Link(produce1.output, collector.input)
-  val l9 = Link(produce2.output, collector2.input)
-  val l10 = Link(door_filter.elseOutput, produce3.getInput("i1"))
-  val l11 = Link(window_filter.elseOutput, produce3.getInput("i2"))
-  val l12 = Link(produce3.output, collector3.input)
+  val l1 = Flow(ac443.output, temp_filter.input)
+  val l2 = Flow(door443.output, door_filter.input)
+  val l3 = Flow(window443.output, window_filter.input)
+  val l4 = Flow(temp_filter.thenOutput, produce1.getInput("i1"))
+  val l5 = Flow(door_filter.thenOutput, produce1.getInput("i2"))
+  val l6 = Flow(window_filter.thenOutput, produce2.getInput("i1"))
+  val l7 = Flow(temp_filter.thenOutput, produce2.getInput("i2"))
+  val l8 = Flow(produce1.output, collector.input)
+  val l9 = Flow(produce2.output, collector2.input)
+  val l10 = Flow(door_filter.elseOutput, produce3.getInput("i1"))
+  val l11 = Flow(window_filter.elseOutput, produce3.getInput("i2"))
+  val l12 = Flow(produce3.output, collector3.input)
 
   // We build the "ALERT_AC2" data collection policy
   val p = new Policy("ALERT_AC2").add(window443).add(ac443).add(collector).add(collector2).add(collector3).add(door443)
     .add(temp_filter).add(door_filter).add(window_filter).add(produce1).add(produce2).add(produce3)
-    .addLink(l1).addLink(l2).addLink(l3).addLink(l4).addLink(l5).addLink(l6).addLink(l7).addLink(l8).addLink(l9)
-    .addLink(l10).addLink(l11).addLink(l12)
+    .addFlow(l1).addFlow(l2).addFlow(l3).addFlow(l4).addFlow(l5).addFlow(l6).addFlow(l7).addFlow(l8).addFlow(l9)
+    .addFlow(l10).addFlow(l11).addFlow(l12)
 
   // We prepare the policy to be deployed over the SmartCampus infrastructure
   val topology = InfrastructureModelBuilder("assets/configurations/smartcampus_xbeenetwork.xml")

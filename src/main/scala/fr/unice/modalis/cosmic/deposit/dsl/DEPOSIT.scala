@@ -74,13 +74,13 @@ trait DEPOSIT {
 
   case class FlowBuilder(source: InterfaceBuilder, destination: InterfaceBuilder) {
 
-    val link = (source.builder,destination.builder) match {
-      case (a:IOBuilder,b:IOBuilder) => new Link(a.conceptProduced.get.asInstanceOf[DataInput[_<:DataType]].output, b.conceptProduced.get.asInstanceOf[DataOutput[_<:DataType]].input)
-      case (a:IOBuilder,b:OperationBuilder) => new Link(a.conceptProduced.get.asInstanceOf[DataInput[_<:DataType]].output, b.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getInput(destination.name))
-      case (a:OperationBuilder, b:OperationBuilder) => new Link(a.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getOutput(source.name), b.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getInput(destination.name))
-      case (a:OperationBuilder, b:IOBuilder) => new Link(a.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getOutput(source.name), b.conceptProduced.get.asInstanceOf[DataOutput[_<:DataType]].input)
+    val flow = (source.builder,destination.builder) match {
+      case (a:IOBuilder,b:IOBuilder) => new Flow(a.conceptProduced.get.asInstanceOf[DataInput[_<:DataType]].output, b.conceptProduced.get.asInstanceOf[DataOutput[_<:DataType]].input)
+      case (a:IOBuilder,b:OperationBuilder) => new Flow(a.conceptProduced.get.asInstanceOf[DataInput[_<:DataType]].output, b.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getInput(destination.name))
+      case (a:OperationBuilder, b:OperationBuilder) => new Flow(a.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getOutput(source.name), b.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getInput(destination.name))
+      case (a:OperationBuilder, b:IOBuilder) => new Flow(a.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getOutput(source.name), b.conceptProduced.get.asInstanceOf[DataOutput[_<:DataType]].input)
     }
-    policy = policy.copy(links = policy.links + link)
+    policy = policy.copy(flows = policy.flows + flow)
 
   }
 

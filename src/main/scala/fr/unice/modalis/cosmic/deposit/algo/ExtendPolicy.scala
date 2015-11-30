@@ -15,10 +15,10 @@ object ExtendPolicy {
 
   def apply(p:Policy, emptyIOonly:Boolean = false):Policy = {
     val toApply = (for (activity <- p.operations; if activity.isExpendable) yield generateJoinPointsForOperation(activity, p, emptyIOonly))
-      .foldLeft(Set[JoinPoint[_ <:DataType]](),Set[Link[_ <:DataType]]()){(acc, e) => (acc._1 ++ e._1, acc._2 ++ e._2)}
+      .foldLeft(Set[JoinPoint[_ <:DataType]](),Set[Flow[_ <:DataType]]()){ (acc, e) => (acc._1 ++ e._1, acc._2 ++ e._2)}
     var policy = p
     toApply._1.foreach(j => policy = policy.add(j))
-    toApply._2.foreach(l => policy = policy.addLink(l))
+    toApply._2.foreach(l => policy = policy.addFlow(l))
 
     policy
   }
@@ -38,32 +38,32 @@ object ExtendPolicy {
     require(p.operations contains op)
     var outputs:Set[Output[O]] = Set()
     var inputs:Set[Input[I]] = Set()
-    val linksToAdd = new ArrayBuffer[Link[_<:DataType]]()
+    val flowsToAdd = new ArrayBuffer[Flow[_<:DataType]]()
     val iosToAdd = new ArrayBuffer[JoinPoint[_<:DataType]]()
 
 
 
-    inputs =  op.inputs -- p.linksTo(op).map {l => l.destination_input}.asInstanceOf[Set[Input[I]]]
+    inputs =  op.inputs -- p.flowsTo(op).map { l => l.destination_input}.asInstanceOf[Set[Input[I]]]
     if (emptyIOonly)
-      outputs =  op.outputs -- p.linksFrom(op).map {l => l.source_output}.asInstanceOf[Set[Output[O]]]
+      outputs =  op.outputs -- p.flowsFrom(op).map { l => l.source_output}.asInstanceOf[Set[Output[O]]]
     else
       outputs = op.outputs
 
     outputs.foreach(o => {
-      val l = new Link(o, new JoinPointOutput(o, op.oType).input)
+      val l = new Flow(o, new JoinPointOutput(o, op.oType).input)
       val s = l.destination
-      linksToAdd += l
+      flowsToAdd += l
       iosToAdd += s.asInstanceOf[JoinPointOutput[_ <: DataType]]
     })
 
     inputs.foreach(i => {
-        val l = new Link(new JoinPointInput(i, op.iType).output, i)
+        val l = new Flow(new JoinPointInput(i, op.iType).output, i)
         val s = l.source
-        linksToAdd += l
+        flowsToAdd += l
         iosToAdd += s.asInstanceOf[JoinPointInput[_<:DataType]]
     })
 
-    (iosToAdd.toSet, linksToAdd.toSet)
+    (iosToAdd.toSet, flowsToAdd.toSet)
 
   }
 
@@ -92,14 +92,14 @@ object Weave {
     if (!p1.isExtendable) throw new NotExpendableException(p1)
     if (!p2.isExtendable) throw new NotExpendableException(p2)
 
-    val links = for (x<-associations) yield createLink(x)
+    val flows = for (x<-associations) yield createFlow(x)
     var newPolicy = p1 ++ p2
-    for (l <- links) yield newPolicy = newPolicy.addLink(l)
+    for (l <- flows) yield newPolicy = newPolicy.addFlow(l)
     FactorizePolicy(newPolicy)
   }
 
-  def createLink[T<:DataType](u:Unification[T]) = {
-    new Link[T](u.a.fromConceptOutput, u.b.toConceptInput)
+  def createFlow[T<:DataType](u:Unification[T]) = {
+    new Flow[T](u.a.fromConceptOutput, u.b.toConceptInput)
   }
 
 }

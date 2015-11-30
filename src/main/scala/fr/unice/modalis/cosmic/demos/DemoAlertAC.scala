@@ -46,18 +46,18 @@ object DemoAlertAC extends App{
   /**
    * We define data flows between the concepts
    */
-  val l1 = Link(ac443.output, temp_filter.input)
-  val l2 = Link(door443.output, door_filter.input)
-  val l3 = Link(window443.output, window_filter.input)
-  val l4 = Link(temp_filter.thenOutput, produce.getInput("i1"))
-  val l5 = Link(door_filter.thenOutput, produce.getInput("i2"))
-  val l6 = Link(window_filter.thenOutput, produce.getInput("i3"))
-  val l7 = Link(produce.output, collector.input)
+  val l1 = Flow(ac443.output, temp_filter.input)
+  val l2 = Flow(door443.output, door_filter.input)
+  val l3 = Flow(window443.output, window_filter.input)
+  val l4 = Flow(temp_filter.thenOutput, produce.getInput("i1"))
+  val l5 = Flow(door_filter.thenOutput, produce.getInput("i2"))
+  val l6 = Flow(window_filter.thenOutput, produce.getInput("i3"))
+  val l7 = Flow(produce.output, collector.input)
 
   // We build the "ALERT_AC" data collection policy
   val p = new Policy("ALERT_AC").add(window443).add(ac443).add(collector).add(door443)
     .add(temp_filter).add(door_filter).add(window_filter).add(produce)
-    .addLink(l1).addLink(l2).addLink(l3).addLink(l4).addLink(l5).addLink(l6).addLink(l7)
+    .addFlow(l1).addFlow(l2).addFlow(l3).addFlow(l4).addFlow(l5).addFlow(l6).addFlow(l7)
 
 
   // We prepare the policy to be deployed over the SmartCampus infrastructure

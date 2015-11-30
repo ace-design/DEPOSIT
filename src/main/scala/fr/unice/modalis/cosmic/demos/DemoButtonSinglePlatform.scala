@@ -38,20 +38,20 @@ object DemoButtonSinglePlatform extends App{
   val c = Collector("output", classOf[SmartCampusType])
 
   // We define a data flow between the output of BUTTON1 and the first input of ADD operation
-  val l1 = Link(s1.output, add.getInput("s1"))
+  val l1 = Flow(s1.output, add.getInput("s1"))
   // We define a data flow between the output of BUTTON2 and the second input of ADD operation
-  val l2 = Link(s2.output, add.getInput("s2"))
+  val l2 = Flow(s2.output, add.getInput("s2"))
   // We define a data flow between the output of BUTTON3 and the third input of ADD operation
-  val l3 = Link(s3.output, add.getInput("s3"))
+  val l3 = Flow(s3.output, add.getInput("s3"))
   // We define a data flow between the output of ADD operation in the input of DIVIDE operation
-  val l4 = Link(add.output, div.input)
+  val l4 = Flow(add.output, div.input)
   // We define a data flow between the output of DIVIDE operation in the input of the remote collector
-  val l5 = Link(div.output, c.input)
+  val l5 = Flow(div.output, c.input)
 
   // We build the "BUTTON_DEMO" data collection policy
   val p = new Policy("BUTTON_DEMO")
     .add(s1).add(s2).add(s3).add(add).add(div).add(c)
-    .addLink(l1).addLink(l2).addLink(l3).addLink(l4).addLink(l5)
+    .addFlow(l1).addFlow(l2).addFlow(l3).addFlow(l4).addFlow(l5)
 
   // We generate Graphviz and Arduino code
   ToGraphviz.writeSource(p)

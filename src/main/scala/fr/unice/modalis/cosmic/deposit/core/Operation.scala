@@ -370,21 +370,21 @@ case class Process[I<:DataType, O<:DataType](workflow:Policy, iType:Class[I], oT
     // Duplicate the inner workflow (re-generating the concept id)
     val _workflow = workflow.duplicate
 
-    val newLinks = ArrayBuffer[Link[_<:DataType]]()
+    val newFlows = ArrayBuffer[Flow[_<:DataType]]()
     // Compute the links to add between the previous concept and the first concept of this process
-    parent.linksTo(this).foreach {
+    parent.flowsTo(this).foreach {
       l =>
-        _workflow.linksFrom(
+        _workflow.flowsFrom(
           _workflow.ios.find(_.name == l.destination_input.name).get)
-          .foreach(n => newLinks += Link(l.source_output, n.destination_input))
+          .foreach(n => newFlows += Flow(l.source_output, n.destination_input))
     }
 
     // Compute the links to add between the last concept of this process and the first concept after this process
-    parent.linksFrom(this).foreach {
+    parent.flowsFrom(this).foreach {
       l =>
-        _workflow.linksTo(
+        _workflow.flowsTo(
           _workflow.ios.find(_.name == l.source_output.name).get)
-          .foreach(n => newLinks += Link(n.source_output, l.destination_input)
+          .foreach(n => newFlows += Flow(n.source_output, l.destination_input)
         )
     }
 
@@ -398,8 +398,8 @@ case class Process[I<:DataType, O<:DataType](workflow:Policy, iType:Class[I], oT
 
     // Add the operations and links into the parent policy
     resultIODeletion.operations.foreach(o => transformationsResult = transformationsResult.add(o))
-    resultIODeletion.links.foreach(l => transformationsResult = transformationsResult.addLink(l))
-    newLinks.foreach(l => transformationsResult = transformationsResult.addLink(l))
+    resultIODeletion.flows.foreach(l => transformationsResult = transformationsResult.addFlow(l))
+    newFlows.foreach(l => transformationsResult = transformationsResult.addFlow(l))
 
     // Return the policy
     transformationsResult

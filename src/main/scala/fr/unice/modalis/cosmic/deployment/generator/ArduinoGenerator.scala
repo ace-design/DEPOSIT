@@ -157,12 +157,12 @@ object ArduinoGenerator extends CodeGenerator{
   }
   def generateUpdateMethod(policy: Policy) = {
     "void update() { \n" +
-    policy.links.foldLeft(""){(acc, e) => acc + e.destination.id + "_" + e.destination_input.name + " = " + e.source.id + "_" + e.source_output.name + ";\n"} + "}"
+    policy.flows.foldLeft(""){ (acc, e) => acc + e.destination.id + "_" + e.destination_input.name + " = " + e.source.id + "_" + e.source_output.name + ";\n"} + "}"
   }
 
   def generateFlushMethod(policy: Policy) = {
     "void flush() {\n" +
-     policy.links.foldLeft(""){(acc, e) => acc + e.source.id + "_" + e.source_output.name + " = nullValue;\n"} + "}"
+     policy.flows.foldLeft(""){ (acc, e) => acc + e.source.id + "_" + e.source_output.name + " = nullValue;\n"} + "}"
   }
 
   def generateSensorValues(p:Policy) = {

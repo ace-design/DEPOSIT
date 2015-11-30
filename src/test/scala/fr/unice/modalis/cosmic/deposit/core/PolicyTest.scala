@@ -26,7 +26,7 @@ class PolicyTest extends SpecificationWithJUnit {
     }
 
     "policies must have the same amount of links" in {
-      b.links must haveSize (a.links.size)
+      b.flows must haveSize (a.flows.size)
 
     }
   }
@@ -80,8 +80,8 @@ class PolicyTest extends SpecificationWithJUnit {
     }
 
     "add a link in the policy" in {
-      val l = Link(Constant(new IntegerType(3),  classOf[IntegerType]).output, DCPTest.collectorA.input)
-      DCPTest.dcpA.addLink(l).links must contain(l)
+      val l = Flow(Constant(new IntegerType(3),  classOf[IntegerType]).output, DCPTest.collectorA.input)
+      DCPTest.dcpA.addFlow(l).flows must contain(l)
     }
 
   }
@@ -96,11 +96,11 @@ class PolicyTest extends SpecificationWithJUnit {
     }
 
     "delete a link in the policy" in {
-      DCPTest.dcpA.deleteLink(DCPTest.l).links must not contain DCPTest.l
+      DCPTest.dcpA.deleteFlow(DCPTest.l).flows must not contain DCPTest.l
     }
 
     "delete links to a concept if this latter is deleted" in {
-      DCPTest.dcpA.deleteActivity(DCPTest.adder).links.filter(l => l.source.equals(DCPTest.adder) || l.destination.equals(DCPTest.adder)) must be empty
+      DCPTest.dcpA.deleteActivity(DCPTest.adder).flows.filter(l => l.source.equals(DCPTest.adder) || l.destination.equals(DCPTest.adder)) must be empty
     }
   }
 
@@ -118,7 +118,7 @@ class PolicyTest extends SpecificationWithJUnit {
       }
 
       "only links corresponding to selected concepts are present" in {
-        result.links.forall(l => selected.contains(l.source) || selected.contains(l.destination)) must beTrue
+        result.flows.forall(l => selected.contains(l.source) || selected.contains(l.destination)) must beTrue
       }
 
 
@@ -139,7 +139,7 @@ class PolicyTest extends SpecificationWithJUnit {
           DCPTest.p1e.outputJoinPoints.head.asInstanceOf[JoinPointOutput[IntegerType]],
           DCPTest.p3e.inputJoinPoints.find(p => p.toConceptInput.name == DCPTest.add.getInput("i1").name).get.asInstanceOf[JoinPointInput[IntegerType]])
 
-        Weave(DCPTest.p1e, DCPTest.p3e, Set(u1)).links.find(p => p.source_output == DCPTest.a1.output && p.destination_input == DCPTest.add.getInput("i1")) must be some
+        Weave(DCPTest.p1e, DCPTest.p3e, Set(u1)).flows.find(p => p.source_output == DCPTest.a1.output && p.destination_input == DCPTest.add.getInput("i1")) must be some
       }
     }
   }

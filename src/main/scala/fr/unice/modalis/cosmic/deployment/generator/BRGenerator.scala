@@ -176,13 +176,13 @@ object BRGenerator extends CodeGenerator{
   def generateUpdateMethod(policy: Policy) = {
     "def update(): \n" +
       generateGlobalVariables(policy, inBody = true) + "\n" +
-      policy.links.foldLeft(""){(acc, e) => acc + "\t" + e.destination.id + "_" + e.destination_input.name + " = " + e.source.id + "_" + e.source_output.name + ";\n"}
+      policy.flows.foldLeft(""){ (acc, e) => acc + "\t" + e.destination.id + "_" + e.destination_input.name + " = " + e.source.id + "_" + e.source_output.name + ";\n"}
   }
 
   def generateFlushMethod(policy: Policy) = {
     "def flush(): \n" +
-      policy.links.foldLeft(""){(acc, e) => acc + "\tglobal " + e.source.id + "_" + e.source_output.name + "\n"} +
-      policy.links.foldLeft(""){(acc, e) => acc + "\t" + e.source.id + "_" + e.source_output.name + " = nullValue\n"}
+      policy.flows.foldLeft(""){ (acc, e) => acc + "\tglobal " + e.source.id + "_" + e.source_output.name + "\n"} +
+      policy.flows.foldLeft(""){ (acc, e) => acc + "\t" + e.source.id + "_" + e.source_output.name + " = nullValue\n"}
   }
   /**
    * Generate constant

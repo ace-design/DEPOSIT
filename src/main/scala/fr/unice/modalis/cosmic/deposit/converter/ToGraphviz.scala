@@ -35,7 +35,7 @@ object ToGraphviz {
     w.ios.foreach(e => s.append(generateIO(e) + "\n"))
 
     w.operations.foreach(e => s.append(generateElementCode(e) + ";\n"))
-    w.links.foreach(l => s.append(generateLinkCode(l)))
+    w.flows.foreach(l => s.append(generateFlowCode(l)))
     s.append(generateFooter())
     s.toString()
   }
@@ -49,7 +49,7 @@ object ToGraphviz {
   def generateNodeShape(shape: String, color:String):String = "node [shape=" + shape + ",color=" + color + ",style = filled]; \n"
 
 
-  def generateLinkCode(t: Link[_<:DataType]) = {
+  def generateFlowCode(t: Flow[_<:DataType]) = {
       t.source_output.parent.id + "->" + t.destination_input.parent.id + printlabel("o:" + t.source_output.name + " i:" + t.destination_input.name) + "\n"
   }
 

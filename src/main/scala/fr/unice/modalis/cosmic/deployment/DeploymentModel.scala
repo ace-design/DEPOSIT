@@ -90,8 +90,8 @@ object Deploy {
   def apply(policy: Policy, topology: NetworkTopology, heuristic: DeploymentRepartition) = deploy(policy, topology, heuristic)
 
 
-  private def getNetworkLinks(policies:Set[Policy], ref:Policy) = {
-    ref.links -- policies.foldLeft(new Policy()){(acc, e) => acc ++ e}.links
+  private def getNetworkFlows(policies:Set[Policy], ref:Policy) = {
+    ref.flows -- policies.foldLeft(new Policy()){ (acc, e) => acc ++ e}.flows
   }
 
 
@@ -124,11 +124,11 @@ object Deploy {
     val rawPolicies = projectionGrouped.map(e => ExtendPolicy(policy.select(e._2.toSet, policy.name + "_" + e._1.name),emptyIOonly = false))
 
     // Compute which join points are network-related
-    val networkLinks = getNetworkLinks(rawPolicies.toSet, policy)
+    val networkFlows = getNetworkFlows(rawPolicies.toSet, policy)
 
 
     // Associating same network id to linked join points
-    for (l <- networkLinks.groupBy(_.source_output); src = l._1; dsts = l._2.map(_.destination_input)) {
+    for (l <- networkFlows.groupBy(_.source_output); src = l._1; dsts = l._2.map(_.destination_input)) {
 
       val uid = scala.util.Random.alphanumeric.take(5).mkString
       val optionJoinPointOutput = rawPolicies.find(aPolicy => aPolicy.concepts contains src.parent).get.nextElements(src.parent).collect {case (x:JoinPointOutput[_], _) => x}.find(_.fromConceptOutput == src)

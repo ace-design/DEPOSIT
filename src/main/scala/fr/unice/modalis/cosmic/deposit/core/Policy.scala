@@ -10,9 +10,9 @@ import scala.collection.mutable.ArrayBuffer
  * Policy definition
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
  * @param operations Workflow element list
- * @param links Link list
+ * @param flows Link list
  */
-case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Set[Operation[_<:DataType,_<:DataType]], links:Set[Link[_<:DataType]]) extends Properties{
+case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Set[Operation[_<:DataType,_<:DataType]], flows:Set[Flow[_<:DataType]]) extends Properties{
 
 
   // Constructors
@@ -56,7 +56,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   }
 
   def addIO(o:PolicyIO[_<:DataType]):Policy = {
-    new Policy(name, ios + o, operations, links)
+    new Policy(name, ios + o, operations, flows)
   }
   /**
    * Add an element in the current workflow
@@ -65,36 +65,36 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
    */
   def addActivity[T<:DataType, O<:DataType](c:Operation[T,O]):Policy  = {
     c match {
-      case Process(wf, _, _) => new Policy(name, ios, operations + c, links ++ autoConnectProcess(c.asInstanceOf[Process[_<:DataType, _<:DataType]]))
-      case _ => new Policy(name, ios, operations + c, links)
+      case Process(wf, _, _) => new Policy(name, ios, operations + c, flows ++ autoConnectProcess(c.asInstanceOf[Process[_<:DataType, _<:DataType]]))
+      case _ => new Policy(name, ios, operations + c, flows)
     }
   }
 
   /**
-   * Add a link in the current workflow
-   * @param l Link
-   * @return A new workflow with the link added
+   * Add a flow in the current workflow
+   * @param l Flow
+   * @return A new workflow with the flow added
    */
-  def addLink(l:Link[_<:DataType]):Policy  = {
-   new Policy(name, ios, operations, links + l)
+  def addFlow(l:Flow[_<:DataType]):Policy  = {
+   new Policy(name, ios, operations, flows + l)
   }
 
   /**
-   * Delete an activity in the current workflow (/!\ Delete also all links referring this activity)
+   * Delete an activity in the current workflow (/!\ Delete also all flows referring this activity)
    * @param c Workflow activity
-   * @return A workflow without this activity and links referring this activity
+   * @return A workflow without this activity and flows referring this activity
    */
   def deleteActivity(c:Operation[_<:DataType,_<:DataType]):Policy = {
-    new Policy(name, ios, operations - c, links.filterNot(p => (p.destination == c) || (p.source == c)))
+    new Policy(name, ios, operations - c, flows.filterNot(p => (p.destination == c) || (p.source == c)))
   }
 
   /**
-   * Delete an IO in the current workflow (/!\ Delete also all links referring this IO)
+   * Delete an IO in the current workflow (/!\ Delete also all flows referring this IO)
    * @param c Workflow IO
-   * @return A workflow without this IO and links referring this IO
+   * @return A workflow without this IO and flows referring this IO
    */
   def deleteIO(c:PolicyIO[_<:DataType]):Policy = {
-    new Policy(name, ios - c, operations, links.filterNot(p => (p.destination == c) || (p.source == c)))
+    new Policy(name, ios - c, operations, flows.filterNot(p => (p.destination == c) || (p.source == c)))
   }
 
   /**
@@ -104,7 +104,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   def subWorkflow(root:Concept, last:Option[Concept] = None):Policy = {
     val ios = new ArrayBuffer[PolicyIO[_<:DataType]]()
     val activities = new ArrayBuffer[Operation[_<:DataType, _<:DataType]]()
-    val links = new ArrayBuffer[Link[_<:DataType]]()
+    val flows = new ArrayBuffer[Flow[_<:DataType]]()
     // Add root into the activities/ios
 
     root match {
@@ -115,14 +115,14 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     def internal(e:Concept):Unit = {
       val next = nextElements(e)
       next.foreach(e => e._1 match {
-        case elem:Collector[_]  => ios += elem; links += e._2
-        case elem:Sensor[_] =>  ios += elem; links += e._2; if (e != Set.empty && last.isEmpty || last.get != e._1) internal(e._1)
-        case elem:Operation[_, _] => activities += elem; links += e._2; if (e != Set.empty && last.isEmpty || last.get != e._1) internal(e._1)
+        case elem:Collector[_]  => ios += elem; flows += e._2
+        case elem:Sensor[_] =>  ios += elem; flows += e._2; if (e != Set.empty && last.isEmpty || last.get != e._1) internal(e._1)
+        case elem:Operation[_, _] => activities += elem; flows += e._2; if (e != Set.empty && last.isEmpty || last.get != e._1) internal(e._1)
       }
       )
     }
     internal(root)
-    new Policy("sub" + name, ios.toSet, activities.toSet, links.toSet)
+    new Policy("sub" + name, ios.toSet, activities.toSet, flows.toSet)
   }
 
   /**
@@ -130,31 +130,31 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
    * @param e Current workflow element
    * @return Immediate next elements
    */
-  def nextElements(e:Concept):Set[(Concept, Link[_<:DataType])] = {
-    var res = Set[(Concept, Link[_<:DataType])]()
-    for (l <- links) {
+  def nextElements(e:Concept):Set[(Concept, Flow[_<:DataType])] = {
+    var res = Set[(Concept, Flow[_<:DataType])]()
+    for (l <- flows) {
       if (l.source == e)
-        res = res ++ links.filter(l => l.source == e).foldLeft(Set.empty[(Concept, Link[_<:DataType])]){(acc, e) => acc.+((e.destination, l))}
+        res = res ++ flows.filter(l => l.source == e).foldLeft(Set.empty[(Concept, Flow[_<:DataType])]){ (acc, e) => acc.+((e.destination, l))}
     }
     res
   }
 
-  def previousElements(e:Concept):Set[(Concept, Link[_<:DataType])] = {
-    var res = Set[(Concept, Link[_<:DataType])]()
-    for (l <- links) {
+  def previousElements(e:Concept):Set[(Concept, Flow[_<:DataType])] = {
+    var res = Set[(Concept, Flow[_<:DataType])]()
+    for (l <- flows) {
       if (l.destination == e)
-        res = res ++ links.filter(l => l.destination == e).foldLeft(Set.empty[(Concept, Link[_<:DataType])]){(acc, e) => acc.+((e.source, l))}
+        res = res ++ flows.filter(l => l.destination == e).foldLeft(Set.empty[(Concept, Flow[_<:DataType])]){ (acc, e) => acc.+((e.source, l))}
     }
     res
   }
 
   /**
-   * Delete a link in the current workflow
+   * Delete a flow in the current workflow
    * @param l Link
-   * @return A workflow with the linked removed
+   * @return A workflow with the flow removed
    */
-  def deleteLink(l:Link[_<:DataType]):Policy  = {
-    new Policy(name, ios, operations, links - l)
+  def deleteFlow(l:Flow[_<:DataType]):Policy  = {
+    new Policy(name, ios, operations, flows - l)
   }
 
   /**
@@ -162,20 +162,20 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
    * @param p Process
    * @tparam I Input Data type
    * @tparam O Output Data type
-   * @return A set ok links needed to connect the process with the current known sensors
+   * @return A set ok flows needed to connect the process with the current known sensors
    */
   private def autoConnectProcess[I<:DataType, O<:DataType](p:Process[I,O]) = {
-    var links = new ArrayBuffer[Link[_<:DataType]]()
+    var flows = new ArrayBuffer[Flow[_<:DataType]]()
     p.inputsNames.foreach(i => {
       val possibleSensor = ios.filter(p => p.isInstanceOf[Sensor[I]]).find(s => s.asInstanceOf[Sensor[I]].url == i)
       possibleSensor match {
-        case Some(n) => links += new Link(n.asInstanceOf[Sensor[I]].output, p.getInput(i))
+        case Some(n) => flows += new Flow(n.asInstanceOf[Sensor[I]].output, p.getInput(i))
         case None => /* Nop */
 
       }
     }
     )
-    links.toSet
+    flows.toSet
   }
 
 
@@ -189,7 +189,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     def inner(c:Concept):List[Sensor[_<:DataType]] = {
       c match {
         case n:Sensor[_] => List(n)
-        case n:Concept => linksTo(n).map(_.source).foldLeft(List[Sensor[_<:DataType]]()){(acc, c) => if (!visited.contains(c)) {visited = c :: visited; inner(c) ::: acc} else acc}
+        case n:Concept => flowsTo(n).map(_.source).foldLeft(List[Sensor[_<:DataType]]()){ (acc, c) => if (!visited.contains(c)) {visited = c :: visited; inner(c) ::: acc} else acc}
 
       }
     }
@@ -227,34 +227,34 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
       case x:Operation[_, _] => x.inputs.toList ::: x.outputs.toList ::: acc
     }}.toSet
 
-    val portsInUse = links.foldLeft(List[Port[_]]()) { (acc ,e) => e.destination_input :: e.source_output :: acc}.toSet
+    val portsInUse = flows.foldLeft(List[Port[_]]()) { (acc, e) => e.destination_input :: e.source_output :: acc}.toSet
 
     ports -- portsInUse
 
   }
   def duplicate = {
-    // Convert links between operations
-    val corr = (this.links.map {l => l.source } ++ this.links.map{l => l.destination}).map{c => (c, c.duplicate)} toMap
+    // Convert flows between operations
+    val corr = (this.flows.map { l => l.source } ++ this.flows.map{ l => l.destination}).map{ c => (c, c.duplicate)} toMap
 
-    // Build new links /!\ This code will be refactored (dont care about the instance of)
-    val _l1 = this.links.filter(l => l.source.isInstanceOf[Operation[_,_]] && l.destination.isInstanceOf[Operation[_,_]]).map{l => (corr(l.source), corr(l.destination), l.source_output.name, l.destination_input.name)}.map(l => Link(l._1.asInstanceOf[Operation[_<:DataType,_<:DataType]].getOutput(l._3), l._2.asInstanceOf[Operation[_<:DataType,_<:DataType]].getInput(l._4)))
-    val _l2 = this.links.filter(l => l.source.isInstanceOf[DataInput[_]] && l.destination.isInstanceOf[Operation[_,_]]).map{l => (corr(l.source), corr(l.destination), l.source_output.name, l.destination_input.name)}.map(l => Link(l._1.asInstanceOf[DataInput[_<:DataType]].output, l._2.asInstanceOf[Operation[_<:DataType,_<:DataType]].getInput(l._4)))
-    val _l3 = this.links.filter(l => l.source.isInstanceOf[Operation[_,_]] && l.destination.isInstanceOf[DataOutput[_]]).map{l => (corr(l.source), corr(l.destination), l.source_output.name, l.destination_input.name)}.map(l => Link(l._1.asInstanceOf[Operation[_<:DataType,_<:DataType]].getOutput(l._3), l._2.asInstanceOf[DataOutput[_<:DataType]].input))
-    val _l4 = this.links.filter(l => l.source.isInstanceOf[DataInput[_]] && l.destination.isInstanceOf[DataOutput[_]]).map{l => (corr(l.source), corr(l.destination), l.source_output.name, l.destination_input.name)}.map(l => Link(l._1.asInstanceOf[DataInput[_<:DataType]].output, l._2.asInstanceOf[DataOutput[_<:DataType]].input))
+    // Build new flows
+    val _l1 = this.flows.filter(l => l.source.isInstanceOf[Operation[_,_]] && l.destination.isInstanceOf[Operation[_,_]]).map{ l => (corr(l.source), corr(l.destination), l.source_output.name, l.destination_input.name)}.map(l => Flow(l._1.asInstanceOf[Operation[_<:DataType,_<:DataType]].getOutput(l._3), l._2.asInstanceOf[Operation[_<:DataType,_<:DataType]].getInput(l._4)))
+    val _l2 = this.flows.filter(l => l.source.isInstanceOf[DataInput[_]] && l.destination.isInstanceOf[Operation[_,_]]).map{ l => (corr(l.source), corr(l.destination), l.source_output.name, l.destination_input.name)}.map(l => Flow(l._1.asInstanceOf[DataInput[_<:DataType]].output, l._2.asInstanceOf[Operation[_<:DataType,_<:DataType]].getInput(l._4)))
+    val _l3 = this.flows.filter(l => l.source.isInstanceOf[Operation[_,_]] && l.destination.isInstanceOf[DataOutput[_]]).map{ l => (corr(l.source), corr(l.destination), l.source_output.name, l.destination_input.name)}.map(l => Flow(l._1.asInstanceOf[Operation[_<:DataType,_<:DataType]].getOutput(l._3), l._2.asInstanceOf[DataOutput[_<:DataType]].input))
+    val _l4 = this.flows.filter(l => l.source.isInstanceOf[DataInput[_]] && l.destination.isInstanceOf[DataOutput[_]]).map{ l => (corr(l.source), corr(l.destination), l.source_output.name, l.destination_input.name)}.map(l => Flow(l._1.asInstanceOf[DataInput[_<:DataType]].output, l._2.asInstanceOf[DataOutput[_<:DataType]].input))
     val linksDuplicated = _l1 ++ _l2 ++ _l3 ++ _l4
     val iosDuplicated = linksDuplicated.filter(_.source.isInstanceOf[DataIO[_]]).map {_.source} ++ linksDuplicated.filter(_.destination.isInstanceOf[DataIO[_]]).map {_.destination}
     val operationsDuplicated = linksDuplicated.filter(_.source.isInstanceOf[Operation[_,_]]).map {_.source} ++ linksDuplicated.filter(_.destination.isInstanceOf[Operation[_,_]]).map {_.destination}
 
-    new Policy(name,iosDuplicated.asInstanceOf[Set[PolicyIO[_<:DataType]]], operationsDuplicated.asInstanceOf[Set[Operation[_<:DataType, _<:DataType]]], linksDuplicated.asInstanceOf[Set[Link[_<:DataType]]])
+    new Policy(name,iosDuplicated.asInstanceOf[Set[PolicyIO[_<:DataType]]], operationsDuplicated.asInstanceOf[Set[Operation[_<:DataType, _<:DataType]]], linksDuplicated.asInstanceOf[Set[Flow[_<:DataType]]])
 
   }
-  def linksTo(a:Concept) = links.filter(l => l.destination == a)
+  def flowsTo(a:Concept) = flows.filter(l => l.destination == a)
 
-  def linksFrom(a:Concept) = links.filter(l => l.source == a)
+  def flowsFrom(a:Concept) = flows.filter(l => l.source == a)
 
-  def ++(w:Policy):Policy = new Policy(this.name + "_" + w.name, this.ios ++ w.ios, this.operations ++ w.operations, this.links ++ w.links)
+  def ++(w:Policy):Policy = new Policy(this.name + "_" + w.name, this.ios ++ w.ios, this.operations ++ w.operations, this.flows ++ w.flows)
 
-  override def toString = "Workflow[name=" + name + ";ios={" + ios + "};activites={" + operations + "};links={" + links + "}]"
+  override def toString = "Workflow[name=" + name + ";ios={" + ios + "};activites={" + operations + "};links={" + flows + "}]"
 
   def exportToWiring = ArduinoGenerator(this, toFile = true)
   def exportToPython = BRGenerator(this, toFile = true)

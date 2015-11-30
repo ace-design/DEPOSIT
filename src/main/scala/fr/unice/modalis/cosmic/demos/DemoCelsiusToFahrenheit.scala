@@ -22,13 +22,13 @@ object DemoCelsiusToFahrenheit extends App{
   val collectorfahrenheit = Collector("collectorFarenheit", classOf[SmartCampusType])
   val collectorcelsius = Collector("collectorCelsius", classOf[SmartCampusType])
 
-  val l1 = Link(sensor.output, convert.getInput("celsius"))
-  val l2 = Link(convert.getOutput("fahrenheit"), collectorfahrenheit.input)
-  val l3 = Link(sensor.output, collectorcelsius.input)
+  val l1 = Flow(sensor.output, convert.getInput("celsius"))
+  val l2 = Flow(convert.getOutput("fahrenheit"), collectorfahrenheit.input)
+  val l3 = Flow(sensor.output, collectorcelsius.input)
 
   val p = new Policy("CelsiusToFarenheit")
     .add(sensor).add(convert).add(collectorcelsius).add(collectorfahrenheit)
-    .addLink(l1).addLink(l2).addLink(l3)
+    .addFlow(l1).addFlow(l2).addFlow(l3)
 
   val topology = InfrastructureModelBuilder("assets/configurations/smartcampus_xbeenetwork.xml")
   val predeployed = PreDeploy(p, topology)
