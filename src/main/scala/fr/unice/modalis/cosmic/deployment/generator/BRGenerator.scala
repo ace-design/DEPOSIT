@@ -21,7 +21,7 @@ object BRGenerator extends CodeGenerator{
   def generateSerialReadingMethodForJoinPoints(policy: Policy) = {
     "def readSerial(port):\n" +
       policy.inputJoinPoints.map(i => "\tglobal " + LAST_VALUE_PREFIX + i.id + "\n").mkString +
-      policy.inputJoinPoints.map(i => "\t" +LAST_VALUE_PREFIX + i.id + "= []\n").mkString +
+      policy.inputJoinPoints.map(i => "\t" +LAST_VALUE_PREFIX + i.id + "= nullValue\n").mkString +
       "\tflush()\n" +
       "\twhile True:\n" +
       "\t\tser = serial.Serial(port, 9600)\n" +
@@ -175,7 +175,7 @@ object BRGenerator extends CodeGenerator{
   def generateFlushMethod(policy: Policy) = {
     "def flush(): \n" +
       policy.links.foldLeft(""){(acc, e) => acc + "\tglobal " + e.source.id + "_" + e.source_output.name + "\n"} +
-      policy.links.foldLeft(""){(acc, e) => acc + "\t" + e.source.id + "_" + e.source_output.name + " = []\n"}
+      policy.links.foldLeft(""){(acc, e) => acc + "\t" + e.source.id + "_" + e.source_output.name + " = nullValue\n"}
   }
   /**
    * Generate constant
