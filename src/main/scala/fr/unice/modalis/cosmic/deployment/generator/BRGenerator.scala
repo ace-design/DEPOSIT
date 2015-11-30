@@ -19,6 +19,7 @@ object BRGenerator extends CodeGenerator{
   }
 
   def generateSerialReadingMethodForJoinPoints(policy: Policy) = {
+    var first = true
     "def readSerial(port):\n" +
       policy.inputJoinPoints.map(i => "\tglobal " + LAST_VALUE_PREFIX + i.id + "\n").mkString +
       policy.inputJoinPoints.map(i => "\t" +LAST_VALUE_PREFIX + i.id + "= nullValue\n").mkString +
@@ -29,9 +30,15 @@ object BRGenerator extends CodeGenerator{
       "\t\t\tvalueRead = json.loads(ser.readline().decode(\"ascii\"))\n" +
       policy.inputJoinPoints.map(i => {
         val network = i.readProperty("network").get
-        "\t\t\tif valueRead[\"src\"] == \"" +  network + "\":\n" +
+        (if (first) {
+          first = !first
+          "\t\t\tif valueRead[\"src\"] == \"" +  network + "\":\n"
+        } else
+          "\t\t\telif valueRead[\"src\"] == \"" +  network + "\":\n") +
         "\t\t\t\t" + LAST_VALUE_PREFIX + i.id + " = valueRead\n"
       }).mkString +
+      "\t\t\telse:\n" +
+      "\t\t\t\tsend(valueRead)\n" +
       "\t\t\tprogram()\n" +
       "\t\texcept Exception:\n\t\t\tpass"
 
