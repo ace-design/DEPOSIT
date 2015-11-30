@@ -29,10 +29,10 @@ class ExtendPolicyTest extends SpecificationWithJUnit {
   }
 
   "An expendable policy" should {
-    "provide join points for all expendable operations" in {
+    "provide join points for all expendable operations" in pending("Waiting to be adapted"){
       ExtendPolicy(DCPTest.convert_workflow).ios.collect {case x:JoinPoint[_] => x} must have size 12
     }
-    "provide join points for all expendable operations (2)" in {
+    "provide join points for all expendable operations (2)" in pending("Waiting to be adapted"){
       ExtendPolicy(DCPTest.convert_workflow2).ios.collect {case x:JoinPoint[_] => x} must have size 11
     }
   }
