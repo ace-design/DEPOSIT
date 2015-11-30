@@ -43,14 +43,12 @@ object ExtendPolicy {
 
 
 
-
-    if (emptyIOonly) {
+    inputs =  op.inputs -- p.linksTo(op).map {l => l.destination_input}.asInstanceOf[Set[Input[I]]]
+    if (emptyIOonly)
       outputs =  op.outputs -- p.linksFrom(op).map {l => l.source_output}.asInstanceOf[Set[Output[O]]]
-      inputs =  op.inputs -- p.linksTo(op).map {l => l.destination_input}.asInstanceOf[Set[Input[I]]]
-    } else {
+    else
       outputs = op.outputs
-      inputs = op.inputs
-    }
+
     outputs.foreach(o => {
       val l = new Link(o, new JoinPointOutput(o, op.oType).input)
       val s = l.destination

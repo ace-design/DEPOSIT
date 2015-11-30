@@ -203,7 +203,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
    */
   def select(e:Set[Concept], n:String = "select_") = {
     var result = this
-    val notSelected = (result.ios ++ result.operations) -- e
+    val notSelected = result.concepts -- e
     notSelected.foreach(c => result = result.delete(c))
     result.name = n
     result

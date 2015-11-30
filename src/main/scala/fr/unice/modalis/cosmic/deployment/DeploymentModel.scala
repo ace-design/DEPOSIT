@@ -103,21 +103,26 @@ object Deploy {
     * @return A policy for each platform of the sensing infrastructure
     */
   def deploy (policy:Policy, topology: NetworkTopology, targets: Map[Concept, String]):Iterable[Policy] = {
-    def deleteNonRevelantJoinPoints(notUsedPorts:Set[Port[_]], policy:Policy) = {
-      val links = policy.links.filter(l =>(notUsedPorts contains l.destination_input) || (notUsedPorts contains l.source_output))
-      val toDelete = links.flatMap(l => Seq(l.source, l.destination)).collect {case x:JoinPoint[_] => x}
+    /**
+      * Delete join points not involved in a network communication
+      * @param policy Policy
+      * @return A policy without join points not involved in a network communication
+      */
+    def deleteNonRevelantJoinPoints(policy:Policy) = {
+
+      val joinPoints = policy.ios.toList.collect{case x:JoinPoint[_] => x}.filterNot(_.hasProperty("network").isDefined)
       var sanitizedPolicy = policy
-      toDelete.foreach(c => sanitizedPolicy = sanitizedPolicy.delete(c))
+      joinPoints.foreach(c => sanitizedPolicy = sanitizedPolicy.delete(c))
       sanitizedPolicy
     }
+
     // Associating a concept to a platform
     val projection = targets.map(t => (t._1, topology.resources.find(r => r.name equals t._2 ).get))
     val projectionGrouped = projection.toSeq.groupBy(_._2).map { e => e._1 -> e._2.map(_._1)}
 
     // Split the global policies into sub-policy and extend it with Join Points
-    val rawPolicies = projectionGrouped.map(e => ExtendPolicy(policy.select(e._2.toSet, policy.name + "_" + e._1.name),emptyIOonly = true))
+    val rawPolicies = projectionGrouped.map(e => ExtendPolicy(policy.select(e._2.toSet, policy.name + "_" + e._1.name),emptyIOonly = false))
 
-    rawPolicies.foreach(p => ToGraphviz.writeSource(p))
     // Compute which join points are network-related
     val networkLinks = getNetworkLinks(rawPolicies.toSet, policy)
 
@@ -135,8 +140,10 @@ object Deploy {
     }
 
     // Delete non-relevant join points
-    rawPolicies.map { deleteNonRevelantJoinPoints(policy.nonConnectedPorts, _)}
+    val readyToDeployedPolicies = rawPolicies.map { deleteNonRevelantJoinPoints }
+    readyToDeployedPolicies.foreach(p => ToGraphviz.writeSource(p))
 
+    readyToDeployedPolicies
 
   }
 
