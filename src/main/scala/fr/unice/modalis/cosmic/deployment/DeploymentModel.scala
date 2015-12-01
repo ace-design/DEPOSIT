@@ -52,7 +52,9 @@ object PreDeploy {
   def prepare(p:Policy, topology: NetworkTopology) = {
 
     // Step 0: develop the processes
-    val policy = expandProcesses(p)
+    var policy:Policy = p
+    while (policy.operations.collect({case x:Process[_,_] => x}).nonEmpty)
+      policy = expandProcesses(policy)
 
     // Step 1: compute Sensors involved for each operation of the policy
     policy.concepts.foreach(c => c.addProperty("sensors", policy.sensorsInvolved(c)))
