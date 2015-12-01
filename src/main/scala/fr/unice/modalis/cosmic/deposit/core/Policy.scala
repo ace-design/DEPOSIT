@@ -43,7 +43,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     c match {
       case n:PolicyIO[_] => addIO(n)
       case n:Operation[_, _] => addActivity(n)
-      case _ => throw new Exception(c + " is not handled by method add")
+      case _ => throw new IllegalArgumentException(c + " is not handled by method add")
     }
   }
 
@@ -51,7 +51,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     c match {
       case n:PolicyIO[_] => deleteIO(n)
       case n:Operation[_, _] => deleteActivity(n)
-      case _ => throw new Exception(c + " is not handled by method delete")
+      case _ => throw new IllegalArgumentException(c + " is not handled by method delete")
     }
   }
 

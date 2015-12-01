@@ -31,14 +31,14 @@ trait Operation[I<:DataType, O<:DataType] extends Concept with Properties{
    * @param s Requested name
    * @return Input option
    */
-  def getInput(s:String = DEFAULT_INPUT_NAME):Input[I] = inputs.find(_.name.equalsIgnoreCase(s)).getOrElse(throw new Exception("Input " + s +  " not found"))
+  def getInput(s:String = DEFAULT_INPUT_NAME):Input[I] = inputs.find(_.name.equalsIgnoreCase(s)).getOrElse(throw new PortNotFoundException(s))
 
   /**
    * Find an output with its name
    * @param s Requested name
    * @return Output option
    */
-  def getOutput(s:String = DEFAULT_OUTPUT_NAME):Output[O] = outputs.find(_.name.equalsIgnoreCase(s)).getOrElse(throw new Exception("Output " + s +  " not found"))
+  def getOutput(s:String = DEFAULT_OUTPUT_NAME):Output[O] = outputs.find(_.name.equalsIgnoreCase(s)).getOrElse(throw new PortNotFoundException(s))
 
   override val id:String = "concept_" + super.id
 

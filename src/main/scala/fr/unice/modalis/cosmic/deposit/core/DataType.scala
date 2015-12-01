@@ -122,7 +122,7 @@ object DataType {
     case "LongType" => LongType(0)
     case "StringType" => StringType("")
     case "DoubleType" => DoubleType(0)
-    case _ => throw new Exception("Unknown data type")
+    case _ => throw new UnknownDataTypeName(name)
   }
 
   def factory(name:String, values:Map[String, AtomicType]) = name match {
@@ -133,7 +133,7 @@ object DataType {
     case "LongType" => LongType(0)
     case "StringType" => StringType("")
     case "DoubleType" => DoubleType(0)
-    case _ => throw new Exception("Unknown data type")
+    case _ => throw new UnknownDataTypeName(name)
   }
 
   def getValue(v:AtomicType) = {

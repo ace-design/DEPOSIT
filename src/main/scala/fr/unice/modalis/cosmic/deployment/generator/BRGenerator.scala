@@ -1,5 +1,6 @@
 package fr.unice.modalis.cosmic.deployment.generator
 
+import fr.unice.modalis.cosmic.deployment.exception.InappropriateConceptForGenerator
 import fr.unice.modalis.cosmic.deposit.core._
 
 import scala.io.Source
@@ -92,7 +93,7 @@ object BRGenerator extends CodeGenerator{
       Instruction(inputVariables, bodyInstruction, Set(outputVariable))
 
 
-    case _ => throw new Exception("Can't generate concept " + c + " for Python platform")
+    case _ => throw new InappropriateConceptForGenerator(c, "Border router")
   }
 
   def generateArithmeticInstruction(a: Arithmetic[_ <: SensorDataType]): Instruction = {
@@ -159,7 +160,11 @@ object BRGenerator extends CodeGenerator{
    */
   override def generateGlobalVariables(policy: Policy): String = generateGlobalVariables(policy, inBody = false)
 
-  def generateGlobalVariables(policy: Policy, inBody:Boolean = false): String = if (inBody) generateVariablesDeclaration(generateInstructionList(policy).flatMap(i => Set(i.inputs, i.outputs)).flatten.toSet, inBody = true) else generateVariablesDeclaration(generateInstructionList(policy).flatMap(i => Set(i.inputs, i.outputs)).flatten.toSet)
+  def generateGlobalVariables(policy: Policy, inBody:Boolean = false): String = {
+    if (inBody)
+      generateVariablesDeclaration(generateInstructionList(policy).flatMap(i => Set(i.inputs, i.outputs)).flatten.toSet, inBody = true)
+    else generateVariablesDeclaration(generateInstructionList(policy).flatMap(i => Set(i.inputs, i.outputs)).flatten.toSet)
+  }
   /**
    * Generate the executable data collection policy
    * @param policy Data collection policy

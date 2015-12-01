@@ -1,5 +1,6 @@
 package fr.unice.modalis.cosmic.deployment.generator
 
+import fr.unice.modalis.cosmic.deployment.exception.InappropriateConceptForGenerator
 import fr.unice.modalis.cosmic.deposit.core._
 
 import scala.io.Source
@@ -61,7 +62,7 @@ object ArduinoGenerator extends CodeGenerator{
       Instruction(inputVariables, bodyInstruction, Set(outputVariable))
 
 
-    case _ => throw new Exception("Can't generate concept " + c + " for Arduino platform")
+    case _ => throw new InappropriateConceptForGenerator(c, "Arduino")
   }
 
   def generateConstant(s:SensorDataType) = {
@@ -178,7 +179,7 @@ object ArduinoGenerator extends CodeGenerator{
       case "SmartCampusType" => "struct SmartCampusType"
       case "SantanderParkingType" => "struct SantanderParkingType"
       case "IntegerSensorType" => "struct IntegerSensorType"
-      case _ => throw new Exception("Unknown data type name")
+      case _ => throw new UnknownDataTypeName(d.getSimpleName)
     }
   }
 
@@ -217,7 +218,7 @@ object ArduinoGenerator extends CodeGenerator{
           val res = generatePeriodicSensor(a)
           declaration = declaration + generatePeriodicDeclaration(a, res._1)
           body = body + res._2
-        case _ => throw new Exception(s + " is incompatible with Arduino platforms")
+        case _ => throw new InappropriateConceptForGenerator(s, "Arduino")
       }
     }
     (declaration, body)
