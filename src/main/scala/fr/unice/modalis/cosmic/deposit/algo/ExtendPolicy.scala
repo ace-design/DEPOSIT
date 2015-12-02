@@ -13,12 +13,44 @@ case class Unification[T<:DataType](a:JoinPointOutput[T], b:JoinPointInput[T])
 object ExtendPolicy {
 
 
-  def apply(p:Policy, emptyIOonly:Boolean = false):Policy = {
-    val toApply = (for (activity <- p.operations; if activity.isExpendable) yield generateJoinPointsForOperation(activity, p, emptyIOonly))
+  def generateJoinPointsForInterface(interface: PolicyIO[_ <: DataType], p: Policy, onlyEmptyPorts: Boolean) = {
+
+    interface match {
+      case i:Sensor[_] =>
+        if (onlyEmptyPorts && p.flowsFrom(i).nonEmpty) {
+          (None,None)
+        }
+        else {
+          val jp = new JoinPointOutput(i.output, i.dataType)
+          val l = new Flow(i.output, jp.input)
+          (Some(jp),Some(l))
+        }
+
+      case i:Collector[_] =>
+        if (p.flowsTo(i).nonEmpty) (None, None)
+        else {
+          val jp = new JoinPointInput(i.input, i.dataType)
+          val l = new Flow(jp.output, i.input)
+          (Some(jp), Some(l))
+        }
+      }
+
+  }
+
+  def apply(p:Policy, onlyEmptyPorts:Boolean = false):Policy = {
+
+    val interfacesExtended = for (interface <- p.ios -- p.ios.collect {case x:JoinPoint[_] => x}) yield generateJoinPointsForInterface(interface, p, onlyEmptyPorts)
+
+    val toApply = (for (activity <- p.operations; if activity.isExpendable) yield generateJoinPointsForOperation(activity, p, onlyEmptyPorts))
       .foldLeft(Set[JoinPoint[_ <:DataType]](),Set[Flow[_ <:DataType]]()){ (acc, e) => (acc._1 ++ e._1, acc._2 ++ e._2)}
     var policy = p
     toApply._1.foreach(j => policy = policy.add(j))
     toApply._2.foreach(l => policy = policy.addFlow(l))
+
+    for (i <- interfacesExtended) {
+      if (i._1.isDefined) policy = policy.add(i._1.get)
+      if (i._2.isDefined) policy = policy.addFlow(i._2.get)
+    }
 
     policy
   }

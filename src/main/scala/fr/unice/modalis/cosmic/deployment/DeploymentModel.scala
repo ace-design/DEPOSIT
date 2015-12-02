@@ -123,7 +123,7 @@ object Deploy {
     val projectionGrouped = projection.toSeq.groupBy(_._2).map { e => e._1 -> e._2.map(_._1)}
 
     // Split the global policies into sub-policy and extend it with Join Points
-    val rawPolicies = projectionGrouped.map(e => ExtendPolicy(policy.select(e._2.toSet, policy.name + "_" + e._1.name),emptyIOonly = false))
+    val rawPolicies = projectionGrouped.map(e => ExtendPolicy(policy.select(e._2.toSet, policy.name + "_" + e._1.name), onlyEmptyPorts = false))
 
     // Compute which join points are network-related
     val networkFlows = getNetworkFlows(rawPolicies.toSet, policy)
