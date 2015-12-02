@@ -55,6 +55,25 @@ trait ValueOperation[T<:DataType] extends Operation[T,T] {
   val hasNewName:Boolean
 }
 
+case class Rename[I<:CompositeType](newName:String, iType : Class[I]) extends Operation[I, I] with ValueOperation[I] {
+  override val inputsNames: Predef.Set[String] = Set(DEFAULT_INPUT_NAME)
+  override val outputsNames: Predef.Set[String] = Set(DEFAULT_OUTPUT_NAME)
+  override val oType: Class[I] = iType
+  override val hasNewName: Boolean = true
+  override val applicationField: DataField = DataField.NAME
+  override val hasNewTimestamp: Boolean = false
+
+  val input = getInput()
+  val output = getOutput()
+  /**
+    * Return a copy of this concept (with different id)
+    * @return copy of this concept
+    */
+  override def duplicate: Concept = this.copy()
+
+  override val commonName: String = "RENAME(" + newName + ")"
+}
+
 
 
 /**
