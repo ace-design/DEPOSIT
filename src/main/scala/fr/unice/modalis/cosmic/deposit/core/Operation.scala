@@ -31,14 +31,14 @@ trait Operation[I<:DataType, O<:DataType] extends Concept with Properties{
    * @param s Requested name
    * @return Input option
    */
-  def getInput(s:String = DEFAULT_INPUT_NAME):Input[I] = inputs.find(_.name.equalsIgnoreCase(s)).getOrElse(throw new PortNotFoundException(s))
+  def getInput(s:String = DEFAULT_INPUT_NAME):Input[I] = inputs.find(_.name.equalsIgnoreCase(s)).getOrElse(throw new Exception("Input " + s +  " not found"))
 
   /**
    * Find an output with its name
    * @param s Requested name
    * @return Output option
    */
-  def getOutput(s:String = DEFAULT_OUTPUT_NAME):Output[O] = outputs.find(_.name.equalsIgnoreCase(s)).getOrElse(throw new PortNotFoundException(s))
+  def getOutput(s:String = DEFAULT_OUTPUT_NAME):Output[O] = outputs.find(_.name.equalsIgnoreCase(s)).getOrElse(throw new Exception("Output " + s +  " not found"))
 
   override val id:String = "concept_" + super.id
 
@@ -55,10 +55,11 @@ trait ValueOperation[T<:DataType] extends Operation[T,T] {
   val hasNewName:Boolean
 }
 
-case class Rename[I<:DataType](newName:String, iType : Class[I]) extends Operation[I, I]{
+case class Rename[I<:DataType](newName:String, iType : Class[I]) extends Operation[I, I] {
   override val inputsNames: Predef.Set[String] = Set(DEFAULT_INPUT_NAME)
   override val outputsNames: Predef.Set[String] = Set(DEFAULT_OUTPUT_NAME)
   override val oType: Class[I] = iType
+
 
   val input = getInput()
   val output = getOutput()
