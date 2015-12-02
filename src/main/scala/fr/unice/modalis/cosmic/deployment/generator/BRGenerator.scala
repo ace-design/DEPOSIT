@@ -59,11 +59,11 @@ object BRGenerator extends CodeGenerator{
 */
 
     case a:Rename[T] =>
-      val input_var = Variable(a.id + "_" + a.input.name, generateDataTypeName(a.iType))
-      val output_var = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.oType))
+      val input_var = Variable(a.id + "_" + a.input.name, "")
+      val output_var = Variable(a.id + "_" + a.output.name, "")
       Instruction(
         Set(input_var),
-        input_var.name + "[\"data\"][\"" + DataType.factory(input_var.t).asInstanceOf[SensorDataType].getNameField.n + "\"] = \"" + a.newName + "\";" +
+        input_var.name + "[\"data\"][\"" + DataType.factory(a.iType.getSimpleName).asInstanceOf[SensorDataType].getNameField.n + "\"] = \"" + a.newName + "\";" +
           output_var.name + " = " + input_var.name,
         Set(output_var))
 
