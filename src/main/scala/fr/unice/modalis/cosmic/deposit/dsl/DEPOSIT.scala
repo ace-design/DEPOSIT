@@ -142,7 +142,7 @@ trait DEPOSIT {
   }
 
   protected object OperationType extends Enumeration {
-    val ADD, AVG, CONDITIONAL, CONSTANT, DIVIDE, HIGHER, HIGHEREQ, INCREMENT, LOWER, LOWEREQ, MAX, MIN, MULTIPLY, PRODUCE, PROCESS, SUB, UNKNOWN = Value
+    val ADD, AVG, CONDITIONAL, CONSTANT, DIVIDE, HIGHER, HIGHEREQ, INCREMENT, LOWER, LOWEREQ, MAX, MIN, MULTIPLY, PRODUCE, PROCESS, RENAME, SUB, UNKNOWN = Value
   }
   protected case class OperationBuilder(kind: OperationType.Value = OperationType.UNKNOWN,
                                         inputs:Set[String] = Set.empty,
@@ -193,6 +193,11 @@ trait DEPOSIT {
       currentOperation.get
     }
 
+    def aRenamerTo(s:String) = {
+      currentOperation = Some(this.copy(kind = OperationType.RENAME, rename = Some(s)))
+      currentOperation.get
+    }
+
     def withInputs(i:String *):OperationBuilder = {
       currentOperation = Some(this.copy(inputs = i.toSet))
       currentOperation.get
@@ -232,6 +237,7 @@ trait DEPOSIT {
       case OperationType.DIVIDE => val c = new Divide(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
       case OperationType.MULTIPLY => val c = new Multiply(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
       case OperationType.INCREMENT => val c = new Increment(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
+      case OperationType.RENAME => val c = new Rename(rename.get, dataTypeInput.get); conceptProduced = Some(c); c;
       case OperationType.PROCESS => val c = new Process(innerPolicy.get, dataTypeInput.get, dataTypeOutput.get); conceptProduced = Some(c); c;
     }
   }
