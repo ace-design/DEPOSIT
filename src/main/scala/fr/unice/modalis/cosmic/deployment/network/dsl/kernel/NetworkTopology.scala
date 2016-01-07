@@ -7,6 +7,8 @@ import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.EntityPower.EntityP
 import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.EntityType.EntityType
 import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.Media.Media
 import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.ProgrammingLanguage.ProgrammingLanguage
+import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.SensorBrand.SensorBrand
+import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.SensorType.SensorType
 import fr.unice.modalis.cosmic.deposit.core.Properties
 /**
  * Represent sensing infrastructure nodes
@@ -25,9 +27,12 @@ case class Entity(name:String,
                   sensors:Set[Sensor],
                   power:EntityPower,
                   communication:Set[Communication],
-                  eType:EntityType,
-                  language:ProgrammingLanguage,
-                  computation:EntityComputation) extends GenericNode
+                  computation:EntityComputation,
+                  eType:EntityType = EntityType.Misc,
+                  language:ProgrammingLanguage = ProgrammingLanguage.None) extends GenericNode {
+
+  override def isProgrammable:Boolean = language != ProgrammingLanguage.None
+}
 
 
 object EntityPower extends Enumeration {
@@ -39,7 +44,7 @@ case class Communication(cType:CommunicationType, cWay:CommunicationWay)
 
 object ProgrammingLanguage extends Enumeration {
   type ProgrammingLanguage = Value
-  val nesC,Contiki,Python,Processing,Java,Groovy = Value
+  val nesC,Contiki,Python,Processing,Java,Groovy,None = Value
 }
 object CommunicationType extends Enumeration {
   type CommunicationType = Value
@@ -61,11 +66,20 @@ object EntityComputation extends Enumeration {
   val HIGH, LOW, CLOUD = Value
 }
 
+case class Sensor(name:String, sType:SensorType = SensorType.UNKNOWN, sBrand:SensorBrand = SensorBrand.UNKNOWN) extends GenericNode
 
 
+object SensorType extends Enumeration {
+  type SensorType = Value
+  val TEMPERATURE, LIGHT, HUMIDITY, PRESENCE, UNKNOWN = Value
+}
+
+object SensorBrand extends Enumeration {
+  type SensorBrand = Value
+  val GroveLight, DFLight, DFTemperature, GroveTemperature, EBTemperature, PhidgetTemperature, GroveMagnetic, DFMagnetic, EBMagnetic, GrovePresence, UNKNOWN = Value
+}
 
 case class Node(name:String) extends GenericNode
-case class Sensor(name:String) extends GenericNode
 case class Bridge(name:String) extends GenericNode
 case class SensorPlatform(name:String) extends GenericNode
 case class Remote(name: String) extends GenericNode
