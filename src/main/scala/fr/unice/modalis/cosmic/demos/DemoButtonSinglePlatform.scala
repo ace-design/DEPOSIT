@@ -1,6 +1,6 @@
 package fr.unice.modalis.cosmic.demos
 
-import fr.unice.modalis.cosmic.deployment.generator.ArduinoGenerator
+import fr.unice.modalis.cosmic.deployment.generator.ProcessingGenerator
 import fr.unice.modalis.cosmic.deposit.converter.ToGraphviz
 import fr.unice.modalis.cosmic.deposit.core._
 
@@ -55,5 +55,5 @@ object DemoButtonSinglePlatform extends App{
 
   // We generate Graphviz and Arduino code
   ToGraphviz.writeSource(p)
-  ArduinoGenerator(p, true)
+  ProcessingGenerator(p, toFile = true)
 }

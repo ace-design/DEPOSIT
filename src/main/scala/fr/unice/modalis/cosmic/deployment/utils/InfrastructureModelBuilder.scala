@@ -2,7 +2,7 @@ package fr.unice.modalis.cosmic.deployment.utils
 
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.{EntityComputation, EntityType}
 import fr.unice.modalis.cosmic.deployment.infrastructure.{Features, NetworkTopology}
-import fr.unice.modalis.cosmic.deployment.network.dsl.kernel._
+import fr.unice.modalis.cosmic.deployment.network.{Communication, Edge, Entity, Sensor}
 
 import scala.xml.{NodeSeq, XML}
 

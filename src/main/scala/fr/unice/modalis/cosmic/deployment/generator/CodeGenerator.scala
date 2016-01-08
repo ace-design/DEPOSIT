@@ -20,7 +20,6 @@ trait CodeGenerator {
 
   val CURRENT_TIMESTAMP_METHOD:String
 
-
   def apply(p:Policy) = generate(p)
 
   /**

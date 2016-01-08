@@ -10,7 +10,7 @@ import scala.io.Source
  * Created by Cyril Cecchinel - I3S Laboratory on 02/10/15.
  */
 
-object ArduinoGenerator extends CodeGenerator{
+object ProcessingGenerator extends CodeGenerator{
 
 
   val LAST_VALUE_PREFIX = "lastValue_"

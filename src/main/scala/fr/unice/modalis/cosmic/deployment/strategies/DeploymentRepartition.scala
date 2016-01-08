@@ -1,7 +1,7 @@
-package fr.unice.modalis.cosmic.deployment.heuristics
+package fr.unice.modalis.cosmic.deployment.strategies
 
 import fr.unice.modalis.cosmic.deployment.infrastructure.NetworkTopology
-import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.GenericNode
+import fr.unice.modalis.cosmic.deployment.network.GenericNode
 import fr.unice.modalis.cosmic.deposit.core.Concept
 
 import scalax.collection.Graph

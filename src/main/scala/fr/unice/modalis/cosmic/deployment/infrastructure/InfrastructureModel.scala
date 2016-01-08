@@ -1,7 +1,7 @@
 package fr.unice.modalis.cosmic.deployment.infrastructure
 
-import fr.unice.modalis.cosmic.deployment.heuristics.DeploymentRepartition
-import fr.unice.modalis.cosmic.deployment.network.dsl.kernel._
+import fr.unice.modalis.cosmic.deployment.network.{Edge, Entity, Sensor}
+import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
 
 import scalax.collection.Graph
 import scalax.collection.GraphPredef._

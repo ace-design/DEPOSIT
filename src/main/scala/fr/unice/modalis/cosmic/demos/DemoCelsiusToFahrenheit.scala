@@ -1,7 +1,7 @@
 package fr.unice.modalis.cosmic.demos
 
 import fr.unice.modalis.cosmic.deployment.PreDeploy
-import fr.unice.modalis.cosmic.deployment.generator.ArduinoGenerator
+import fr.unice.modalis.cosmic.deployment.generator.ProcessingGenerator
 import fr.unice.modalis.cosmic.deployment.utils.InfrastructureModelBuilder
 import fr.unice.modalis.cosmic.deposit.core._
 
@@ -33,6 +33,6 @@ object DemoCelsiusToFahrenheit extends App{
   val topology = InfrastructureModelBuilder("assets/configurations/smartcampus_xbeenetwork.xml")
   val predeployed = PreDeploy(p, topology)
 
-  ArduinoGenerator(predeployed, toFile = true)
+  ProcessingGenerator(predeployed, toFile = true)
 
 }

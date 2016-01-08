@@ -5,10 +5,11 @@ import fr.unice.modalis.cosmic.deposit.core._
 
 import scala.io.Source
 
-/**
- * Created by Cyril Cecchinel - I3S Laboratory on 29/10/2015.
- */
-object BRGenerator extends CodeGenerator{
+/***
+  * Python Generator
+  * Created by Cyril Cecchinel - I3S Laboratory on 29/10/2015.
+  */
+object PythonGenerator extends CodeGenerator{
   override val templateFile: String = "assets/generation/python/main.template"
   override val CURRENT_TIMESTAMP_METHOD: String = "currentTime()"
 

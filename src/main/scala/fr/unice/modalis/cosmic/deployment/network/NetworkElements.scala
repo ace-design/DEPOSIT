@@ -1,4 +1,4 @@
-package fr.unice.modalis.cosmic.deployment.network.dsl.kernel
+package fr.unice.modalis.cosmic.deployment.network
 
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.CommunicationType.CommunicationType
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.CommunicationWay.CommunicationWay
@@ -9,7 +9,7 @@ import fr.unice.modalis.cosmic.deployment.infrastructure.Features.ProgrammingLan
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.SensorBrand.SensorBrand
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.SensorType.SensorType
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.{EntityType, ProgrammingLanguage, SensorBrand, SensorType}
-import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.Media.Media
+import fr.unice.modalis.cosmic.deployment.network.Media.Media
 import fr.unice.modalis.cosmic.deposit.core.Properties
 /**
  * Represent sensing infrastructure nodes

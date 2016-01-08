@@ -1,6 +1,6 @@
 package fr.unice.modalis.cosmic.deposit.dsl
 
-import fr.unice.modalis.cosmic.deployment.heuristics.DeploymentRepartition
+import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
 import fr.unice.modalis.cosmic.deployment.utils.InfrastructureModelBuilder
 import fr.unice.modalis.cosmic.deployment.{Deploy, PreDeploy}
 import fr.unice.modalis.cosmic.deposit.core._

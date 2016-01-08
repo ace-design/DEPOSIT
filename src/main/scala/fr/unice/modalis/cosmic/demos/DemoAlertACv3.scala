@@ -1,7 +1,7 @@
 package fr.unice.modalis.cosmic.demos
 
-import fr.unice.modalis.cosmic.deployment.generator.{ArduinoGenerator, BRGenerator}
-import fr.unice.modalis.cosmic.deployment.heuristics.DeploymentRepartition
+import fr.unice.modalis.cosmic.deployment.generator.{ProcessingGenerator, PythonGenerator}
+import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
 import fr.unice.modalis.cosmic.deployment.utils.InfrastructureModelBuilder
 import fr.unice.modalis.cosmic.deployment.{Deploy, PreDeploy}
 import fr.unice.modalis.cosmic.deposit.converter.ToGraphviz
@@ -101,8 +101,8 @@ object DemoAlertACv3 extends App{
   ToGraphviz.writeSource(policyRp)
 
 
-  ArduinoGenerator(policyArd1, toFile = true)
-  ArduinoGenerator(policyArd2, toFile = true)
-  BRGenerator(policyRp, toFile = true)
+  ProcessingGenerator(policyArd1, toFile = true)
+  ProcessingGenerator(policyArd2, toFile = true)
+  PythonGenerator(policyRp, toFile = true)
 
 }

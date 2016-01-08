@@ -1,9 +1,9 @@
 package fr.unice.modalis.cosmic.deployment
 
 import fr.unice.modalis.cosmic.deployment.exception.NoTargetFoundException
-import fr.unice.modalis.cosmic.deployment.heuristics.DeploymentRepartition
 import fr.unice.modalis.cosmic.deployment.infrastructure.NetworkTopology
-import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.GenericNode
+import fr.unice.modalis.cosmic.deployment.network.GenericNode
+import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
 import fr.unice.modalis.cosmic.deposit.algo.ExtendPolicy
 import fr.unice.modalis.cosmic.deposit.converter.ToGraphviz
 import fr.unice.modalis.cosmic.deposit.core._
@@ -65,7 +65,7 @@ object PreDeploy {
     // Step 3: compute where operations can be projected
     for (concept <- policy.concepts; sensorsNeeded = concept.readProperty("sensors").getOrElse(Set[Sensor[_]]()).asInstanceOf[Set[Sensor[_]]].map(_.url)) yield {
       var targets:Set[GenericNode] = Set.empty
-      for (resource <- topology.resources; sensorsConnected = resource.readProperty("sensors").getOrElse(Set[Sensor[_]]()).asInstanceOf[Set[fr.unice.modalis.cosmic.deployment.network.dsl.kernel.Sensor]].map(_.name)) yield {
+      for (resource <- topology.resources; sensorsConnected = resource.readProperty("sensors").getOrElse(Set[Sensor[_]]()).asInstanceOf[Set[network.Sensor]].map(_.name)) yield {
 
         if (sensorsNeeded.forall(sensorsConnected.contains)) {
 
@@ -111,7 +111,7 @@ object Deploy {
       * @param policy Policy
       * @return A policy without join points not involved in a network communication
       */
-    def deleteNonRevelantJoinPoints(policy:Policy) = {
+    def deleteNonRelevantJoinPoints(policy:Policy) = {
 
       val joinPoints = policy.ios.toList.collect{case x:JoinPoint[_] => x}.filterNot(_.hasProperty("network").isDefined)
       var sanitizedPolicy = policy
@@ -143,7 +143,7 @@ object Deploy {
     }
 
     // Delete non-relevant join points
-    val readyToDeployedPolicies = rawPolicies.map { deleteNonRevelantJoinPoints }
+    val readyToDeployedPolicies = rawPolicies.map { deleteNonRelevantJoinPoints }
     readyToDeployedPolicies.foreach(p => ToGraphviz.writeSource(p))
 
     readyToDeployedPolicies
