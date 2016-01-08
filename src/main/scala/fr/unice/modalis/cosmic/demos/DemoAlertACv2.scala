@@ -1,7 +1,7 @@
 package fr.unice.modalis.cosmic.demos
 
 import fr.unice.modalis.cosmic.deployment.generator.{ProcessingGenerator, PythonGenerator}
-import fr.unice.modalis.cosmic.deployment.utils.InfrastructureModelBuilder
+import fr.unice.modalis.cosmic.deployment.utils.TopologyModelBuilder
 import fr.unice.modalis.cosmic.deployment.{Deploy, PreDeploy}
 import fr.unice.modalis.cosmic.deposit.converter.ToGraphviz
 import fr.unice.modalis.cosmic.deposit.core._
@@ -73,7 +73,7 @@ object DemoAlertACv2 extends App{
     .addFlow(l10).addFlow(l11).addFlow(l12)
 
   // We prepare the policy to be deployed over the SmartCampus infrastructure
-  val topology = InfrastructureModelBuilder("assets/configurations/smartcampus_xbeenetwork.xml")
+  val topology = TopologyModelBuilder("assets/configurations/smartcampus_xbeenetwork.xml")
   val predeployed = PreDeploy(p, topology)
 
   // We display the possible concept repartition (1) and we decide (manually) where to deploy a concept (2)

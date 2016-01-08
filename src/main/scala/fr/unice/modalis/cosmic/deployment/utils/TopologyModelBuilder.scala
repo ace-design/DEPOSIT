@@ -8,13 +8,13 @@ import scala.xml.{NodeSeq, XML}
 
 
 /**
-  * This object creates an infrastructure model from a SpineFM feature model (XML representation)
+  * This object creates a topology model from a SpineFM feature model (XML representation)
   * Created by Cyril Cecchinel - I3S Laboratory on 28/05/15.
   */
-object InfrastructureModelBuilder {
+object TopologyModelBuilder {
 
   /**
-    * Build the infrastructure
+    * Build the topology
     * @param pathToFile Path to XML representation
     * @return a Network Topology object
     */
