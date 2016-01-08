@@ -2,7 +2,8 @@ package fr.unice.modalis.cosmic.deployment
 
 import fr.unice.modalis.cosmic.deployment.exception.NoTargetFoundException
 import fr.unice.modalis.cosmic.deployment.heuristics.DeploymentRepartition
-import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.{GenericNode, NetworkTopology}
+import fr.unice.modalis.cosmic.deployment.infrastructure.NetworkTopology
+import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.GenericNode
 import fr.unice.modalis.cosmic.deposit.algo.ExtendPolicy
 import fr.unice.modalis.cosmic.deposit.converter.ToGraphviz
 import fr.unice.modalis.cosmic.deposit.core._
