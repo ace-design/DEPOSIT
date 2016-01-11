@@ -63,6 +63,7 @@ object TopologyModelBuilder {
 
     val configuration = XML.loadFile(pathToFile)
 
+    val name = (configuration \\ "sensornetwork" \ "@id").text
 
     val entities = for (e <- configuration \\ "sensornetwork" \\ "entities" \\ "entity";
                         id = (e \\ "@name").text;
@@ -80,7 +81,7 @@ object TopologyModelBuilder {
                      target = entities find (_.name equals (e \\ "@to").text)
                      if source.isDefined && target.isDefined) yield Edge(source.get, target.get)
 
-    new NetworkTopology(entities.toSet, edges.toSet)
+    new NetworkTopology(name, entities.toSet, edges.toSet)
 
 
 
