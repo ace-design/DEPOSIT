@@ -1,6 +1,6 @@
 #include <AnalogEvent.h>
 #include <TimedEvent.h>
-
+#@libraries@#
 #define BOARD_ID #@board_id@#
 #define OFFSET #@period@#
 
@@ -8,6 +8,8 @@
 
 #@global_variables@#
 #@global_sensor_values@#
+#@global_pointers@#
+
 int timestamp0 = 0;
 struct SmartCampusType nullValue = {-1, BOARD_ID, {"", 0, -1}};
 

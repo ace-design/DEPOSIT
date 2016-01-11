@@ -1,8 +1,11 @@
 package fr.unice.modalis.cosmic.deployment.generator
 
 import fr.unice.modalis.cosmic.deployment.exception.InappropriateConceptForGenerator
+import fr.unice.modalis.cosmic.deployment.infrastructure.Features.ProgrammingLanguage.ProgrammingLanguage
+import fr.unice.modalis.cosmic.deployment.infrastructure.Features.{ProgrammingLanguage, SensorBrand, SensorType}
 import fr.unice.modalis.cosmic.deposit.core._
 
+import scala.collection.immutable.HashMap
 import scala.io.Source
 
 /**
@@ -152,6 +155,8 @@ object ProcessingGenerator extends CodeGenerator{
     generatedCode = replace("flush", generateFlushMethod(p), generatedCode)
     generatedCode = replace("global_sensor_values", generateSensorValues(p), generatedCode)
     generatedCode = replace("setup_instructions", generateSetupInstructions(p), generatedCode)
+    generatedCode = replace ("global_pointers", generateGlobalPointers(p), generatedCode)
+    generatedCode = replace ("libraries", generateLibraries(p), generatedCode)
     generatedCode = replace("period", if (p.hasPeriodicSensors) computePeriod(p).toString else "", generatedCode)
     generatedCode
   }
@@ -239,6 +244,7 @@ object ProcessingGenerator extends CodeGenerator{
     val name = "event_" + s.id
     var body = Source.fromFile(template).getLines().mkString("\n")
     body = replace("name", name, body)
+    body = replace("call_method", sensorTypeHandling(s.readProperty("type").get.asInstanceOf[SensorType.Value])._1, body)
     body = replace("id", s.id, body)
     body = replace("port", Utils.lookupSensorAssignment(s.name), body)
     body = replace("common_name", s.name, body)
@@ -252,6 +258,7 @@ object ProcessingGenerator extends CodeGenerator{
     val name = "periodic_" + s.id
     var body = Source.fromFile(template).getLines().mkString("\n")
     body = replace("name", name, body)
+    body = replace("call_method", sensorTypeHandling(s.readProperty("type").get.asInstanceOf[SensorType.Value])._1, body)
     body = replace("id", s.id, body)
     body = replace("port", Utils.lookupSensorAssignment(s.name), body)
     body = replace("common_name", s.name, body)
@@ -261,9 +268,37 @@ object ProcessingGenerator extends CodeGenerator{
 
   }
 
+  private def generateGlobalPointers(p:Policy) = {
+    p.inputs.collect{case x:Sensor[_] => x}.foldLeft("") {
+      (acc, e) => {
+        val parent = sensorTypeHandling(e.readProperty("type").get.asInstanceOf[SensorType.Value])._3
+        val brand = sensorBrandHandling(e.readProperty("brand").get.asInstanceOf[SensorBrand.Value])._2
+        acc + parent + " *" + e.id + " = new " + brand + "(" + Utils.lookupSensorAssignment(e.name) + ");\n"
+      }}
+  }
+
+  private def generateLibraries(p:Policy) = {
+    p.inputs.collect{case x:Sensor[_] => x}.foldLeft("") {
+      (acc, e) => {
+        val brand = sensorBrandHandling(e.readProperty("brand").get.asInstanceOf[SensorBrand.Value])._1
+        acc + "#include <" + brand + ">\n"
+      }}
+  }
+
 
   object MessageBuilder {
     def apply(instruction: Instruction) = generate(instruction)
     def generate(instruction: Instruction) = Instruction(instruction.inputs,instruction.outputs.head.name +  " = {" + CURRENT_TIMESTAMP_METHOD + ", BOARD_ID," + instruction.body + "};", instruction.outputs)
   }
+
+  override val language: ProgrammingLanguage = ProgrammingLanguage.Processing
+  override val sensorTypeHandling: HashMap[SensorType.Value, (String, String, String)] = HashMap(
+    SensorType.Temperature -> ("readTemperature()",generateDataTypeName(classOf[DoubleType]), "TemperatureSensor")
+  )
+  override val sensorBrandHandling: HashMap[SensorBrand.Value, (String, String)] = HashMap(
+    SensorBrand.GroveTemperature -> ("grovetemperature.h", "GroveTemperatureSensor"),
+    SensorBrand.EBTemperature -> ("ebtemperature.h", "EBTemperatureSensor"),
+    SensorBrand.DFTemperature -> ("dftemperature.h", "DFTemperatureSensor")
+
+  )
 }

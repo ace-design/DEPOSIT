@@ -1,8 +1,11 @@
 package fr.unice.modalis.cosmic.deployment.generator
 
 import fr.unice.modalis.cosmic.deployment.exception.InappropriateConceptForGenerator
+import fr.unice.modalis.cosmic.deployment.infrastructure.Features.ProgrammingLanguage.ProgrammingLanguage
+import fr.unice.modalis.cosmic.deployment.infrastructure.Features.{ProgrammingLanguage, SensorBrand, SensorType}
 import fr.unice.modalis.cosmic.deposit.core._
 
+import scala.collection.immutable.HashMap
 import scala.io.Source
 
 /***
@@ -258,4 +261,7 @@ object PythonGenerator extends CodeGenerator{
     def generate(instruction: Instruction) = Instruction(instruction.inputs,instruction.outputs.head.name +  " = {\"t\":" + CURRENT_TIMESTAMP_METHOD + ",\"src\": BOARD_ID, \"data\":" + instruction.body + "}", instruction.outputs)
   }
 
+  override val language: ProgrammingLanguage = ProgrammingLanguage.Python
+  override val sensorTypeHandling: HashMap[SensorType.Value, (String, String, String)] = HashMap()
+  override val sensorBrandHandling: HashMap[SensorBrand.Value, (String, String)] = HashMap()
 }
