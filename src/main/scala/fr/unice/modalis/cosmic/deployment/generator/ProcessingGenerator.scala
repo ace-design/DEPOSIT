@@ -293,12 +293,14 @@ object ProcessingGenerator extends CodeGenerator{
 
   override val language: ProgrammingLanguage = ProgrammingLanguage.Processing
   override val sensorTypeHandling: HashMap[SensorType.Value, (String, String, String)] = HashMap(
-    SensorType.Temperature -> ("readTemperature()",generateDataTypeName(classOf[DoubleType]), "TemperatureSensor")
+    SensorType.Temperature -> ("readTemperature()",generateDataTypeName(classOf[DoubleType]), "TemperatureSensor"),
+    SensorType.Magnetic -> ("readValue()", generateDataTypeName(classOf[IntegerType]), "RawSensor")
   )
   override val sensorBrandHandling: HashMap[SensorBrand.Value, (String, String)] = HashMap(
     SensorBrand.GroveTemperature -> ("grovetemperature.h", "GroveTemperatureSensor"),
     SensorBrand.EBTemperature -> ("ebtemperature.h", "EBTemperatureSensor"),
-    SensorBrand.DFTemperature -> ("dftemperature.h", "DFTemperatureSensor")
+    SensorBrand.DFTemperature -> ("dftemperature.h", "DFTemperatureSensor"),
+    SensorBrand.GroveMagnetic -> ("raw.h", "RawSensor")
 
   )
 }
