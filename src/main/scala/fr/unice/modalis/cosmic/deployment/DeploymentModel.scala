@@ -57,6 +57,17 @@ object PreDeploy {
     while (policy.operations.collect({case x:Process[_,_] => x}).nonEmpty)
       policy = expandProcesses(policy)
 
+    // Step 0* : Refine policy sensors with Type and Brand information from topology model
+    policy.sources.collect {case x:Sensor[_] => x}.foreach { s =>
+      val sensor = topology.findSensorByName(s.name)
+      try {
+        s.addProperty("type", sensor.get.sType)
+        s.addProperty("brand", sensor.get.sBrand)
+      } catch {
+        case e:NoSuchElementException => println("[WARNING] Sensor " + s.name + " has not been found in " + topology.name)
+      }
+    }
+
     // Step 1: compute Sensors involved for each operation of the policy
     policy.concepts.foreach(c => c.addProperty("sensors", policy.sensorsInvolved(c)))
     // Step 2: compute which sensors are reachable from each point of the sensing infrastructure topology
