@@ -41,7 +41,7 @@ case class Communication(cType:CommunicationType, cWay:CommunicationWay)
 
 
 
-case class Sensor(name:String, sType:SensorType = SensorType.UNKNOWN, sBrand:SensorBrand = SensorBrand.UNKNOWN) extends GenericNode
+case class Sensor(name:String, sType:SensorType = SensorType.UNKNOWN, sBrand:SensorBrand = SensorBrand.UNKNOWN, sPin:Option[String] = None) extends GenericNode
 
 case class Edge(source: Entity, destination:Entity, media:Media = Media.Unknown)
 

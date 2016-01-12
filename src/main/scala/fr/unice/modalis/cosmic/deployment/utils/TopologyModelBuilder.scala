@@ -35,12 +35,12 @@ object TopologyModelBuilder {
     */
   def loadFromSpineFM(pathToFile: String) = {
 
-    def buildSensor(name: String, s: NodeSeq) = {
+    def buildSensor(name: String, pin:Option[String], s: NodeSeq) = {
       // Get type
       val sensorType = (for (k <- Features.featureTypeAssociation.keys if findFeature(k, s \\ "features")) yield Features.featureTypeAssociation(k)).head
       val sensorBrand = (for (k <- Features.featureBrandAssociation.keys if findFeature(k, s \\ "features")) yield Features.featureBrandAssociation(k)).head
 
-      new Sensor(name, sensorType, sensorBrand)
+      new Sensor(name, sensorType, sensorBrand, pin)
     }
 
     def buildEntity(id: String, sensors: Seq[Sensor], computation: EntityComputation.Value, etype: EntityType.Value, s:NodeSeq) = {
@@ -71,7 +71,7 @@ object TopologyModelBuilder {
                         etype = EntityType.withName((e \\ "@type").text)) yield {
 
 
-      val sensors = for (s <- e \\ "sensors" \\ "sensor"; sid = (s \\ "@id").text) yield buildSensor(sid, s)
+      val sensors = for (s <- e \\ "sensors" \\ "sensor"; sid = (s \ "@id").text; pin = s \@ "pin"; spin = if(pin.isEmpty) None else Some(pin)) yield buildSensor(sid, spin, s)
 
       buildEntity(id, sensors, computation, etype, e)
     }
