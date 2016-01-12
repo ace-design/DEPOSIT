@@ -246,7 +246,11 @@ object ProcessingGenerator extends CodeGenerator{
     body = replace("name", name, body)
     body = replace("call_method", sensorTypeHandling(s.readProperty("type").get.asInstanceOf[SensorType.Value])._1, body)
     body = replace("id", s.id, body)
-    body = replace("port", Utils.lookupSensorAssignment(s.name), body)
+    if (s.hasProperty("pin").isDefined) {
+      body = replace("port", s.readProperty("pin").get.asInstanceOf[String], body)
+    } else {
+      body = replace("port", Utils.lookupSensorAssignment(s.name), body)
+    }
     body = replace("common_name", s.name, body)
     val vars = Set(Variable(LAST_VALUE_PREFIX + s.id, generateDataTypeName(s.dataType)), Variable("lastUpdate_" + s.id, "long"))
     (name, body + "\n", vars)
@@ -260,7 +264,11 @@ object ProcessingGenerator extends CodeGenerator{
     body = replace("name", name, body)
     body = replace("call_method", sensorTypeHandling(s.readProperty("type").get.asInstanceOf[SensorType.Value])._1, body)
     body = replace("id", s.id, body)
-    body = replace("port", Utils.lookupSensorAssignment(s.name), body)
+    if (s.hasProperty("pin").isDefined) {
+      body = replace("port", s.readProperty("pin").get.asInstanceOf[String], body)
+    } else {
+      body = replace("port", Utils.lookupSensorAssignment(s.name), body)
+    }
     body = replace("common_name", s.name, body)
 
     val vars = Set(Variable(LAST_VALUE_PREFIX + s.id, generateDataTypeName(s.dataType)), Variable("lastUpdate_" + s.id, "long"))
@@ -273,7 +281,8 @@ object ProcessingGenerator extends CodeGenerator{
       (acc, e) => {
         val parent = sensorTypeHandling(e.readProperty("type").get.asInstanceOf[SensorType.Value])._3
         val brand = sensorBrandHandling(e.readProperty("brand").get.asInstanceOf[SensorBrand.Value])._2
-        acc + parent + " *" + e.id + " = new " + brand + "(" + Utils.lookupSensorAssignment(e.name) + ");\n"
+        val pin = if (e.hasProperty("pin").isDefined) e.readProperty("pin").get else Utils.lookupSensorAssignment(e.name)
+        acc + parent + " *" + e.id + " = new " + brand + "(" + pin + ");\n"
       }}
   }
 

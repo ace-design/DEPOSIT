@@ -63,6 +63,8 @@ object PreDeploy {
       try {
         s.addProperty("type", sensor.get.sType)
         s.addProperty("brand", sensor.get.sBrand)
+        if (sensor.get.sPin.isDefined)
+          s.addProperty("pin", sensor.get.sPin.get)
       } catch {
         case e:NoSuchElementException => println("[WARNING] Sensor " + s.name + " has not been found in " + topology.name)
       }
