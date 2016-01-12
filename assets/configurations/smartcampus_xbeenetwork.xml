@@ -228,6 +228,86 @@
                 </language>
             </languages>
         </entity>
+        <entity computation="High" name="ARD_1_444" type="Arduino">
+            <sensors>
+                <sensor id="TEMP_444" pin="1">
+                    <features>
+                        <feature>GroveTemperature</feature>
+                        <feature>Temperature</feature>
+                    </features>
+                </sensor>
+                <sensor id="LIGHT_444" pin="0">
+                    <features>
+                        <feature>Light</feature>
+                        <feature>GroveLight</feature>
+                    </features>
+                </sensor>
+            </sensors>
+            <communications>
+                <communication>
+                    <features>
+                        <feature>Way</feature>
+                        <feature>Media</feature>
+                        <feature>Out</feature>
+                        <feature>WAN</feature>
+                    </features>
+                </communication>
+            </communications>
+            <powers>
+                <power>
+                    <features>
+                        <feature>Mains</feature>
+                    </features>
+                </power>
+            </powers>
+            <languages>
+                <language>
+                    <features>
+                        <feature>Processing</feature>
+                    </features>
+                </language>
+            </languages>
+        </entity>
+        <entity computation="High" name="ARD_1_445" type="Arduino">
+            <sensors>
+                <sensor id="TEMP_445" pin="1">
+                    <features>
+                        <feature>GroveTemperature</feature>
+                        <feature>Temperature</feature>
+                    </features>
+                </sensor>
+                <sensor id="LIGHT_445" pin="2">
+                    <features>
+                        <feature>Light</feature>
+                        <feature>GroveLight</feature>
+                    </features>
+                </sensor>
+            </sensors>
+            <communications>
+                <communication>
+                    <features>
+                        <feature>Way</feature>
+                        <feature>Media</feature>
+                        <feature>Out</feature>
+                        <feature>WAN</feature>
+                    </features>
+                </communication>
+            </communications>
+            <powers>
+                <power>
+                    <features>
+                        <feature>Mains</feature>
+                    </features>
+                </power>
+            </powers>
+            <languages>
+                <language>
+                    <features>
+                        <feature>Processing</feature>
+                    </features>
+                </language>
+            </languages>
+        </entity>
     </entities>
     <connections>
         <connection from="RP_443_XBEE" to="SmartCampus"/>
@@ -235,5 +315,7 @@
         <connection from="ARD_2_443" to="RP_443_XBEE"/>
         <connection from="ARD_1_442" to="RP_443_XBEE"/>
         <connection from="ARD_CAFE" to="RP_443_XBEE"/>
+        <connection from="ARD_1_444" to="SmartCampus"/>
+        <connection from="ARD_1_445" to="SmartCampus"/>
     </connections>
 </sensornetwork>
