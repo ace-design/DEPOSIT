@@ -129,6 +129,8 @@ object Deploy {
       val joinPoints = policy.ios.toList.collect{case x:JoinPoint[_] => x}.filterNot(_.hasProperty("network").isDefined)
       var sanitizedPolicy = policy
       joinPoints.foreach(c => sanitizedPolicy = sanitizedPolicy.delete(c))
+      // Recopy properties
+      policy.properties.foreach {p => sanitizedPolicy.addProperty(p.name, p.value)}
       sanitizedPolicy
     }
 
@@ -137,7 +139,11 @@ object Deploy {
     val projectionGrouped = projection.toSeq.groupBy(_._2).map { e => e._1 -> e._2.map(_._1)}
 
     // Split the global policies into sub-policy and extend it with Join Points
-    val rawPolicies = projectionGrouped.map(e => ExtendPolicy(policy.select(e._2.toSet, policy.name + "_" + e._1.name), onlyEmptyPorts = false))
+    val rawPolicies = projectionGrouped.map {e =>
+      val extendedpolicy =  ExtendPolicy(policy.select(e._2.toSet, policy.name + "_" + e._1.name), onlyEmptyPorts = false)
+      extendedpolicy.addProperty("board", e._1.name)
+      extendedpolicy
+    }
 
     // Compute which join points are network-related
     val networkFlows = getNetworkFlows(rawPolicies.toSet, policy)
