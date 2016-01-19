@@ -6,6 +6,7 @@ import fr.unice.modalis.cosmic.deployment.{Deploy, PreDeploy}
 import fr.unice.modalis.cosmic.deposit.core._
 
 /**
+  * DEPOSIT Language
   * Created by Cyril Cecchinel - I3S Laboratory on 23/11/2015.
   */
 trait DEPOSIT {
