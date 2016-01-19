@@ -1,8 +1,11 @@
 package fr.unice.modalis.cosmic.deployment.generator
 
 import fr.unice.modalis.cosmic.deployment.exception.InappropriateConceptForGenerator
+import fr.unice.modalis.cosmic.deployment.infrastructure.Features.ProgrammingLanguage.ProgrammingLanguage
+import fr.unice.modalis.cosmic.deployment.infrastructure.Features.{ProgrammingLanguage, SensorBrand, SensorType}
 import fr.unice.modalis.cosmic.deposit.core._
 
+import scala.collection.immutable.HashMap
 import scala.io.Source
 
 /**
@@ -10,7 +13,7 @@ import scala.io.Source
  * Created by Cyril Cecchinel - I3S Laboratory on 02/10/15.
  */
 
-object ArduinoGenerator extends CodeGenerator{
+object ProcessingGenerator extends CodeGenerator{
 
 
   val LAST_VALUE_PREFIX = "lastValue_"
@@ -152,7 +155,11 @@ object ArduinoGenerator extends CodeGenerator{
     generatedCode = replace("flush", generateFlushMethod(p), generatedCode)
     generatedCode = replace("global_sensor_values", generateSensorValues(p), generatedCode)
     generatedCode = replace("setup_instructions", generateSetupInstructions(p), generatedCode)
+    generatedCode = replace ("global_pointers", generateGlobalPointers(p), generatedCode)
+    generatedCode = replace ("libraries", generateLibraries(p), generatedCode)
     generatedCode = replace("period", if (p.hasPeriodicSensors) computePeriod(p).toString else "", generatedCode)
+    if (p.hasProperty("board").isDefined)
+      generatedCode = replace("board_id", "\"" + p.readProperty("board").get.asInstanceOf[String] + "\"", generatedCode)
     generatedCode
   }
 
@@ -239,8 +246,13 @@ object ArduinoGenerator extends CodeGenerator{
     val name = "event_" + s.id
     var body = Source.fromFile(template).getLines().mkString("\n")
     body = replace("name", name, body)
+    body = replace("call_method", sensorTypeHandling(s.readProperty("type").get.asInstanceOf[SensorType.Value])._1, body)
     body = replace("id", s.id, body)
-    body = replace("port", Utils.lookupSensorAssignment(s.name), body)
+    if (s.hasProperty("pin").isDefined) {
+      body = replace("port", s.readProperty("pin").get.asInstanceOf[String], body)
+    } else {
+      body = replace("port", Utils.lookupSensorAssignment(s.name), body)
+    }
     body = replace("common_name", s.name, body)
     val vars = Set(Variable(LAST_VALUE_PREFIX + s.id, generateDataTypeName(s.dataType)), Variable("lastUpdate_" + s.id, "long"))
     (name, body + "\n", vars)
@@ -252,8 +264,13 @@ object ArduinoGenerator extends CodeGenerator{
     val name = "periodic_" + s.id
     var body = Source.fromFile(template).getLines().mkString("\n")
     body = replace("name", name, body)
+    body = replace("call_method", sensorTypeHandling(s.readProperty("type").get.asInstanceOf[SensorType.Value])._1, body)
     body = replace("id", s.id, body)
-    body = replace("port", Utils.lookupSensorAssignment(s.name), body)
+    if (s.hasProperty("pin").isDefined) {
+      body = replace("port", s.readProperty("pin").get.asInstanceOf[String], body)
+    } else {
+      body = replace("port", Utils.lookupSensorAssignment(s.name), body)
+    }
     body = replace("common_name", s.name, body)
 
     val vars = Set(Variable(LAST_VALUE_PREFIX + s.id, generateDataTypeName(s.dataType)), Variable("lastUpdate_" + s.id, "long"))
@@ -261,9 +278,40 @@ object ArduinoGenerator extends CodeGenerator{
 
   }
 
+  private def generateGlobalPointers(p:Policy) = {
+    p.inputs.collect{case x:Sensor[_] => x}.foldLeft("") {
+      (acc, e) => {
+        val parent = sensorTypeHandling(e.readProperty("type").get.asInstanceOf[SensorType.Value])._3
+        val brand = sensorBrandHandling(e.readProperty("brand").get.asInstanceOf[SensorBrand.Value])._2
+        val pin = if (e.hasProperty("pin").isDefined) e.readProperty("pin").get else Utils.lookupSensorAssignment(e.name)
+        acc + parent + " *" + e.id + " = new " + brand + "(" + pin + ");\n"
+      }}
+  }
+
+  private def generateLibraries(p:Policy) = {
+    p.inputs.collect{case x:Sensor[_] => x}.foldLeft("") {
+      (acc, e) => {
+        val brand = sensorBrandHandling(e.readProperty("brand").get.asInstanceOf[SensorBrand.Value])._1
+        acc + "#include <" + brand + ">\n"
+      }}
+  }
+
 
   object MessageBuilder {
     def apply(instruction: Instruction) = generate(instruction)
     def generate(instruction: Instruction) = Instruction(instruction.inputs,instruction.outputs.head.name +  " = {" + CURRENT_TIMESTAMP_METHOD + ", BOARD_ID," + instruction.body + "};", instruction.outputs)
   }
+
+  override val language: ProgrammingLanguage = ProgrammingLanguage.Processing
+  override val sensorTypeHandling: HashMap[SensorType.Value, (String, String, String)] = HashMap(
+    SensorType.Temperature -> ("readTemperature()",generateDataTypeName(classOf[DoubleType]), "TemperatureSensor"),
+    SensorType.Magnetic -> ("readValue()", generateDataTypeName(classOf[IntegerType]), "RawSensor")
+  )
+  override val sensorBrandHandling: HashMap[SensorBrand.Value, (String, String)] = HashMap(
+    SensorBrand.GroveTemperature -> ("grovetemperature.h", "GroveTemperatureSensor"),
+    SensorBrand.EBTemperature -> ("ebtemperature.h", "EBTemperatureSensor"),
+    SensorBrand.DFTemperature -> ("dftemperature.h", "DFTemperatureSensor"),
+    SensorBrand.GroveMagnetic -> ("raw.h", "RawSensor")
+
+  )
 }

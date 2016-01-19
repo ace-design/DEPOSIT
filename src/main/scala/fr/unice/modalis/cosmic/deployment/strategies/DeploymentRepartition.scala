@@ -1,9 +1,12 @@
-package fr.unice.modalis.cosmic.deployment.heuristics
+package fr.unice.modalis.cosmic.deployment.strategies
 
-import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.{GenericNode, NetworkTopology, Sensor}
+import fr.unice.modalis.cosmic.deployment.infrastructure.NetworkTopology
+import fr.unice.modalis.cosmic.deployment.network.GenericNode
 import fr.unice.modalis.cosmic.deposit.core.Concept
 
-
+import scalax.collection.Graph
+import scalax.collection.GraphPredef._
+import scalax.collection.edge.Implicits._
 /**
   * We specify the different heuristics for the deployment over a sensing infrastructure
   * Created by Cyril Cecchinel - I3S Laboratory on 17/11/2015.
@@ -30,14 +33,17 @@ object ClosestToSensorsRepartition extends DeploymentRepartition {
 
   override def place(concept: Concept, networkTopology: NetworkTopology): GenericNode = {
     // Generate the oriented weighted topology graph
-    val graph = networkTopology.toGraph
+    val gNodes = networkTopology.resources.flatMap {_.sensors.map{_.name}} ++ networkTopology.resources.map{_.name}
+    val gEdges = networkTopology.resources.flatMap(r => r.sensors.map {_.name}.map{_ ~> r.name % 1}) ++ networkTopology.edges.map{l => l.source.name ~> l.destination.name % 1}
 
-    def n(outer:GenericNode): graph.NodeT = graph get outer
+    val graph = Graph.from(gNodes, gEdges)
+
+    def n(outer:String): graph.NodeT = graph get outer
 
     // List of sensors
-    val sensors = networkTopology.resources.collect {case x:Sensor => x}
+    val sensors = gNodes -- networkTopology.resources.map {_.name}
     // List of others resources
-    val others = networkTopology.resources -- sensors
+    val others = networkTopology.resources.map{_.name}
 
     val distanceFromSensors = (for (o <- others) yield {
       (o, for (s <- sensors) yield {
@@ -55,7 +61,8 @@ object ClosestToSensorsRepartition extends DeploymentRepartition {
     val possibleTargetsForConcept = concept.readProperty("targets").get.asInstanceOf[Set[GenericNode]]
 
     // Find which concept is the closest to a sensor according the average distance
-    averageDistanceFromSensors.filterKeys(k => possibleTargetsForConcept contains k).minBy(_._2)._1
+    val resultAsAString = averageDistanceFromSensors.filterKeys(k => possibleTargetsForConcept contains networkTopology.resources.find(_.name equals k).get).minBy(_._2)._1
 
+    networkTopology.resources.find(_.name equals resultAsAString).get
   }
 }

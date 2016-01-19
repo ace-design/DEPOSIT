@@ -2,11 +2,14 @@ package fr.unice.modalis.cosmic.deployment.generator
 
 import java.io.PrintWriter
 
+import fr.unice.modalis.cosmic.deployment.infrastructure.Features.ProgrammingLanguage.ProgrammingLanguage
+import fr.unice.modalis.cosmic.deployment.infrastructure.Features.{SensorBrand, SensorType}
 import fr.unice.modalis.cosmic.deposit.core.{Concept, PeriodicSensor, Policy, SensorDataType}
 import org.chocosolver.solver.Solver
 import org.chocosolver.solver.constraints.IntConstraintFactory
 import org.chocosolver.solver.variables.VariableFactory
 
+import scala.collection.immutable.HashMap
 import scala.io.Source
 
 /**
@@ -20,6 +23,10 @@ trait CodeGenerator {
 
   val CURRENT_TIMESTAMP_METHOD:String
 
+  val language:ProgrammingLanguage
+
+  val sensorTypeHandling:HashMap[SensorType.Value, (String, String, String)]
+  val sensorBrandHandling:HashMap[SensorBrand.Value, (String, String)]
 
   def apply(p:Policy) = generate(p)
 

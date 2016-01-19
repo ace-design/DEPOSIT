@@ -1,8 +1,9 @@
 package fr.unice.modalis.cosmic.deployment
 
 import fr.unice.modalis.cosmic.deployment.exception.NoTargetFoundException
-import fr.unice.modalis.cosmic.deployment.heuristics.DeploymentRepartition
-import fr.unice.modalis.cosmic.deployment.network.dsl.kernel.{GenericNode, NetworkTopology}
+import fr.unice.modalis.cosmic.deployment.infrastructure.NetworkTopology
+import fr.unice.modalis.cosmic.deployment.network.GenericNode
+import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
 import fr.unice.modalis.cosmic.deposit.algo.ExtendPolicy
 import fr.unice.modalis.cosmic.deposit.converter.ToGraphviz
 import fr.unice.modalis.cosmic.deposit.core._
@@ -56,6 +57,19 @@ object PreDeploy {
     while (policy.operations.collect({case x:Process[_,_] => x}).nonEmpty)
       policy = expandProcesses(policy)
 
+    // Step 0* : Refine policy sensors with Type and Brand information from topology model
+    policy.sources.collect {case x:Sensor[_] => x}.foreach { s =>
+      val sensor = topology.findSensorByName(s.name)
+      try {
+        s.addProperty("type", sensor.get.sType)
+        s.addProperty("brand", sensor.get.sBrand)
+        if (sensor.get.sPin.isDefined)
+          s.addProperty("pin", sensor.get.sPin.get)
+      } catch {
+        case e:NoSuchElementException => println("[WARNING] Sensor " + s.name + " has not been found in " + topology.name)
+      }
+    }
+
     // Step 1: compute Sensors involved for each operation of the policy
     policy.concepts.foreach(c => c.addProperty("sensors", policy.sensorsInvolved(c)))
     // Step 2: compute which sensors are reachable from each point of the sensing infrastructure topology
@@ -64,7 +78,7 @@ object PreDeploy {
     // Step 3: compute where operations can be projected
     for (concept <- policy.concepts; sensorsNeeded = concept.readProperty("sensors").getOrElse(Set[Sensor[_]]()).asInstanceOf[Set[Sensor[_]]].map(_.url)) yield {
       var targets:Set[GenericNode] = Set.empty
-      for (resource <- topology.resources; sensorsConnected = resource.readProperty("sensors").getOrElse(Set[Sensor[_]]()).asInstanceOf[Set[fr.unice.modalis.cosmic.deployment.network.dsl.kernel.Sensor]].map(_.name)) yield {
+      for (resource <- topology.resources; sensorsConnected = resource.readProperty("sensors").getOrElse(Set[Sensor[_]]()).asInstanceOf[Set[network.Sensor]].map(_.name)) yield {
 
         if (sensorsNeeded.forall(sensorsConnected.contains)) {
 
@@ -110,11 +124,13 @@ object Deploy {
       * @param policy Policy
       * @return A policy without join points not involved in a network communication
       */
-    def deleteNonRevelantJoinPoints(policy:Policy) = {
+    def deleteNonRelevantJoinPoints(policy:Policy) = {
 
       val joinPoints = policy.ios.toList.collect{case x:JoinPoint[_] => x}.filterNot(_.hasProperty("network").isDefined)
       var sanitizedPolicy = policy
       joinPoints.foreach(c => sanitizedPolicy = sanitizedPolicy.delete(c))
+      // Recopy properties
+      policy.properties.foreach {p => sanitizedPolicy.addProperty(p.name, p.value)}
       sanitizedPolicy
     }
 
@@ -123,7 +139,11 @@ object Deploy {
     val projectionGrouped = projection.toSeq.groupBy(_._2).map { e => e._1 -> e._2.map(_._1)}
 
     // Split the global policies into sub-policy and extend it with Join Points
-    val rawPolicies = projectionGrouped.map(e => ExtendPolicy(policy.select(e._2.toSet, policy.name + "_" + e._1.name), onlyEmptyPorts = false))
+    val rawPolicies = projectionGrouped.map {e =>
+      val extendedpolicy =  ExtendPolicy(policy.select(e._2.toSet, policy.name + "_" + e._1.name), onlyEmptyPorts = false)
+      extendedpolicy.addProperty("board", e._1.name)
+      extendedpolicy
+    }
 
     // Compute which join points are network-related
     val networkFlows = getNetworkFlows(rawPolicies.toSet, policy)
@@ -142,7 +162,7 @@ object Deploy {
     }
 
     // Delete non-relevant join points
-    val readyToDeployedPolicies = rawPolicies.map { deleteNonRevelantJoinPoints }
+    val readyToDeployedPolicies = rawPolicies.map { deleteNonRelevantJoinPoints }
     readyToDeployedPolicies.foreach(p => ToGraphviz.writeSource(p))
 
     readyToDeployedPolicies

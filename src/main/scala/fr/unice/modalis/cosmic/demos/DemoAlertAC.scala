@@ -1,7 +1,7 @@
 package fr.unice.modalis.cosmic.demos
 
-import fr.unice.modalis.cosmic.deployment.generator.{ArduinoGenerator, BRGenerator}
-import fr.unice.modalis.cosmic.deployment.utils.InfrastructureModelBuilder
+import fr.unice.modalis.cosmic.deployment.generator.{ProcessingGenerator, PythonGenerator}
+import fr.unice.modalis.cosmic.deployment.utils.TopologyModelBuilder
 import fr.unice.modalis.cosmic.deployment.{Deploy, PreDeploy}
 import fr.unice.modalis.cosmic.deposit.core._
 
@@ -61,7 +61,7 @@ object DemoAlertAC extends App{
 
 
   // We prepare the policy to be deployed over the SmartCampus infrastructure
-  val topology = InfrastructureModelBuilder("assets/configurations/smartcampus_xbeenetwork.xml")
+  val topology = TopologyModelBuilder("assets/configurations/smartcampus_xbeenetwork.xml")
   val predeployed = PreDeploy(p, topology)
 
   // We display the possible concept repartition (1) and we decide where to deploy a concept (2)
@@ -87,7 +87,7 @@ object DemoAlertAC extends App{
   val policyArd2 = policies.find(_.name equals "ALERT_AC_ARD_2_443").getOrElse(throw new Exception("Non found policy"))
   val policyRp = policies.find(_.name equals "ALERT_AC_RP_443_XBEE").getOrElse(throw new Exception("Non found policy"))
 
-  ArduinoGenerator(policyArd1, toFile = true)
-  ArduinoGenerator(policyArd2, toFile = true)
-  BRGenerator(policyRp, toFile = true)
+  ProcessingGenerator(policyArd1, toFile = true)
+  ProcessingGenerator(policyArd2, toFile = true)
+  PythonGenerator(policyRp, toFile = true)
 }

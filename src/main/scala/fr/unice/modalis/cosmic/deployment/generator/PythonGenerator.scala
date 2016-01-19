@@ -1,14 +1,18 @@
 package fr.unice.modalis.cosmic.deployment.generator
 
 import fr.unice.modalis.cosmic.deployment.exception.InappropriateConceptForGenerator
+import fr.unice.modalis.cosmic.deployment.infrastructure.Features.ProgrammingLanguage.ProgrammingLanguage
+import fr.unice.modalis.cosmic.deployment.infrastructure.Features.{ProgrammingLanguage, SensorBrand, SensorType}
 import fr.unice.modalis.cosmic.deposit.core._
 
+import scala.collection.immutable.HashMap
 import scala.io.Source
 
-/**
- * Created by Cyril Cecchinel - I3S Laboratory on 29/10/2015.
- */
-object BRGenerator extends CodeGenerator{
+/***
+  * Python Generator
+  * Created by Cyril Cecchinel - I3S Laboratory on 29/10/2015.
+  */
+object PythonGenerator extends CodeGenerator{
   override val templateFile: String = "assets/generation/python/main.template"
   override val CURRENT_TIMESTAMP_METHOD: String = "currentTime()"
 
@@ -257,4 +261,7 @@ object BRGenerator extends CodeGenerator{
     def generate(instruction: Instruction) = Instruction(instruction.inputs,instruction.outputs.head.name +  " = {\"t\":" + CURRENT_TIMESTAMP_METHOD + ",\"src\": BOARD_ID, \"data\":" + instruction.body + "}", instruction.outputs)
   }
 
+  override val language: ProgrammingLanguage = ProgrammingLanguage.Python
+  override val sensorTypeHandling: HashMap[SensorType.Value, (String, String, String)] = HashMap()
+  override val sensorBrandHandling: HashMap[SensorBrand.Value, (String, String)] = HashMap()
 }

@@ -1,170 +1,321 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<sensornetwork>
+<sensornetwork id="SmartCampusXBEENetwork">
     <entities>
-        <entity id="SmartCampus">
-            <features>
-                <feature>Remote</feature>
-                <feature>SmartCampus</feature>
-            </features>
+        <entity computation="Cloud" name="SmartCampus" type="Server">
+            <sensors/>
+            <communications>
+                <communication>
+                    <features>
+                        <feature>Media</feature>
+                        <feature>Way</feature>
+                        <feature>In</feature>
+                        <feature>WAN</feature>
+                    </features>
+                </communication>
+            </communications>
+            <powers>
+                <power>
+                    <features>
+                        <feature>Mains</feature>
+                    </features>
+                </power>
+            </powers>
+            <languages>
+                <language>
+                    <features>
+                        <feature>Java</feature>
+                    </features>
+                </language>
+            </languages>
         </entity>
-        <entity id="RP_443_XBEE">
-            <features>
-                <feature>Bridge</feature>
-                <feature>Communication</feature>
-                <feature>Programmable</feature>
-                <feature>Raspberry</feature>
-                <feature>Serial</feature>
-                <feature>Wired</feature>
-                <feature>Wireless</feature>
-                <feature>XBEE</feature>
-            </features>
+        <entity computation="High" name="RP_443_XBEE" type="Raspberry">
+            <sensors/>
+            <communications>
+                <communication>
+                    <features>
+                        <feature>Media</feature>
+                        <feature>Way</feature>
+                        <feature>Out</feature>
+                        <feature>WAN</feature>
+                    </features>
+                </communication>
+                <communication>
+                    <features>
+                        <feature>Media</feature>
+                        <feature>Way</feature>
+                        <feature>In</feature>
+                        <feature>XBEE</feature>
+                        <feature>Wireless</feature>
+                    </features>
+                </communication>
+            </communications>
+            <powers>
+                <power>
+                    <features>
+                        <feature>Mains</feature>
+                    </features>
+                </power>
+            </powers>
+            <languages>
+                <language>
+                    <features>
+                        <feature>Python</feature>
+                    </features>
+                </language>
+            </languages>
         </entity>
-        <entity id="ARD_1_443">
-            <features>
-                <feature>SensorPlatform</feature>
-                <feature>Communication</feature>
-                <feature>Platform</feature>
-                <feature>Wired</feature>
-                <feature>Programmable</feature>
-                <feature>Arduino</feature>
-                <feature>Serial</feature>
-                <feature>Uno</feature>
-                <feature>Shield</feature>
-                <feature>Wireless</feature>
-                <feature>XBEE</feature>
-                <feature>XbeeShield</feature>
-                <feature>Grove</feature>
-            </features>
+        <entity computation="Low" name="ARD_1_443" type="Arduino">
+            <sensors>
+                <sensor id="DOOR_443">
+                    <features>
+                        <feature>GroveMagnetic</feature>
+                        <feature>Magnetic</feature>
+                    </features>
+                </sensor>
+                <sensor id="PRESENCE_443">
+                    <features>
+                        <feature>Presence</feature>
+                        <feature>GrovePresence</feature>
+                    </features>
+                </sensor>
+            </sensors>
+            <communications>
+                <communication>
+                    <features>
+                        <feature>Media</feature>
+                        <feature>Way</feature>
+                        <feature>Out</feature>
+                        <feature>XBEE</feature>
+                        <feature>Wireless</feature>
+                    </features>
+                </communication>
+            </communications>
+            <powers>
+                <power>
+                    <features>
+                        <feature>Mains</feature>
+                    </features>
+                </power>
+            </powers>
+            <languages>
+                <language>
+                    <features>
+                        <feature>Processing</feature>
+                    </features>
+                </language>
+            </languages>
         </entity>
-        <entity id="DOOR_443">
-            <features>
-                <feature>Sensor</feature>
-                <feature>Magnetic</feature>
-                <feature>GroveMagnetic</feature>
-            </features>
+        <entity computation="Low" name="ARD_2_443" type="Arduino">
+            <sensors>
+                <sensor id="WINDOW_443">
+                    <features>
+                        <feature>GroveMagnetic</feature>
+                        <feature>Magnetic</feature>
+                    </features>
+                </sensor>
+                <sensor id="AC_443">
+                    <features>
+                        <feature>Temperature</feature>
+                        <feature>GroveTemperature</feature>
+                    </features>
+                </sensor>
+                <sensor id="TEMP_443">
+                    <features>
+                        <feature>Temperature</feature>
+                        <feature>GroveTemperature</feature>
+                    </features>
+                </sensor>
+            </sensors>
+            <communications>
+                <communication>
+                    <features>
+                        <feature>Media</feature>
+                        <feature>Way</feature>
+                        <feature>XBEE</feature>
+                        <feature>Wireless</feature>
+                        <feature>Out</feature>
+                    </features>
+                </communication>
+            </communications>
+            <powers>
+                <power>
+                    <features>
+                        <feature>Mains</feature>
+                    </features>
+                </power>
+            </powers>
+            <languages>
+                <language>
+                    <features>
+                        <feature>Processing</feature>
+                    </features>
+                </language>
+            </languages>
         </entity>
-        <entity id="PRESENCE_443">
-            <features>
-                <feature>Sensor</feature>
-                <feature>Presence</feature>
-                <feature>GrovePresence</feature>
-            </features>
+        <entity computation="Low" name="ARD_1_442" type="Arduino">
+            <sensors>
+                <sensor id="TEMP_442">
+                    <features>
+                        <feature>Temperature</feature>
+                        <feature>GroveTemperature</feature>
+                    </features>
+                </sensor>
+                <sensor id="LIGHT_442">
+                    <features>
+                        <feature>Light</feature>
+                        <feature>GroveLight</feature>
+                    </features>
+                </sensor>
+            </sensors>
+            <communications>
+                <communication>
+                    <features>
+                        <feature>Media</feature>
+                        <feature>Way</feature>
+                        <feature>XBEE</feature>
+                        <feature>Wireless</feature>
+                        <feature>Out</feature>
+                    </features>
+                </communication>
+            </communications>
+            <powers>
+                <power>
+                    <features>
+                        <feature>Mains</feature>
+                    </features>
+                </power>
+            </powers>
+            <languages>
+                <language>
+                    <features>
+                        <feature>Processing</feature>
+                    </features>
+                </language>
+            </languages>
         </entity>
-        <entity id="NOISE_SPARKS_CORRIDOR">
-            <features>
-                <feature>Sensor</feature>
-                <feature>GroveTemperature</feature>
-                <feature>Temperature</feature>
-            </features>
+        <entity computation="Low" name="ARD_CAFE" type="Arduino">
+            <sensors>
+                <sensor id="TEMP_CAFE">
+                    <features>
+                        <feature>EBTemperature</feature>
+                        <feature>Temperature</feature>
+                    </features>
+                </sensor>
+            </sensors>
+            <communications>
+                <communication>
+                    <features>
+                        <feature>Media</feature>
+                        <feature>Way</feature>
+                        <feature>XBEE</feature>
+                        <feature>Wireless</feature>
+                        <feature>Out</feature>
+                    </features>
+                </communication>
+            </communications>
+            <powers>
+                <power>
+                    <features>
+                        <feature>Mains</feature>
+                    </features>
+                </power>
+            </powers>
+            <languages>
+                <language>
+                    <features>
+                        <feature>Processing</feature>
+                    </features>
+                </language>
+            </languages>
         </entity>
-        <entity id="ARD_2_443">
-            <features>
-                <feature>SensorPlatform</feature>
-                <feature>Communication</feature>
-                <feature>Platform</feature>
-                <feature>Wired</feature>
-                <feature>Programmable</feature>
-                <feature>Serial</feature>
-                <feature>Arduino</feature>
-                <feature>Uno</feature>
-                <feature>Wireless</feature>
-                <feature>Shield</feature>
-                <feature>XbeeShield</feature>
-                <feature>XBEE</feature>
-                <feature>Grove</feature>
-            </features>
+        <entity computation="High" name="ARD_1_444" type="Arduino">
+            <sensors>
+                <sensor id="TEMP_444" pin="1">
+                    <features>
+                        <feature>GroveTemperature</feature>
+                        <feature>Temperature</feature>
+                    </features>
+                </sensor>
+                <sensor id="LIGHT_444" pin="0">
+                    <features>
+                        <feature>Light</feature>
+                        <feature>GroveLight</feature>
+                    </features>
+                </sensor>
+            </sensors>
+            <communications>
+                <communication>
+                    <features>
+                        <feature>Way</feature>
+                        <feature>Media</feature>
+                        <feature>Out</feature>
+                        <feature>WAN</feature>
+                    </features>
+                </communication>
+            </communications>
+            <powers>
+                <power>
+                    <features>
+                        <feature>Mains</feature>
+                    </features>
+                </power>
+            </powers>
+            <languages>
+                <language>
+                    <features>
+                        <feature>Processing</feature>
+                    </features>
+                </language>
+            </languages>
         </entity>
-        <entity id="WINDOW_443">
-            <features>
-                <feature>Sensor</feature>
-                <feature>Magnetic</feature>
-                <feature>GroveMagnetic</feature>
-            </features>
-        </entity>
-        <entity id="TEMP_443">
-            <features>
-                <feature>Sensor</feature>
-                <feature>GroveTemperature</feature>
-                <feature>Temperature</feature>
-            </features>
-        </entity>
-        <entity id="AC_443">
-            <features>
-                <feature>Sensor</feature>
-                <feature>GroveTemperature</feature>
-                <feature>Temperature</feature>
-            </features>
-        </entity>
-        <entity id="ARD_1_442">
-            <features>
-                <feature>SensorPlatform</feature>
-                <feature>Communication</feature>
-                <feature>Platform</feature>
-                <feature>Wired</feature>
-                <feature>Programmable</feature>
-                <feature>Serial</feature>
-                <feature>Arduino</feature>
-                <feature>Uno</feature>
-                <feature>Wireless</feature>
-                <feature>XBEE</feature>
-                <feature>Shield</feature>
-                <feature>XbeeShield</feature>
-                <feature>Grove</feature>
-            </features>
-        </entity>
-        <entity id="LIGHT_442">
-            <features>
-                <feature>Sensor</feature>
-                <feature>Light</feature>
-                <feature>GroveLight</feature>
-            </features>
-        </entity>
-        <entity id="TEMP_442">
-            <features>
-                <feature>Sensor</feature>
-                <feature>GroveTemperature</feature>
-                <feature>Temperature</feature>
-            </features>
-        </entity>
-        <entity id="ARD_CAFE">
-            <features>
-                <feature>SensorPlatform</feature>
-                <feature>Communication</feature>
-                <feature>Platform</feature>
-                <feature>Programmable</feature>
-                <feature>Arduino</feature>
-                <feature>Wired</feature>
-                <feature>Serial</feature>
-                <feature>Uno</feature>
-                <feature>Wireless</feature>
-                <feature>Shield</feature>
-                <feature>XbeeShield</feature>
-                <feature>XBEE</feature>
-                <feature>ElectronicEB</feature>
-            </features>
-        </entity>
-        <entity id="TEMP_CAFE">
-            <features>
-                <feature>Sensor</feature>
-                <feature>EBTemperature</feature>
-                <feature>Temperature</feature>
-            </features>
+        <entity computation="High" name="ARD_1_445" type="Arduino">
+            <sensors>
+                <sensor id="TEMP_445" pin="1">
+                    <features>
+                        <feature>GroveTemperature</feature>
+                        <feature>Temperature</feature>
+                    </features>
+                </sensor>
+                <sensor id="LIGHT_445" pin="2">
+                    <features>
+                        <feature>Light</feature>
+                        <feature>GroveLight</feature>
+                    </features>
+                </sensor>
+            </sensors>
+            <communications>
+                <communication>
+                    <features>
+                        <feature>Way</feature>
+                        <feature>Media</feature>
+                        <feature>Out</feature>
+                        <feature>WAN</feature>
+                    </features>
+                </communication>
+            </communications>
+            <powers>
+                <power>
+                    <features>
+                        <feature>Mains</feature>
+                    </features>
+                </power>
+            </powers>
+            <languages>
+                <language>
+                    <features>
+                        <feature>Processing</feature>
+                    </features>
+                </language>
+            </languages>
         </entity>
     </entities>
     <connections>
         <connection from="RP_443_XBEE" to="SmartCampus"/>
         <connection from="ARD_1_443" to="RP_443_XBEE"/>
-        <connection from="DOOR_443" to="ARD_1_443"/>
-        <connection from="PRESENCE_443" to="ARD_1_443"/>
-        <connection from="NOISE_SPARKS_CORRIDOR" to="ARD_1_443"/>
         <connection from="ARD_2_443" to="RP_443_XBEE"/>
-        <connection from="WINDOW_443" to="ARD_2_443"/>
-        <connection from="TEMP_443" to="ARD_2_443"/>
-        <connection from="AC_443" to="ARD_2_443"/>
         <connection from="ARD_1_442" to="RP_443_XBEE"/>
-        <connection from="LIGHT_442" to="ARD_1_442"/>
-        <connection from="TEMP_442" to="ARD_1_442"/>
         <connection from="ARD_CAFE" to="RP_443_XBEE"/>
-        <connection from="TEMP_CAFE" to="ARD_CAFE"/>
+        <connection from="ARD_1_444" to="SmartCampus"/>
+        <connection from="ARD_1_445" to="SmartCampus"/>
     </connections>
 </sensornetwork>

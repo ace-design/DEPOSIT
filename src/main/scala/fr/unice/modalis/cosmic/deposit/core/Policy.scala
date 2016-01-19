@@ -1,6 +1,6 @@
 package fr.unice.modalis.cosmic.deposit.core
 
-import fr.unice.modalis.cosmic.deployment.generator.{ArduinoGenerator, BRGenerator}
+import fr.unice.modalis.cosmic.deployment.generator.{ProcessingGenerator, PythonGenerator}
 import fr.unice.modalis.cosmic.deposit.converter.{ToGraph, ToGraphviz}
 
 import scala.collection.mutable.ArrayBuffer
@@ -234,7 +234,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   }
   def duplicate = {
     // Convert flows between operations
-    val corr = (this.flows.map { l => l.source } ++ this.flows.map{ l => l.destination}).map{ c => (c, c.duplicate)} toMap
+    val corr = (this.flows.map { l => l.source } ++ this.flows.map{ l => l.destination}).map{ c => (c, c.duplicate)}.toMap
 
     // Build new flows
     val _l1 = this.flows.filter(l => l.source.isInstanceOf[Operation[_,_]] && l.destination.isInstanceOf[Operation[_,_]]).map{ l => (corr(l.source), corr(l.destination), l.source_output.name, l.destination_input.name)}.map(l => Flow(l._1.asInstanceOf[Operation[_<:DataType,_<:DataType]].getOutput(l._3), l._2.asInstanceOf[Operation[_<:DataType,_<:DataType]].getInput(l._4)))
@@ -256,8 +256,8 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   override def toString = "Workflow[name=" + name + ";ios={" + ios + "};activites={" + operations + "};links={" + flows + "}]"
 
-  def exportToWiring = ArduinoGenerator(this, toFile = true)
-  def exportToPython = BRGenerator(this, toFile = true)
+  def exportToWiring = ProcessingGenerator(this, toFile = true)
+  def exportToPython = PythonGenerator(this, toFile = true)
   def exportToGraphviz = ToGraphviz.writeSource(this)
 }
 
