@@ -66,13 +66,13 @@
         </entity>
         <entity computation="Low" name="ARD_1_443" type="Arduino">
             <sensors>
-                <sensor id="DOOR_443">
+                <sensor id="DOOR_443" pin="2">
                     <features>
                         <feature>GroveMagnetic</feature>
                         <feature>Magnetic</feature>
                     </features>
                 </sensor>
-                <sensor id="PRESENCE_443">
+                <sensor id="PRESENCE_443" pin="1">
                     <features>
                         <feature>Presence</feature>
                         <feature>GrovePresence</feature>
@@ -107,22 +107,28 @@
         </entity>
         <entity computation="Low" name="ARD_2_443" type="Arduino">
             <sensors>
-                <sensor id="WINDOW_443">
+                <sensor id="WINDOW_443" pin="1">
                     <features>
                         <feature>GroveMagnetic</feature>
                         <feature>Magnetic</feature>
                     </features>
                 </sensor>
-                <sensor id="AC_443">
+                <sensor id="AC_443" pin="2">
                     <features>
                         <feature>Temperature</feature>
                         <feature>GroveTemperature</feature>
                     </features>
                 </sensor>
-                <sensor id="TEMP_443">
+                <sensor id="TEMP_443" pin="3">
                     <features>
                         <feature>Temperature</feature>
                         <feature>GroveTemperature</feature>
+                    </features>
+                </sensor>
+                <sensor id="LIGHT_443" pin="0">
+                    <features>
+                        <feature>Light</feature>
+                        <feature>GroveLight</feature>
                     </features>
                 </sensor>
             </sensors>
@@ -154,13 +160,13 @@
         </entity>
         <entity computation="Low" name="ARD_1_442" type="Arduino">
             <sensors>
-                <sensor id="TEMP_442">
+                <sensor id="TEMP_442" pin="1">
                     <features>
                         <feature>Temperature</feature>
                         <feature>GroveTemperature</feature>
                     </features>
                 </sensor>
-                <sensor id="LIGHT_442">
+                <sensor id="LIGHT_442" pin="0">
                     <features>
                         <feature>Light</feature>
                         <feature>GroveLight</feature>
@@ -195,10 +201,16 @@
         </entity>
         <entity computation="Low" name="ARD_CAFE" type="Arduino">
             <sensors>
-                <sensor id="TEMP_CAFE">
+                <sensor id="TEMP_CAFE" pin="1">
                     <features>
                         <feature>EBTemperature</feature>
                         <feature>Temperature</feature>
+                    </features>
+                </sensor>
+                <sensor id="LIGHT_CAFE" pin="2">
+                    <features>
+                        <feature>Light</feature>
+                        <feature>EBLight</feature>
                     </features>
                 </sensor>
             </sensors>

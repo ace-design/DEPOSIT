@@ -22,7 +22,8 @@ object Features {
     "GroveMagnetic" -> SensorBrand.GroveMagnetic,
     "DFMagnetic" -> SensorBrand.DFMagnetic,
     "EBMagnetic" -> SensorBrand.EBMagnetic,
-    "GrovePresence" -> SensorBrand.GrovePresence
+    "GrovePresence" -> SensorBrand.GrovePresence,
+    "EBLight" -> SensorBrand.EBLight
   )
 
   val featurePowerAssociation = Map(
@@ -60,7 +61,7 @@ object Features {
 
   object SensorBrand extends Enumeration {
     type SensorBrand = Value
-    val GroveLight, DFLight, DFTemperature, GroveTemperature, EBTemperature, PhidgetTemperature, GroveMagnetic, DFMagnetic, EBMagnetic, GrovePresence, UNKNOWN = Value
+    val GroveLight, DFLight, DFTemperature, GroveTemperature, EBLight, EBTemperature, PhidgetTemperature, GroveMagnetic, DFMagnetic, EBMagnetic, GrovePresence, UNKNOWN = Value
   }
 
   object ProgrammingLanguage extends Enumeration {
