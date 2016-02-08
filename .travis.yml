@@ -8,3 +8,6 @@ before_script:
   - mkdir out/arduino
   - mkdir out/graphviz
   - mkdir out/python
+notifications:
+  email:
+    - cecchine@i3s.unice.fr
