@@ -254,17 +254,17 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   def flowsFrom(a:Concept) = flows.filter(l => l.source == a)
 
-  def ++(w:Policy):Policy = Policy.fuse(this, w)//new Policy(this.name + "_" + w.name, this.ios ++ w.ios, this.operations ++ w.operations, this.flows ++ w.flows)
+  def ++(w:Policy):Policy = Policy.compose(this, w)
 
   override def toString = "Workflow[name=" + name + ";ios={" + ios + "};activites={" + operations + "};links={" + flows + "}]"
 
-  def exportToWiring = ProcessingGenerator(this, toFile = true)
-  def exportToPython = PythonGenerator(this, toFile = true)
-  def exportToGraphviz = ToGraphviz.writeSource(this)
+  def exportToWiring() = ProcessingGenerator(this, toFile = true)
+  def exportToPython() = PythonGenerator(this, toFile = true)
+  def exportToGraphviz() = ToGraphviz.writeSource(this)
 }
 
 object Policy {
-  def fuse(p1:Policy, p2:Policy) = {
+  def compose(p1:Policy, p2:Policy) = {
     println("Prepare to compose " + p1.name + " with " + p2.name)
     // Find similar sensors in p2
     println("Sensors in p1:" + p1.sensors)
