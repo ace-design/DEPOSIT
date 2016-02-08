@@ -289,9 +289,9 @@ object Policy {
         println(newFlows.flatten)
 
         // Delete similar sensors in p2
-        var p2withoutSimiarities = p2
-        similar.map{_._1}.foreach(s => p2withoutSimiarities = p2.delete(s))
-        Policy(p1.name + "_" + p2withoutSimiarities.name, p1.ios ++ p2withoutSimiarities.ios, p1.operations ++ p2withoutSimiarities.operations, p1.flows ++ p2withoutSimiarities.flows ++ newFlows.flatten)
+        var p2withoutSimilarities = p2
+        similar.map{_._1}.foreach(s => p2withoutSimilarities = p2.delete(s))
+        Policy(p1.name + "_" + p2withoutSimilarities.name, p1.ios ++ p2withoutSimilarities.ios, p1.operations ++ p2withoutSimilarities.operations, p1.flows ++ p2withoutSimilarities.flows ++ newFlows.flatten)
       }
 
 
