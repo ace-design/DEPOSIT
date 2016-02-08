@@ -1,3 +1,4 @@
+import fr.unice.modalis.cosmic.ComprehensivePolicy
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.SensorBrand.SensorBrand
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.SensorType.SensorType
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.{SensorBrand, SensorType}
