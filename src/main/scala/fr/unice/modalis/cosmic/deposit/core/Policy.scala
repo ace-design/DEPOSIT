@@ -1,5 +1,6 @@
 package fr.unice.modalis.cosmic.deposit.core
 
+
 import fr.unice.modalis.cosmic.deployment.generator.{ProcessingGenerator, PythonGenerator}
 import fr.unice.modalis.cosmic.deposit.converter.{ToGraph, ToGraphviz}
 
@@ -22,6 +23,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   // Sources and Collectors (lazy computation)
   lazy val sources = ios.filter(_.isInstanceOf[DataInput[_<:DataType]]).asInstanceOf[Set[DataInput[_<:DataType]]]
   lazy val collectors = ios.filter(_.isInstanceOf[DataOutput[_<:DataType]]).asInstanceOf[Set[DataOutput[_<:DataType]]]
+  lazy val sensors = ios.filter(_.isInstanceOf[Sensor[_<:DataType]]).asInstanceOf[Set[Sensor[_<:DataType]]]
   lazy val inputJoinPoints = ios.filter(_.isInstanceOf[JoinPointInput[_<:DataType]]).asInstanceOf[Set[JoinPointInput[_<:DataType]]]
   lazy val outputJoinPoints = ios.filter(_.isInstanceOf[JoinPointOutput[_<:DataType]]).asInstanceOf[Set[JoinPointOutput[_<:DataType]]]
   lazy val outputs = collectors ++ outputJoinPoints
@@ -252,7 +254,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   def flowsFrom(a:Concept) = flows.filter(l => l.source == a)
 
-  def ++(w:Policy):Policy = new Policy(this.name + "_" + w.name, this.ios ++ w.ios, this.operations ++ w.operations, this.flows ++ w.flows)
+  def ++(w:Policy):Policy = Policy.fuse(this, w)//new Policy(this.name + "_" + w.name, this.ios ++ w.ios, this.operations ++ w.operations, this.flows ++ w.flows)
 
   override def toString = "Workflow[name=" + name + ";ios={" + ios + "};activites={" + operations + "};links={" + flows + "}]"
 
@@ -261,3 +263,39 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   def exportToGraphviz = ToGraphviz.writeSource(this)
 }
 
+object Policy {
+  def fuse(p1:Policy, p2:Policy) = {
+    println("Prepare to compose " + p1.name + " with " + p2.name)
+    // Find similar sensors in p2
+    println("Sensors in p1:" + p1.sensors)
+    println("Sensors in p2:" + p2.sensors)
+    if (p2.sensors.nonEmpty && p1.sensors.nonEmpty) {
+
+      val similar = p2.sensors.map {s => (s, p1.sensors.find(_ ~= s))}
+      if (similar.forall(_._2.isEmpty))
+        new Policy(p1.name + "_" + p2.name, p1.ios ++ p2.ios, p1.operations ++ p2.operations, p1.flows ++ p2.flows)
+      else {
+        val newFlows = for (f <- p2.flows) yield {
+          if (similar.map {
+            _._1.asInstanceOf[Concept]
+          }.contains(f.source)) {
+            if (similar.exists(_._1 equals f.source.asInstanceOf[Sensor[_ <: DataType]])) {
+              val res = similar.find(_._1 equals f.source.asInstanceOf[Sensor[_ <: DataType]]).get._2
+              if (res.isDefined) Some(Flow(res.get.output, f.destination_input)) else None
+            }
+            else None
+          } else None
+        }
+        println(newFlows.flatten)
+
+        // Delete similar sensors in p2
+        var p2withoutSimiarities = p2
+        similar.map{_._1}.foreach(s => p2withoutSimiarities = p2.delete(s))
+        Policy(p1.name + "_" + p2withoutSimiarities.name, p1.ios ++ p2withoutSimiarities.ios, p1.operations ++ p2withoutSimiarities.operations, p1.flows ++ p2withoutSimiarities.flows ++ newFlows.flatten)
+      }
+
+
+    }
+    else new Policy(p1.name + "_" + p2.name, p1.ios ++ p2.ios, p1.operations ++ p2.operations, p1.flows ++ p2.flows)
+  }
+}

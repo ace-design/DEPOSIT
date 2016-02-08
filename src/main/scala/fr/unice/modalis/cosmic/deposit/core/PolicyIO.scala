@@ -100,6 +100,12 @@ trait Sensor[T<:DataType] extends DataInput[T]{
   val output = new Output[T](url, this)
   override val name = url
 
+  /**
+    * Check if two sensors are similar
+    * @return True if similar, false otherwise
+    */
+  def ~=(x:Any) :Boolean
+
   override def toString:String = "SENSOR[" + url + "]"
 }
 
@@ -118,6 +124,16 @@ case class PeriodicSensor[T<:DataType](wishedPeriod:Int, override val url: Strin
    * @return copy of this concept
    */
   override def duplicate: PeriodicSensor[T] = new PeriodicSensor[T](wishedPeriod, url, dataType)
+
+  /**
+    * Check if two sensors are similar
+    * @return True if similar, false otherwise
+    */
+  override def ~=(x: Any): Boolean = x.isInstanceOf[PeriodicSensor[T]] &&
+    (x.asInstanceOf[PeriodicSensor[T]].dataType equals this.dataType) &&
+    (x.asInstanceOf[PeriodicSensor[T]].url equals this.url) &&
+    (x.asInstanceOf[PeriodicSensor[T]].wishedPeriod equals this.wishedPeriod)
+
 }
 
 /**
@@ -134,7 +150,15 @@ case class EventSensor[T<:DataType](override val url:String, dataType: Class[T])
    * @return copy of this concept
    */
   override def duplicate: EventSensor[T] = new EventSensor[T](url, dataType)
-}
+
+  /**
+    * Check if two sensors are similar
+    * @return True if similar, false otherwise
+    */
+  override def ~=(x: Any): Boolean = x.isInstanceOf[EventSensor[T]] &&
+    (x.asInstanceOf[EventSensor[T]].dataType equals this.dataType) &&
+    (x.asInstanceOf[EventSensor[T]].url equals this.url)
+  }
 
 
 /**
