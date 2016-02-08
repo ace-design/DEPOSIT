@@ -1,6 +1,7 @@
 package fr.unice.modalis.cosmic.deposit.core
 
 
+import com.typesafe.scalalogging.LazyLogging
 import fr.unice.modalis.cosmic.deployment.generator.{ProcessingGenerator, PythonGenerator}
 import fr.unice.modalis.cosmic.deposit.converter.{ToGraph, ToGraphviz}
 
@@ -263,12 +264,13 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   def exportToGraphviz() = ToGraphviz.writeSource(this)
 }
 
-object Policy {
+object Policy extends LazyLogging{
+
   def compose(p1:Policy, p2:Policy) = {
-    println("Prepare to compose " + p1.name + " with " + p2.name)
+    logger.debug("Prepare to compose " + p1.name + " with " + p2.name)
     // Find similar sensors in p2
-    println("Sensors in p1:" + p1.sensors)
-    println("Sensors in p2:" + p2.sensors)
+    logger.debug("Sensors in p1:" + p1.sensors)
+    logger.debug("Sensors in p2:" + p2.sensors)
     if (p2.sensors.nonEmpty && p1.sensors.nonEmpty) {
 
       val similar = p2.sensors.map {s => (s, p1.sensors.find(_ ~= s))}
@@ -286,7 +288,7 @@ object Policy {
             else None
           } else None
         }
-        println(newFlows.flatten)
+        logger.debug("New flows: " + newFlows.flatten)
 
         // Delete similar sensors in p2
         var p2withoutSimilarities = p2
