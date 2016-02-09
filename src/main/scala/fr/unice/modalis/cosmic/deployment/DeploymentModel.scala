@@ -1,7 +1,8 @@
 package fr.unice.modalis.cosmic.deployment
 
+import com.typesafe.scalalogging.LazyLogging
 import fr.unice.modalis.cosmic.deployment.exception.NoTargetFoundException
-import fr.unice.modalis.cosmic.deployment.infrastructure.NetworkTopology
+import fr.unice.modalis.cosmic.deployment.infrastructure.{InfrastructureModel, NetworkTopology}
 import fr.unice.modalis.cosmic.deployment.network.GenericNode
 import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
 import fr.unice.modalis.cosmic.deposit.algo.ExtendPolicy
@@ -9,6 +10,22 @@ import fr.unice.modalis.cosmic.deposit.converter.ToGraphviz
 import fr.unice.modalis.cosmic.deposit.core._
 
 import scala.collection.mutable
+
+/**
+  * Auto-decomposition of data collection policy
+  */
+object Decompose extends LazyLogging{
+  /**
+    * Decompose a data collection policy
+    * @param policy Data collection policy
+    * @param infrastructureModel Infrastructure model
+    * @return A policy for each platform of the sensing infrastructure
+    */
+  def apply(policy: Policy, infrastructureModel: InfrastructureModel):Iterable[Policy] ={
+    logger.info("Ready to deploy " + policy.name + " on " + infrastructureModel.topology.name + " with " + infrastructureModel.strategy.toString)
+    Deploy(PreDeploy(policy, infrastructureModel.topology), infrastructureModel.topology, infrastructureModel.strategy)
+  }
+}
 
 /**
  * Prepare the deployment of a data collection policy

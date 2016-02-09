@@ -1,10 +1,11 @@
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.SensorBrand.SensorBrand
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.SensorType.SensorType
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.{SensorBrand, SensorType}
+import fr.unice.modalis.cosmic.deployment.infrastructure.InfrastructureModel
 import fr.unice.modalis.cosmic.deployment.network.Entity
 import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
 import fr.unice.modalis.cosmic.deployment.utils.TopologyModelBuilder
-import fr.unice.modalis.cosmic.deployment.{Deploy, PreDeploy}
+import fr.unice.modalis.cosmic.deployment.{Decompose, Deploy, PreDeploy}
 import fr.unice.modalis.cosmic.deposit.core._
 import fr.unice.modalis.cosmic.{ComprehensivePolicy, ComprehensivePolicyWithoutDSL}
 import org.specs2.mutable.SpecificationWithJUnit
@@ -55,7 +56,7 @@ class SpecificationsTest extends SpecificationWithJUnit{
       "give 3 sub-policies" in {
         deploy_demo_policy must have size 3
       }
-      "give a sub-policiy for ARD_1_442, ARD_2_443 and RP_443_XBEE" in {
+      "give a sub-policy for ARD_1_442, ARD_2_443 and RP_443_XBEE" in {
         deploy_demo_policy.map{_.name} must contain(exactly("DemoPolicy_ARD_1_443", "DemoPolicy_ARD_2_443", "DemoPolicy_RP_443_XBEE"))
       }
       "attribute a network property for all joinpoints" in {
@@ -68,6 +69,18 @@ class SpecificationsTest extends SpecificationWithJUnit{
         outputs_networks must containTheSameElementsAs(input_networks)
       }
 
+      "The operator 'Decompose'" should {
+        val infrastructureModel = InfrastructureModel(topology, DeploymentRepartition.CLOSEST_TO_SENSORS)
+        val policies = Decompose(ComprehensivePolicy.innerPolicy(), infrastructureModel)
+
+        "give 3 sub-policies" in {
+          policies must have size 3
+        }
+
+        "give a sub-policy for ARD_1_442, ARD_2_443 and RP_443_XBEE" in {
+          policies.map{_.name} must contain(exactly("DemoPolicy_ARD_1_443", "DemoPolicy_ARD_2_443", "DemoPolicy_RP_443_XBEE"))
+        }
+      }
     }
 
 
