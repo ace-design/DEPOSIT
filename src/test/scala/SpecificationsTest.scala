@@ -1,4 +1,3 @@
-import fr.unice.modalis.cosmic.ComprehensivePolicy
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.SensorBrand.SensorBrand
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.SensorType.SensorType
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.{SensorBrand, SensorType}
@@ -7,6 +6,7 @@ import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
 import fr.unice.modalis.cosmic.deployment.utils.TopologyModelBuilder
 import fr.unice.modalis.cosmic.deployment.{Deploy, PreDeploy}
 import fr.unice.modalis.cosmic.deposit.core._
+import fr.unice.modalis.cosmic.{ComprehensivePolicy, ComprehensivePolicyWithoutDSL}
 import org.specs2.mutable.SpecificationWithJUnit
 
 /**
@@ -55,7 +55,7 @@ class SpecificationsTest extends SpecificationWithJUnit{
       "give 3 sub-policies" in {
         deploy_demo_policy must have size 3
       }
-      "give a sub-policies for ARD_1_442, ARD_2_443 and RP_443_XBEE" in {
+      "give a sub-policiy for ARD_1_442, ARD_2_443 and RP_443_XBEE" in {
         deploy_demo_policy.map{_.name} must contain(exactly("DemoPolicy_ARD_1_443", "DemoPolicy_ARD_2_443", "DemoPolicy_RP_443_XBEE"))
       }
       "attribute a network property for all joinpoints" in {
@@ -66,6 +66,44 @@ class SpecificationsTest extends SpecificationWithJUnit{
         val input_networks = deploy_demo_policy.flatMap(_.inputJoinPoints).map(_.readProperty("network").get.asInstanceOf[String]).toSeq
 
         outputs_networks must containTheSameElementsAs(input_networks)
+      }
+
+    }
+
+
+    "The deployed demo data collection policy issued from Deploy algorithm with a manual placement strategy" should {
+      val demo_policy_without_dsl = ComprehensivePolicyWithoutDSL.p
+      val predeployed_demo_policy_without_dsl = PreDeploy(demo_policy_without_dsl, topology)
+
+      val policies = Deploy(predeployed_demo_policy_without_dsl, topology, Map[Concept,String](
+        ComprehensivePolicyWithoutDSL.ac443         -> "ARD_2_443",
+        ComprehensivePolicyWithoutDSL.door443       -> "ARD_1_443",
+        ComprehensivePolicyWithoutDSL.window443     -> "ARD_2_443",
+        ComprehensivePolicyWithoutDSL.collector     -> "RP_443_XBEE",
+        ComprehensivePolicyWithoutDSL.collector2    -> "RP_443_XBEE",
+        ComprehensivePolicyWithoutDSL.collector3    -> "RP_443_XBEE",
+        ComprehensivePolicyWithoutDSL.temp_filter   -> "ARD_2_443",
+        ComprehensivePolicyWithoutDSL.door_filter   -> "ARD_1_443",
+        ComprehensivePolicyWithoutDSL.window_filter -> "RP_443_XBEE",
+        ComprehensivePolicyWithoutDSL.produce1      -> "RP_443_XBEE",
+        ComprehensivePolicyWithoutDSL.produce2      -> "RP_443_XBEE",
+        ComprehensivePolicyWithoutDSL.produce3      -> "RP_443_XBEE"))
+
+      "give a sub-policiy for ARD_1_442, ARD_2_443 and RP_443_XBEE" in {
+        policies.map{_.name} must contain(exactly(demo_policy_without_dsl.name + "_" + "ARD_1_443", demo_policy_without_dsl.name + "_" + "ARD_2_443", demo_policy_without_dsl.name + "_" + "RP_443_XBEE"))
+      }
+
+      "associate concepts to the targeted platforms" in {
+        policies.find {_.name equals demo_policy_without_dsl.name + "_" + "RP_443_XBEE"}.get.concepts.toSeq must containAllOf(Seq(
+          ComprehensivePolicyWithoutDSL.collector,
+          ComprehensivePolicyWithoutDSL.collector2,
+          ComprehensivePolicyWithoutDSL.collector3,
+          ComprehensivePolicyWithoutDSL.window_filter,
+          ComprehensivePolicyWithoutDSL.produce1,
+          ComprehensivePolicyWithoutDSL.produce2,
+          ComprehensivePolicyWithoutDSL.produce3
+        ))
+
       }
 
     }
@@ -121,8 +159,5 @@ class SpecificationsTest extends SpecificationWithJUnit{
       }
 
     }
-
-
-
   }
 }
