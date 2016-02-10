@@ -1,6 +1,9 @@
 package fr.unice.modalis.cosmic
 
 import fr.unice.modalis.cosmic.demos.StandardizedPolicies
+import fr.unice.modalis.cosmic.deployment.infrastructure.InfrastructureModel
+import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
+import fr.unice.modalis.cosmic.deployment.utils.TopologyModelBuilder
 import fr.unice.modalis.cosmic.deposit.core._
 import fr.unice.modalis.cosmic.deposit.dsl.DEPOSIT
 
@@ -9,7 +12,11 @@ import fr.unice.modalis.cosmic.deposit.dsl.DEPOSIT
   * defined with the DEPOSIT DSL
   * Created by Cyril Cecchinel - I3S Laboratory on 20/01/2016.
   */
+object InfrastructureModels {
 
+  val SMARTCAMPUS_Infrastructure = InfrastructureModel(TopologyModelBuilder("assets/configurations/smartcampus_xbeenetwork.xml"), DeploymentRepartition.CLOSEST_TO_SENSORS)
+
+}
 object ComprehensivePolicy extends DEPOSIT {
 
   this hasForName "DemoPolicy"
