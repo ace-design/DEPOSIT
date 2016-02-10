@@ -49,6 +49,22 @@ object ComprehensivePolicy extends DEPOSIT {
 
 }
 
+object ComprehensivePolicy2 extends DEPOSIT {
+  this hasForName "DemoPolicy2"
+  this handles classOf[SmartCampusType]
+
+  val ac_443 = declare aPeriodicSensor() named "AC_443" withPeriod 200
+  val celsiusToFahrenheit = define aProcess StandardizedPolicies.CelsiusToFahrenheit()
+  val collector = declare aCollector() named "DataWarehouse"
+
+  flows {
+    ac_443() -> celsiusToFahrenheit("celsius")
+    celsiusToFahrenheit("fahrenheit") -> collector()
+  }
+
+  def innerPolicy() = policy
+}
+
 object ComprehensivePolicyWithoutDSL {
   val ac443 = PeriodicSensor(300, "AC_443", classOf[SmartCampusType])
 
