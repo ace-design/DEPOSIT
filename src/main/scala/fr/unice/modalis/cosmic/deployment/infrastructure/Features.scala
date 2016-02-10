@@ -1,5 +1,7 @@
 package fr.unice.modalis.cosmic.deployment.infrastructure
 
+import fr.unice.modalis.cosmic.deployment.generator.{ProcessingGenerator, PythonGenerator}
+
 /**
   * Created by Cyril Cecchinel - I3S Laboratory on 08/01/2016.
   */
@@ -52,6 +54,11 @@ object Features {
     "Processing" -> ProgrammingLanguage.Processing,
     "Java" -> ProgrammingLanguage.Java,
     "Groovy" -> ProgrammingLanguage.Groovy
+  )
+
+  val codeGeneratorAssociation = Map(
+    ProgrammingLanguage.Processing -> ProcessingGenerator,
+    ProgrammingLanguage.Python -> PythonGenerator
   )
 
   object SensorType extends Enumeration {

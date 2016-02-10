@@ -31,7 +31,7 @@ object ComprehensivePolicy extends DEPOSIT {
   val openingConverterForWindow = define aProcess StandardizedPolicies.RawValueToOpeningSensor()
   val openingConverterForDoor = define aProcess StandardizedPolicies.RawValueToOpeningSensor()
 
-  val threshold = define aFilter "v < 64"
+  val threshold = define aFilter "value < 64"
   val produce = define aProducer new SmartCampusType("ALERT_AC", 1) withInputs("i1", "i2", "i3")
 
   val collector = declare aCollector() named "Collector"

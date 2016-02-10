@@ -2,15 +2,52 @@ package fr.unice.modalis.cosmic.deployment
 
 import com.typesafe.scalalogging.LazyLogging
 import fr.unice.modalis.cosmic.deployment.exception.NoTargetFoundException
-import fr.unice.modalis.cosmic.deployment.infrastructure.{InfrastructureModel, NetworkTopology}
+import fr.unice.modalis.cosmic.deployment.generator.CodeGenerator
+import fr.unice.modalis.cosmic.deployment.infrastructure.{Features, InfrastructureModel, NetworkTopology}
 import fr.unice.modalis.cosmic.deployment.network.GenericNode
 import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
 import fr.unice.modalis.cosmic.deposit.algo.ExtendPolicy
 import fr.unice.modalis.cosmic.deposit.converter.ToGraphviz
 import fr.unice.modalis.cosmic.deposit.core._
+import fr.unice.modalis.cosmic.runtime.RepositoriesManager
 
 import scala.collection.mutable
 
+object AutoDeploy extends LazyLogging {
+
+  def apply(policy: Policy, infrastructureModel: InfrastructureModel, customRepository:Option[String] = None):Unit = {
+    logger.info("AutoDeploy initialisation of " + policy.name + " on " + infrastructureModel.topology.name)
+    val repository = RepositoriesManager.getRepository(customRepository.getOrElse(infrastructureModel.topology.name)).getOrElse {
+      logger.error("Repository not found")
+      throw new Exception("Repository not found")
+    }
+
+    val policies = Decompose(policy, infrastructureModel)
+
+    logger.debug("Registering policies in repository...")
+    policies.foreach { p =>
+      val target = p.readProperty("board").get.asInstanceOf[String]
+      val newPolicy = repository.getPolicy(target).getOrElse(new Policy("")) ++ p //If no policy was found, compose with empty policy
+
+      // Recopy only relevant properties in repository
+      newPolicy.addProperty("generator", p.readProperty("generator").get)
+      newPolicy.addProperty("board", p.readProperty("board").get)
+
+      repository.updatePolicy(newPolicy, target)
+    }
+
+    logger.debug("Generating source file...")
+    repository.getPolicies.values.foreach { p =>
+      logger.debug("Generate source file for " + p.name)
+      val generator = p.readProperty("generator").get.asInstanceOf[CodeGenerator]
+      logger.debug("Calling " + generator + "for " + p.name)
+      generator.apply(p, toFile = true)
+    }
+
+
+
+  }
+}
 /**
   * Auto-decomposition of data collection policy
   */
@@ -159,6 +196,7 @@ object Deploy {
     val rawPolicies = projectionGrouped.map {e =>
       val extendedpolicy =  ExtendPolicy(policy.select(e._2.toSet, policy.name + "_" + e._1.name), onlyEmptyPorts = false)
       extendedpolicy.addProperty("board", e._1.name)
+      extendedpolicy.addProperty("generator", Features.codeGeneratorAssociation(e._1.language))
       extendedpolicy
     }
 
