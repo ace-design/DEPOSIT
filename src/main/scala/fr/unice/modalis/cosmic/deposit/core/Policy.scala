@@ -9,17 +9,17 @@ import scala.collection.mutable.ArrayBuffer
 
 
 /**
- * Policy definition
- * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
- * @param operations Workflow element list
- * @param flows Link list
- */
+  * Policy definition
+  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
+  * @param operations Workflow element list
+  * @param flows Link list
+  */
 case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Set[Operation[_<:DataType,_<:DataType]], flows:Set[Flow[_<:DataType]]) extends Properties{
 
 
   // Constructors
   def this(name:String) = this(name, Set.empty, Set.empty, Set.empty)
-  def this() = this("wf" + scala.util.Random.alphanumeric.take(5).mkString, Set.empty, Set.empty, Set.empty)
+  def this() = this("policy" + scala.util.Random.alphanumeric.take(5).mkString, Set.empty, Set.empty, Set.empty)
 
   // Sources and Collectors (lazy computation)
   lazy val sources = ios.filter(_.isInstanceOf[DataInput[_<:DataType]]).asInstanceOf[Set[DataInput[_<:DataType]]]
@@ -37,9 +37,9 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   def hasPeriodicSensors = sources.collect{case x:PeriodicSensor[_] => x}.nonEmpty
 
   /**
-   * Graph representation
-   * @return A Graph representation of this workflow
-   */
+    * Graph representation
+    * @return A Graph representation of this workflow
+    */
   def graph = ToGraph(this)
 
   def add(c:Concept):Policy = {
@@ -62,10 +62,10 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     new Policy(name, ios + o, operations, flows)
   }
   /**
-   * Add an element in the current workflow
-   * @param c Workflow Element
-   * @return A new workflow with the element added
-   */
+    * Add an element in the current workflow
+    * @param c Workflow Element
+    * @return A new workflow with the element added
+    */
   def addActivity[T<:DataType, O<:DataType](c:Operation[T,O]):Policy  = {
     c match {
       case Process(wf, _, _) => new Policy(name, ios, operations + c, flows ++ autoConnectProcess(c.asInstanceOf[Process[_<:DataType, _<:DataType]]))
@@ -74,36 +74,36 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   }
 
   /**
-   * Add a flow in the current workflow
-   * @param l Flow
-   * @return A new workflow with the flow added
-   */
+    * Add a flow in the current workflow
+    * @param l Flow
+    * @return A new workflow with the flow added
+    */
   def addFlow(l:Flow[_<:DataType]):Policy  = {
-   new Policy(name, ios, operations, flows + l)
+    new Policy(name, ios, operations, flows + l)
   }
 
   /**
-   * Delete an activity in the current workflow (/!\ Delete also all flows referring this activity)
-   * @param c Workflow activity
-   * @return A workflow without this activity and flows referring this activity
-   */
+    * Delete an activity in the current workflow (/!\ Delete also all flows referring this activity)
+    * @param c Workflow activity
+    * @return A workflow without this activity and flows referring this activity
+    */
   def deleteActivity(c:Operation[_<:DataType,_<:DataType]):Policy = {
     new Policy(name, ios, operations - c, flows.filterNot(p => (p.destination == c) || (p.source == c)))
   }
 
   /**
-   * Delete an IO in the current workflow (/!\ Delete also all flows referring this IO)
-   * @param c Workflow IO
-   * @return A workflow without this IO and flows referring this IO
-   */
+    * Delete an IO in the current workflow (/!\ Delete also all flows referring this IO)
+    * @param c Workflow IO
+    * @return A workflow without this IO and flows referring this IO
+    */
   def deleteIO(c:PolicyIO[_<:DataType]):Policy = {
     new Policy(name, ios - c, operations, flows.filterNot(p => (p.destination == c) || (p.source == c)))
   }
 
   /**
-   * Return sub Workflow
-   * @param root Root element
-   */
+    * Return sub Workflow
+    * @param root Root element
+    */
   def subWorkflow(root:Concept, last:Option[Concept] = None):Policy = {
     val ios = new ArrayBuffer[PolicyIO[_<:DataType]]()
     val activities = new ArrayBuffer[Operation[_<:DataType, _<:DataType]]()
@@ -129,10 +129,10 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   }
 
   /**
-   * Find the next workflow elements
-   * @param e Current workflow element
-   * @return Immediate next elements
-   */
+    * Find the next workflow elements
+    * @param e Current workflow element
+    * @return Immediate next elements
+    */
   def nextElements(e:Concept):Set[(Concept, Flow[_<:DataType])] = {
     var res = Set[(Concept, Flow[_<:DataType])]()
     for (l <- flows) {
@@ -152,21 +152,21 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   }
 
   /**
-   * Delete a flow in the current workflow
-   * @param l Link
-   * @return A workflow with the flow removed
-   */
+    * Delete a flow in the current workflow
+    * @param l Link
+    * @return A workflow with the flow removed
+    */
   def deleteFlow(l:Flow[_<:DataType]):Policy  = {
     new Policy(name, ios, operations, flows - l)
   }
 
   /**
-   * Generate WFLinks to connect a process with current known sensors in a workflow
-   * @param p Process
-   * @tparam I Input Data type
-   * @tparam O Output Data type
-   * @return A set ok flows needed to connect the process with the current known sensors
-   */
+    * Generate WFLinks to connect a process with current known sensors in a workflow
+    * @param p Process
+    * @tparam I Input Data type
+    * @tparam O Output Data type
+    * @return A set ok flows needed to connect the process with the current known sensors
+    */
   private def autoConnectProcess[I<:DataType, O<:DataType](p:Process[I,O]) = {
     var flows = new ArrayBuffer[Flow[_<:DataType]]()
     p.inputsNames.foreach(i => {
@@ -183,10 +183,10 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
 
   /**
-   * Return the set of sensors needed for a concept
-   * @param c Concept
-   * @return A sensor set
-   */
+    * Return the set of sensors needed for a concept
+    * @param c Concept
+    * @return A sensor set
+    */
   def sensorsInvolved(c: Concept):Set[Sensor[_<:DataType]] = {
     var visited = List[Concept]()
     def inner(c:Concept):List[Sensor[_<:DataType]] = {
@@ -199,11 +199,11 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     inner(c).toSet
   }
   /**
-   * Select operator
-   * @param n New policy's name
-   * @param e Set of concepts
-   * @return A new policy containing only selected concepts
-   */
+    * Select operator
+    * @param n New policy's name
+    * @param e Set of concepts
+    * @return A new policy containing only selected concepts
+    */
   def select(e:Set[Concept], n:String = "select_") = {
     var result = this
     val notSelected = result.concepts -- e
@@ -213,9 +213,9 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   }
 
   /**
-   * Return data types involved in a policy
-   * @return A set of data types involved
-   */
+    * Return data types involved in a policy
+    * @return A set of data types involved
+    */
   def dataTypesInvolved[T<:DataType] = {
     ios.map {_.dataType} ++ operations.map {_.iType} ++ operations.map {_.oType}
   }
@@ -267,37 +267,61 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 object Policy extends LazyLogging{
 
   def compose(p1:Policy, p2:Policy) = {
-    logger.debug("Prepare to compose " + p1.name + " with " + p2.name)
-    // Find similar sensors in p2
-    logger.debug("Sensors in p1:" + p1.sensors)
-    logger.debug("Sensors in p2:" + p2.sensors)
-    if (p2.sensors.nonEmpty && p1.sensors.nonEmpty) {
 
-      val similar = p2.sensors.map {s => (s, p1.sensors.find(_ ~= s))}
-      if (similar.forall(_._2.isEmpty))
-        new Policy(p1.name + "_" + p2.name, p1.ios ++ p2.ios, p1.operations ++ p2.operations, p1.flows ++ p2.flows)
-      else {
-        val newFlows = for (f <- p2.flows) yield {
-          if (similar.map {
-            _._1.asInstanceOf[Concept]
-          }.contains(f.source)) {
-            if (similar.exists(_._1 equals f.source.asInstanceOf[Sensor[_ <: DataType]])) {
-              val res = similar.find(_._1 equals f.source.asInstanceOf[Sensor[_ <: DataType]]).get._2
-              if (res.isDefined) Some(Flow(res.get.output, f.destination_input)) else None
-            }
-            else None
-          } else None
-        }
-        logger.debug("New flows: " + newFlows.flatten)
-
-        // Delete similar sensors in p2
-        var p2withoutSimilarities = p2
-        similar.map{_._1}.foreach(s => p2withoutSimilarities = p2.delete(s))
-        Policy(p1.name + "_" + p2withoutSimilarities.name, p1.ios ++ p2withoutSimilarities.ios, p1.operations ++ p2withoutSimilarities.operations, p1.flows ++ p2withoutSimilarities.flows ++ newFlows.flatten)
+    def composeName(p1:Policy, p2:Policy):String = {
+      (p1.name, p2.name) match {
+        case ("", a) => a
+        case (a, "") => a
+        case (a, b) => a + "_" + b
+        case ("", "") => "policy" + scala.util.Random.alphanumeric.take(5).mkString
       }
-
-
     }
-    else new Policy(p1.name + "_" + p2.name, p1.ios ++ p2.ios, p1.operations ++ p2.operations, p1.flows ++ p2.flows)
+
+    def sensorFusion(p1:Policy, p2:Policy):Policy = {
+      // Find similar sensors in p2
+      logger.debug("Sensors in p1:" + p1.sensors)
+      logger.debug("Sensors in p2:" + p2.sensors)
+
+      // If there are sensors in p1 and p2
+      if (p2.sensors.nonEmpty && p1.sensors.nonEmpty) {
+        // Return similar sensors contained in p1 and p2
+        val similar = p2.sensors.map {s => (s, p1.sensors.find(_ ~= s))}
+
+        if (similar.forall(_._2.isEmpty)){
+          // If there is no similar sensors, return a trivial composition result
+          new Policy(composeName(p1, p2), p1.ios ++ p2.ios, p1.operations ++ p2.operations, p1.flows ++ p2.flows)
+        }
+        else
+        {
+          // Prepare fusion by computing new flows to add
+          val newFlows = for (f <- p2.flows) yield {
+            // If there is a concept in p1 which can be a source for a p2 flow
+            if (similar.map {_._1.asInstanceOf[Concept]}.contains(f.source)) {
+              if (similar.exists(_._1 equals f.source.asInstanceOf[Sensor[_<:DataType]])) {
+                val res = similar.find(_._1 equals f.source.asInstanceOf[Sensor[_<:DataType]]).get._2
+                if (res.isDefined) Some(Flow(res.get.output, f.destination_input)) else None
+              } else None
+            } else None
+          }
+        logger.debug("New flows resulting from sensor fusion: " + newFlows.flatten)
+
+          // Return a policy where sensors has been fused
+          // Delete similar sensors in p2
+          var p2withoutSimilarities = p2
+          similar.map{_._1}.foreach(s => p2withoutSimilarities = p2.delete(s))
+          Policy(composeName(p1, p2),
+                p1.ios ++ p2withoutSimilarities.ios,
+                p1.operations ++ p2withoutSimilarities.operations,
+                p1.flows ++ p2withoutSimilarities.flows ++ newFlows.flatten)
+        }
+      }
+        // If there are no sensors in p1 and p2, abort the sensor fusion
+      else new Policy(composeName(p1, p2), p1.ios ++ p2.ios, p1.operations ++ p2.operations, p1.flows ++ p2.flows)
+    }
+
+
+    logger.debug("Prepare to compose " + p1.name + " with " + p2.name)
+    sensorFusion(p1, p2)
+
   }
 }
