@@ -50,12 +50,20 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     }
   }
 
+  def add(flow: Flow[_<:DataType]):Policy = {
+    addFlow(flow)
+  }
+
   def delete(c:Concept):Policy = {
     c match {
       case n:PolicyIO[_] => deleteIO(n)
       case n:Operation[_, _] => deleteActivity(n)
       case _ => throw new IllegalArgumentException(c + " is not handled by method delete")
     }
+  }
+
+  def delete(flow: Flow[_<:DataType]):Policy = {
+    deleteFlow(flow)
   }
 
   def addIO(o:PolicyIO[_<:DataType]):Policy = {
@@ -270,9 +278,9 @@ object Policy extends LazyLogging{
 
     def composeName(p1:Policy, p2:Policy):String = {
       (p1.name, p2.name) match {
-        case ("", a) => a
-        case (a, "") => a
-        case (a, b) => a + "_" + b
+        case ("", a) if a.nonEmpty => a
+        case (a, "") if a.nonEmpty => a
+        case (a, b) if a.nonEmpty && b.nonEmpty => a + "_" + b
         case ("", "") => "policy" + scala.util.Random.alphanumeric.take(5).mkString
       }
     }

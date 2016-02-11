@@ -82,6 +82,8 @@ class PolicyTest extends SpecificationWithJUnit {
     "add a link in the policy" in {
       val l = Flow(Constant(new IntegerType(3),  classOf[IntegerType]).output, DCPTest.collectorA.input)
       DCPTest.dcpA.addFlow(l).flows must contain(l)
+      DCPTest.dcpA.add(l).flows must contain(l)
+
     }
 
   }
@@ -89,14 +91,19 @@ class PolicyTest extends SpecificationWithJUnit {
   "Deleting methods in a Policy" should {
     "delete an output in the policy" in {
       DCPTest.dcpA.deleteIO(DCPTest.collectorA).ios must not contain DCPTest.collectorA
+      DCPTest.dcpA.delete(DCPTest.collectorA).ios must not contain DCPTest.collectorA
+
     }
 
     "delete a concept in the policy" in {
       DCPTest.dcpA.deleteActivity(DCPTest.adder).operations must not contain DCPTest.adder
+      DCPTest.dcpA.delete(DCPTest.adder).operations must not contain DCPTest.adder
     }
 
     "delete a link in the policy" in {
       DCPTest.dcpA.deleteFlow(DCPTest.l).flows must not contain DCPTest.l
+      DCPTest.dcpA.delete(DCPTest.l).flows must not contain DCPTest.l
+
     }
 
     "delete links to a concept if this latter is deleted" in {
