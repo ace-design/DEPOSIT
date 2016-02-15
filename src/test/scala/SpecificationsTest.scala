@@ -46,7 +46,7 @@ class SpecificationsTest extends SpecificationWithJUnit{
       }
 
       "have the right repartition on network topology" in {
-        predeploy_demo_policy.inputs.find(_.name equals "AC_443").get.readProperty("targets").get.asInstanceOf[Set[Entity]].map{_.name} must contain(exactly("ARD_2_443", "RP_443_XBEE", "SmartCampus"))
+        predeploy_demo_policy.inputs.find(_.name equals "AC_443").get.readProperty("targets").get.asInstanceOf[Set[Entity]].map{_.name} must contain(exactly("ARD_2_443"))
         predeploy_demo_policy.concepts.collect {case x:Produce[_,_] => x}.head.readProperty("targets").get.asInstanceOf[Set[Entity]].map{_.name} must contain(exactly("RP_443_XBEE", "SmartCampus"))
       }
     }

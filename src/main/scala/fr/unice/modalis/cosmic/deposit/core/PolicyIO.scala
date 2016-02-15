@@ -1,5 +1,8 @@
 package fr.unice.modalis.cosmic.deposit.core
 
+import fr.unice.modalis.cosmic.deployment.infrastructure.Features.{CommunicationType, CommunicationWay}
+import fr.unice.modalis.cosmic.deployment.network.{Communication, Entity}
+
 /**
  * Input/Output trait
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
@@ -100,6 +103,8 @@ trait Sensor[T<:DataType] extends DataInput[T]{
   val output = new Output[T](url, this)
   override val name = url
 
+  override def placingConstraintsEquation(e:Entity) = e.sensors.map(_.name) contains url
+
   /**
     * Check if two sensors are similar
     * @return True if similar, false otherwise
@@ -169,9 +174,11 @@ case class EventSensor[T<:DataType](override val url:String, dataType: Class[T])
 case class Collector[T<:DataType](endpoint:String, dataType: Class[T]) extends DataOutput[T] {
   val input = new Input[T](endpoint, this)
   val name = endpoint
-  override def toString:String = "COLLECTOR[" + endpoint + "]"
 
+  override def toString:String = "COLLECTOR[" + endpoint + "]"
+  override def placingConstraintsEquation(e:Entity) = e.communication contains Communication(CommunicationType.WAN, CommunicationWay.Out)
   override val commonName: String = toString
+
 
   /**
    * Return a copy of this concept (with different id)
