@@ -1,5 +1,7 @@
 package fr.unice.modalis.cosmic.deposit.core
 
+import fr.unice.modalis.cosmic.deployment.network.Entity
+
 /**
  * Represent a concept
  * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
@@ -39,4 +41,11 @@ trait Concept extends Properties{
    * @return copy of this concept
    */
   def duplicate:Concept
+
+  /**
+    * A boolean equation that a concept must satisfy in order to be placed on an entity (Default=true)
+    * @param e Entity
+    * @return A boolean indicating if the concept can be placed on the entity e
+    */
+  def placingConstraintsEquation(e:Entity):Boolean = true
 }

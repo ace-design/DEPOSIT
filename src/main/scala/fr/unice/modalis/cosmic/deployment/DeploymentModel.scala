@@ -91,7 +91,6 @@ object PreDeploy {
    */
   def getOperationRepartition(p:Policy, topology: NetworkTopology) = {
     val repartition = mutable.HashMap[GenericNode, Set[Operation[_<:DataType, _<:DataType]]]()
-    p.operations.map(o => o.readProperty("targets"))
     for (resource <- topology.resources if resource.isProgrammable) yield {
       val selection = p.operations.filter(o => o.readProperty("targets").getOrElse(false).asInstanceOf[Set[GenericNode]] contains resource)
       repartition += ((resource, selection))
@@ -136,8 +135,8 @@ object PreDeploy {
 
         if (sensorsNeeded.forall(sensorsConnected.contains)) {
 
-          // If the resource is programmable
-          if (resource.isProgrammable)
+          // If the resource is programmable and the concept can be projected on the resource
+          if (resource.isProgrammable && concept.placingConstraintsEquation(resource))
             targets = targets + resource
         }
       }
