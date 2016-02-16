@@ -1,5 +1,7 @@
 package fr.unice.modalis.cosmic.deployment
 
+import java.util.NoSuchElementException
+
 import com.typesafe.scalalogging.LazyLogging
 import fr.unice.modalis.cosmic.deployment.exception.NoTargetFoundException
 import fr.unice.modalis.cosmic.deployment.generator.CodeGenerator
@@ -68,7 +70,7 @@ object Decompose extends LazyLogging{
  * Prepare the deployment of a data collection policy
  * Created by Cyril Cecchinel - I3S Laboratory on 12/05/15.
  */
-object PreDeploy {
+object PreDeploy extends LazyLogging{
 
   def apply(policy: Policy, topology: NetworkTopology) = prepare(policy, topology)
 
@@ -119,9 +121,21 @@ object PreDeploy {
         if (sensor.get.sPin.isDefined)
           s.addProperty("pin", sensor.get.sPin.get)
       } catch {
-        case e:NoSuchElementException => println("[WARNING] Sensor " + s.name + " has not been found in " + topology.name)
+        case e:NoSuchElementException => logger.warn("Sensor " + s.name + " has not been found in " + topology.name)
       }
     }
+
+    // Step 0** : Refine collectors with public urls from topology model
+    policy.collectors.foreach {c =>
+      val collector = topology.findEntityByName(c.name)
+      try{
+        if (collector.get.publicUrl.isDefined)
+          c.addProperty("url", collector.get.publicUrl.get)
+        } catch {
+        case e:NoSuchElementException => logger.warn("Collector " + c.name + " has not been found in " + topology.name)
+      }
+      }
+
 
     // Step 1: compute Sensors involved for each operation of the policy
     policy.concepts.foreach(c => c.addProperty("sensors", policy.sensorsInvolved(c)))

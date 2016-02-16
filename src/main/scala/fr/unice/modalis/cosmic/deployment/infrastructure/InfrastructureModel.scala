@@ -41,6 +41,7 @@ case class NetworkTopology(name:String, resources:Set[Entity], edges:Set[Edge]) 
   def isConnectedTo(n: Entity) = edges.filter(_.source == n).map(_.destination)
   def isConnectedBy(n: Entity) = edges.filter(_.destination == n).map(_.source)
   def findSensorByName(s:String) = resources.flatMap {_.sensors}.find(_.name equals s)
+  def findEntityByName(s:String) = resources.find {_.name equals s}
 
   def toGraph = {
     val _nodes = resources

@@ -56,7 +56,8 @@ object TopologyModelBuilder {
       val entityPower = (for (k <- Features.featurePowerAssociation.keys if findFeature(k, s \\ "powers" \\ "power")) yield Features.featurePowerAssociation(k)).head
       val entityCommunications = buildCommunications (s \\ "communications")
       val entityLanguages = (for (k <- Features.featureLanguageAssociation.keys if findFeature(k, s \\ "languages" \\ "language")) yield Features.featureLanguageAssociation(k)).head
-      new Entity(id,sensors.toSet,entityPower, entityCommunications.toSet, computation, etype, entityLanguages)
+      val entityPublicUrl = s \@ "url"
+      new Entity(id,sensors.toSet,entityPower, entityCommunications.toSet, computation, etype, entityLanguages, if (entityPublicUrl.isEmpty) None else Some(entityPublicUrl))
     }
 
 
@@ -64,6 +65,8 @@ object TopologyModelBuilder {
     val configuration = XML.loadFile(pathToFile)
 
     val name = (configuration \\ "sensornetwork" \ "@id").text
+
+
 
     val entities = for (e <- configuration \\ "sensornetwork" \\ "entities" \\ "entity";
                         id = (e \\ "@name").text;

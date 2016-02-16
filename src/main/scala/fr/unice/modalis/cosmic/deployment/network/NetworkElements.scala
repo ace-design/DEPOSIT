@@ -30,7 +30,8 @@ case class Entity(name:String,
                   communication:Set[Communication],
                   computation:EntityComputation,
                   eType:EntityType = EntityType.Misc,
-                  language:ProgrammingLanguage = ProgrammingLanguage.None) extends GenericNode {
+                  language:ProgrammingLanguage = ProgrammingLanguage.None,
+                  publicUrl:Option[String] = None) extends GenericNode {
 
   override def isProgrammable:Boolean = language != ProgrammingLanguage.None
 }

@@ -158,8 +158,6 @@ object ProcessingGenerator extends CodeGenerator{
     generatedCode = replace ("global_pointers", generateGlobalPointers(p), generatedCode)
     generatedCode = replace ("libraries", generateLibraries(p), generatedCode)
     generatedCode = replace("period", if (p.hasPeriodicSensors) computePeriod(p).toString else "", generatedCode)
-    if (p.hasProperty("board").isDefined)
-      generatedCode = replace("board_id", "\"" + p.readProperty("board").get.asInstanceOf[String] + "\"", generatedCode)
     generatedCode
   }
 

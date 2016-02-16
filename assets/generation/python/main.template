@@ -4,8 +4,9 @@ import threading
 import time
 import datetime
 import json
+import requests
 
-BOARD_ID = "TEST"
+BOARD_ID = #@board_id@#
 OFFSET = 0
 nullValue = {"t":-1,"src": BOARD_ID, "data":{"n":"","v":0, "t": -1}}
 #@update@#
@@ -24,6 +25,9 @@ def currentTime():
 def send(v):
 	print(str(v["data"]))
 
+def sendToCollector(v, url):
+	headers = {'content-type': 'application/json'}
+	requests.post(url, data=json.dumps(v), headers=headers)
 
 #@serial@#
 ##LAUCH SERIAL PROCESSES HERE

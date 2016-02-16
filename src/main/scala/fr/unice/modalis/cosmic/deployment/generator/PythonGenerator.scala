@@ -78,7 +78,7 @@ object PythonGenerator extends CodeGenerator{
 
     case a:Collector[T] =>
       val input_var = Variable(a.id + "_" + a.input.name, "")
-      Instruction(Set(input_var), "send(" + input_var.name +")", Set())
+      Instruction(Set(input_var), "sendToCollector(" + input_var.name + "['data']," + "'" + a.readProperty("url").get + "')", Set())
 
     case a:JoinPointOutput[T] =>
       val id = a.readProperty("network")

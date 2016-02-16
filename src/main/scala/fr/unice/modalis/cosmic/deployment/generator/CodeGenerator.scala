@@ -96,6 +96,8 @@ trait CodeGenerator {
     val inputsTxt = generateInputs(p)
     generatedCode = replace("sensor_instructions", inputsTxt._1, generatedCode)
     generatedCode = replace("dataacquisition", inputsTxt._2, generatedCode)
+    if (p.hasProperty("board").isDefined)
+      generatedCode = replace("board_id", "\"" + p.readProperty("board").get.asInstanceOf[String] + "\"", generatedCode)
     generatedCode
   }
 
