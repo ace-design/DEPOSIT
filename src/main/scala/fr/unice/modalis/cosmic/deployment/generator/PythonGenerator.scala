@@ -250,7 +250,6 @@ object PythonGenerator extends CodeGenerator{
     var generatedCode = super.generate(p)
     generatedCode = replace("serial", generateSerialReadingMethodForJoinPoints(p), generatedCode)
     generatedCode = replace("update", generateUpdateMethod(p), generatedCode)
-    generatedCode = replace("flush", generateFlushMethod(p), generatedCode)
     generatedCode = replace("use_global_variables", generateGlobalVariables(p, inBody = true), generatedCode)
 
     generatedCode

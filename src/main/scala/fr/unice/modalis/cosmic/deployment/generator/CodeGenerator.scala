@@ -2,6 +2,7 @@ package fr.unice.modalis.cosmic.deployment.generator
 
 import java.io.PrintWriter
 
+import fr.unice.modalis.cosmic.deployment.generator.ProcessingGenerator._
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.ProgrammingLanguage.ProgrammingLanguage
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.{SensorBrand, SensorType}
 import fr.unice.modalis.cosmic.deposit.core.{Concept, PeriodicSensor, Policy, SensorDataType}
@@ -96,6 +97,7 @@ trait CodeGenerator {
     val inputsTxt = generateInputs(p)
     generatedCode = replace("sensor_instructions", inputsTxt._1, generatedCode)
     generatedCode = replace("dataacquisition", inputsTxt._2, generatedCode)
+    generatedCode = replace("flush", generateFlushMethod(p), generatedCode)
     if (p.hasProperty("board").isDefined)
       generatedCode = replace("board_id", "\"" + p.readProperty("board").get.asInstanceOf[String] + "\"", generatedCode)
     generatedCode

@@ -152,7 +152,6 @@ object ProcessingGenerator extends CodeGenerator{
     var generatedCode = super.generate(p)
 
     generatedCode = replace("update", generateUpdateMethod(p), generatedCode)
-    generatedCode = replace("flush", generateFlushMethod(p), generatedCode)
     generatedCode = replace("global_sensor_values", generateSensorValues(p), generatedCode)
     generatedCode = replace("setup_instructions", generateSetupInstructions(p), generatedCode)
     generatedCode = replace ("global_pointers", generateGlobalPointers(p), generatedCode)
