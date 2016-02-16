@@ -56,8 +56,8 @@ object TopologyModelBuilder {
       val entityPower = (for (k <- Features.featurePowerAssociation.keys if findFeature(k, s \\ "powers" \\ "power")) yield Features.featurePowerAssociation(k)).head
       val entityCommunications = buildCommunications (s \\ "communications")
       val entityLanguages = (for (k <- Features.featureLanguageAssociation.keys if findFeature(k, s \\ "languages" \\ "language")) yield Features.featureLanguageAssociation(k)).head
-      val entityPublicUrl = s \@ "url"
-      new Entity(id,sensors.toSet,entityPower, entityCommunications.toSet, computation, etype, entityLanguages, if (entityPublicUrl.isEmpty) None else Some(entityPublicUrl))
+      val entityPublicUrl = s \@ "remote"
+      new Entity(id,sensors.toSet,entityPower, entityCommunications.toSet, computation, etype, entityLanguages, if (!entityPublicUrl.isEmpty) Some(entityPublicUrl) else None)
     }
 
 

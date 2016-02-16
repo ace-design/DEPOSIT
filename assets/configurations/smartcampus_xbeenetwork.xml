@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <sensornetwork id="SmartCampusXBEENetwork">
     <entities>
-        <entity computation="Cloud" name="SmartCampus" type="Server" url="http://127.0.0.1:8000/collect">
+        <entity computation="Cloud" name="SmartCampus" type="Server" remote="http://127.0.0.1:8000/collect">
             <sensors/>
             <communications>
                 <communication>
