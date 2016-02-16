@@ -1,9 +1,10 @@
 package fr.unice.modalis.cosmic.demos
 
-import fr.unice.modalis.cosmic.deployment.PreDeploy
-import fr.unice.modalis.cosmic.deployment.generator.ProcessingGenerator
+import fr.unice.modalis.cosmic.deployment.infrastructure.samples.SmartCampusInfrastructure
 import fr.unice.modalis.cosmic.deployment.utils.TopologyModelBuilder
+import fr.unice.modalis.cosmic.deployment.{AutoDeploy, PreDeploy}
 import fr.unice.modalis.cosmic.deposit.core._
+import fr.unice.modalis.cosmic.runtime.{RepositoriesManager, Repository}
 
 
 /**
@@ -19,8 +20,8 @@ object DemoCelsiusToFahrenheit extends App{
 
   val sensor = PeriodicSensor(2, "AC_443", classOf[SmartCampusType])
   val convert = Process(StandardizedPolicies.CelsiusToFahrenheit(), classOf[SmartCampusType], classOf[SmartCampusType])
-  val collectorfahrenheit = Collector("collectorFarenheit", classOf[SmartCampusType])
-  val collectorcelsius = Collector("collectorCelsius", classOf[SmartCampusType])
+  val collectorfahrenheit = Collector("SmartCampus", classOf[SmartCampusType])
+  val collectorcelsius = Collector("SmartCampus", classOf[SmartCampusType])
 
   val l1 = Flow(sensor.output, convert.getInput("celsius"))
   val l2 = Flow(convert.getOutput("fahrenheit"), collectorfahrenheit.input)
@@ -33,6 +34,8 @@ object DemoCelsiusToFahrenheit extends App{
   val topology = TopologyModelBuilder("assets/configurations/smartcampus_xbeenetwork.xml")
   val predeployed = PreDeploy(p, topology)
 
-  ProcessingGenerator(predeployed, toFile = true)
+  RepositoriesManager.addRepository(new Repository(SmartCampusInfrastructure()))
+  AutoDeploy(p, SmartCampusInfrastructure())
+
 
 }

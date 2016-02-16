@@ -47,7 +47,7 @@ object DemoAlertACv2 extends App{
   val produce3 = Produce(Set("i1", "i2"), new SmartCampusType("ALERT_AC", 0), None, classOf[SmartCampusType], classOf[SmartCampusType])
 
   // We collect the results
-  val collector = Collector("collector", classOf[SmartCampusType])
+  val collector = Collector("SmartCampus", classOf[SmartCampusType])
   val collector2 = collector.duplicate
   val collector3 = collector.duplicate
   /**

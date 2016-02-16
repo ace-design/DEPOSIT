@@ -41,7 +41,7 @@ object DemoAlertAC extends App{
   val produce = Produce(Set("i1", "i2", "i3"), new SmartCampusType("ALERT_AC", 1), None, classOf[SmartCampusType], classOf[SmartCampusType])
 
   // We collect the results
-  val collector = Collector("collector", classOf[SmartCampusType])
+  val collector = Collector("SmartCampus", classOf[SmartCampusType])
 
   /**
    * We define data flows between the concepts
