@@ -1,0 +1,3 @@
+[submodule "collector_examples"]
+	path = collector_examples
+	url = https://github.com/ulrich06/DEPOSIT_Collector.git
