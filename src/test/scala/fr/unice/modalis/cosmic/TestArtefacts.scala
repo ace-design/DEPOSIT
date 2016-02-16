@@ -34,7 +34,7 @@ object ComprehensivePolicy extends DEPOSIT {
   val threshold = define aFilter "value < 64"
   val produce = define aProducer new SmartCampusType("ALERT_AC", 1) withInputs("i1", "i2", "i3")
 
-  val collector = declare aCollector() named "Collector"
+  val collector = declare aCollector() named "SmartCampus"
 
   flows {
     ac_443() -> celsiusToFahrenheit("celsius")
