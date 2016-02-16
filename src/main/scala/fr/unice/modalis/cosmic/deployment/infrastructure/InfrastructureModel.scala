@@ -24,15 +24,12 @@ case class NetworkTopology(name:String, resources:Set[Entity], edges:Set[Edge]) 
     def inner(n: Entity):List[Sensor] = {
       visited = n :: visited
 
-      n.sensors.toList ::: (isConnectedBy(n).toList match {
-        case Nil => List()
-        case x :: xl => x.sensors.toList ::: xl.foldLeft(List[Sensor]()) {
-          (acc, n) => if (!visited.contains(n)) {
-            visited = n :: visited
-            inner(n) ::: acc
-          } else acc
-        }
-      })
+      n.sensors.toList ::: isConnectedBy(n).toList.foldLeft(List[Sensor]()){
+        (acc, n) => if (!visited.contains(n)) {
+          visited = n :: visited
+          inner(n) ::: acc
+        } else acc
+      }
     }
 
     inner(n).toSet
