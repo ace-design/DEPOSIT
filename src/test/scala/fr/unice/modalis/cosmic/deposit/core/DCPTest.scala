@@ -92,7 +92,7 @@ object DCPTest {
     val flows = flowsToProcess ++ flowsToAdd ++ List(l)
 
     ios.foreach(x => dcp = dcp.addIO(x))
-    activities.foreach(x => dcp = dcp.addActivity(x))
+    activities.foreach(x => dcp = dcp.addOperation(x))
     flows.foreach(x => dcp = dcp.addFlow(x))
 
     dcp

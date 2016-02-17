@@ -61,7 +61,7 @@ class PolicyTest extends SpecificationWithJUnit {
 
     "add a concept in the policy" in {
       val a = Sub(Set(), classOf[IntegerType])
-      DCPTest.dcpA.addActivity(a).operations must contain(a)
+      DCPTest.dcpA.addOperation(a).operations must contain(a)
     }
 
     "add an input with generic add in the policy" in {

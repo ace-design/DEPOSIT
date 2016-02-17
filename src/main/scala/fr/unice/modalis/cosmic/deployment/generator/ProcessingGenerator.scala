@@ -139,7 +139,7 @@ object ProcessingGenerator extends CodeGenerator{
 
     }
 
-    p.dataTypesInvolved.foldLeft(""){(acc, e) => acc + generateStruct(DataType.factory(e.getSimpleName)) + "\n"}
+    p.getInvolvedDataTypes.foldLeft(""){ (acc, e) => acc + generateStruct(DataType.factory(e.getSimpleName)) + "\n"}
   }
 
   def produceSourceFile(name:String, code:String) = {
@@ -156,7 +156,7 @@ object ProcessingGenerator extends CodeGenerator{
     generatedCode = replace("setup_instructions", generateSetupInstructions(p), generatedCode)
     generatedCode = replace ("global_pointers", generateGlobalPointers(p), generatedCode)
     generatedCode = replace ("libraries", generateLibraries(p), generatedCode)
-    generatedCode = replace("period", if (p.hasPeriodicSensors) computePeriod(p).toString else "", generatedCode)
+    generatedCode = replace("period", if (hasPeriodicSensors(p)) computePeriod(p).toString else "", generatedCode)
     generatedCode
   }
 

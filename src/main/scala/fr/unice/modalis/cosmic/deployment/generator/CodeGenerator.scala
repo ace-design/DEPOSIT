@@ -143,6 +143,11 @@ trait CodeGenerator {
 
   }
 
+  /**
+    * Return if the policy has periodic sensors
+    * @return True if the policy has periodic sensors, false otherwise
+    */
+  def hasPeriodicSensors(policy: Policy) = policy.sources.collect{case x:PeriodicSensor[_] => x}.nonEmpty
 
   /**
    * Compute the period of a policy (lcm of periodic sensors)

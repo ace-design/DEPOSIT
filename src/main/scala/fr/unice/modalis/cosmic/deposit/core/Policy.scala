@@ -32,87 +32,128 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   lazy val concepts = ios ++ operations
   lazy val isExtendable = inputJoinPoints.nonEmpty || outputJoinPoints.nonEmpty
 
+  /**
+    * Find a concept by its id
+    * @param id Concept if
+    * @return Result of id-lookup
+    */
   def findConceptById(id:String) = concepts find {_.id equals id}
-
-  def hasPeriodicSensors = sources.collect{case x:PeriodicSensor[_] => x}.nonEmpty
 
   /**
     * Graph representation
-    * @return A Graph representation of this workflow
+    * @return A Graph representation of this policy
     */
-  def graph = ToGraph(this)
+  def toGraph = ToGraph(this)
 
-  def add(c:Concept):Policy = {
-    c match {
+  /**
+    * Add a concept in the policy
+    * @param concept Concept to add
+    * @return A new policy with the concept added
+    */
+  def add(concept:Concept):Policy = {
+    concept match {
       case n:PolicyIO[_] => addIO(n)
-      case n:Operation[_, _] => addActivity(n)
-      case _ => throw new IllegalArgumentException(c + " is not handled by method add")
+      case n:Operation[_, _] => addOperation(n)
+      case _ => throw new IllegalArgumentException(concept + " is not handled by method add")
     }
   }
 
+  /**
+    * Add a flow in the policy
+    * @param flow Flow to add
+    * @return A new policy with the flow added
+    */
   def add(flow: Flow[_<:DataType]):Policy = {
     addFlow(flow)
   }
 
-  def delete(c:Concept):Policy = {
-    c match {
+  /**
+    * Delete a concept in the policy (remove also flows from and to this concepts)
+    * @param concept Concept to delete
+    * @return A new policy with the concept and relatives flows deleted
+    */
+  def delete(concept:Concept):Policy = {
+    concept match {
       case n:PolicyIO[_] => deleteIO(n)
       case n:Operation[_, _] => deleteActivity(n)
-      case _ => throw new IllegalArgumentException(c + " is not handled by method delete")
+      case _ => throw new IllegalArgumentException(concept + " is not handled by method delete")
     }
   }
 
+  /**
+    * Delete a flow in the policy
+    * @param flow Flow to delete
+    * @return A new policy with the flow deleted
+    */
   def delete(flow: Flow[_<:DataType]):Policy = {
     deleteFlow(flow)
   }
 
-  def addIO(o:PolicyIO[_<:DataType]):Policy = {
-    new Policy(name, ios + o, operations, flows)
-  }
   /**
-    * Add an element in the current workflow
-    * @param c Workflow Element
-    * @return A new workflow with the element added
+    * Add an I/O to the policy
+    * @param io I/O to add
+    * @return A new policy with the I/O added
     */
-  def addActivity[T<:DataType, O<:DataType](c:Operation[T,O]):Policy  = {
-    c match {
-      case Process(wf, _, _) => new Policy(name, ios, operations + c, flows ++ autoConnectProcess(c.asInstanceOf[Process[_<:DataType, _<:DataType]]))
-      case _ => new Policy(name, ios, operations + c, flows)
+  def addIO(io:PolicyIO[_<:DataType]):Policy = {
+    new Policy(name, ios + io, operations, flows)
+  }
+
+  /**
+    * Add an operation in the current workflow
+    * @param operation Operation to add
+    * @return A new policy with the operation added
+    */
+  def addOperation[T<:DataType, O<:DataType](operation:Operation[T,O]):Policy  = {
+    operation match {
+      case Process(wf, _, _) => new Policy(name, ios, operations + operation, flows ++ autoConnectProcess(operation.asInstanceOf[Process[_<:DataType, _<:DataType]]))
+      case _ => new Policy(name, ios, operations + operation, flows)
     }
   }
 
   /**
-    * Add a flow in the current workflow
-    * @param l Flow
-    * @return A new workflow with the flow added
+    * Add a flow in the current policy
+    * @param flow Flow
+    * @return A new policy with the flow added
     */
-  def addFlow(l:Flow[_<:DataType]):Policy  = {
-    new Policy(name, ios, operations, flows + l)
+  def addFlow(flow:Flow[_<:DataType]):Policy  = {
+    new Policy(name, ios, operations, flows + flow)
   }
 
   /**
-    * Delete an activity in the current workflow (/!\ Delete also all flows referring this activity)
-    * @param c Workflow activity
-    * @return A workflow without this activity and flows referring this activity
+    * Delete an operation in the current workflow (Delete also all flows referring this activity)
+    * @param operation Operation to delete
+    * @return A policy without this operation and flows referring this operation
     */
-  def deleteActivity(c:Operation[_<:DataType,_<:DataType]):Policy = {
-    new Policy(name, ios, operations - c, flows.filterNot(p => (p.destination == c) || (p.source == c)))
+  def deleteActivity(operation:Operation[_<:DataType,_<:DataType]):Policy = {
+    new Policy(name, ios, operations - operation, flows.filterNot(p => (p.destination == operation) || (p.source == operation)))
   }
 
   /**
-    * Delete an IO in the current workflow (/!\ Delete also all flows referring this IO)
-    * @param c Workflow IO
-    * @return A workflow without this IO and flows referring this IO
+    * Delete an IO in the current policy (/!\ Delete also all flows referring this IO)
+    * @param io I/O to delete
+    * @return A policy without this IO and flows referring this IO
     */
-  def deleteIO(c:PolicyIO[_<:DataType]):Policy = {
-    new Policy(name, ios - c, operations, flows.filterNot(p => (p.destination == c) || (p.source == c)))
+  def deleteIO(io:PolicyIO[_<:DataType]):Policy = {
+    new Policy(name, ios - io, operations, flows.filterNot(p => (p.destination == io) || (p.source == io)))
   }
 
   /**
-    * Return sub Workflow
-    * @param root Root element
+    * Delete a flow in the current policy
+    * @param flow Flow to delete
+    * @return A new policy with the flow removed
     */
-  def subWorkflow(root:Concept, last:Option[Concept] = None):Policy = {
+  def deleteFlow(flow:Flow[_<:DataType]):Policy  = {
+    new Policy(name, ios, operations, flows - flow)
+  }
+
+
+  /**
+    * Compute the sub-policy between a root and a leaf
+    * @param root Root concept
+    * @param leaf Leaf concept
+    * @return A sub-policy corresponding to the extraction of concepts and flows between the root and the leaf
+    */
+  def subPolicy(root:Concept, leaf:Option[Concept] = None):Policy = {
     val ios = new ArrayBuffer[PolicyIO[_<:DataType]]()
     val activities = new ArrayBuffer[Operation[_<:DataType, _<:DataType]]()
     val flows = new ArrayBuffer[Flow[_<:DataType]]()
@@ -127,8 +168,8 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
       val next = nextElements(e)
       next.foreach(e => e._1 match {
         case elem:Collector[_]  => ios += elem; flows += e._2
-        case elem:Sensor[_] =>  ios += elem; flows += e._2; if (e != Set.empty && last.isEmpty || last.get != e._1) internal(e._1)
-        case elem:Operation[_, _] => activities += elem; flows += e._2; if (e != Set.empty && last.isEmpty || last.get != e._1) internal(e._1)
+        case elem:Sensor[_] =>  ios += elem; flows += e._2; if (e != Set.empty && leaf.isEmpty || leaf.get != e._1) internal(e._1)
+        case elem:Operation[_, _] => activities += elem; flows += e._2; if (e != Set.empty && leaf.isEmpty || leaf.get != e._1) internal(e._1)
       }
       )
     }
@@ -137,50 +178,47 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   }
 
   /**
-    * Find the next workflow elements
-    * @param e Current workflow element
-    * @return Immediate next elements
+    * Find the next policy concepts
+    * @param concept Current policy concept
+    * @return A set of (Concept,Flow) referring to the next concepts and flows
     */
-  def nextElements(e:Concept):Set[(Concept, Flow[_<:DataType])] = {
+  def nextElements(concept:Concept):Set[(Concept, Flow[_<:DataType])] = {
     var res = Set[(Concept, Flow[_<:DataType])]()
     for (l <- flows) {
-      if (l.source == e)
-        res = res ++ flows.filter(l => l.source == e).foldLeft(Set.empty[(Concept, Flow[_<:DataType])]){ (acc, e) => acc.+((e.destination, l))}
-    }
-    res
-  }
-
-  def previousElements(e:Concept):Set[(Concept, Flow[_<:DataType])] = {
-    var res = Set[(Concept, Flow[_<:DataType])]()
-    for (l <- flows) {
-      if (l.destination == e)
-        res = res ++ flows.filter(l => l.destination == e).foldLeft(Set.empty[(Concept, Flow[_<:DataType])]){ (acc, e) => acc.+((e.source, l))}
+      if (l.source == concept)
+        res = res ++ flows.filter(l => l.source == concept).foldLeft(Set.empty[(Concept, Flow[_<:DataType])]){ (acc, e) => acc.+((e.destination, l))}
     }
     res
   }
 
   /**
-    * Delete a flow in the current workflow
-    * @param l Link
-    * @return A workflow with the flow removed
+    * Find the previous policy concepts
+    * @param concept Current policy concept
+    * @return A set of (Concept,Flow) referring to the previous concepts and flows
     */
-  def deleteFlow(l:Flow[_<:DataType]):Policy  = {
-    new Policy(name, ios, operations, flows - l)
+  def previousElements(concept:Concept):Set[(Concept, Flow[_<:DataType])] = {
+    var res = Set[(Concept, Flow[_<:DataType])]()
+    for (l <- flows) {
+      if (l.destination == concept)
+        res = res ++ flows.filter(l => l.destination == concept).foldLeft(Set.empty[(Concept, Flow[_<:DataType])]){ (acc, e) => acc.+((e.source, l))}
+    }
+    res
   }
 
+
   /**
-    * Generate WFLinks to connect a process with current known sensors in a workflow
-    * @param p Process
+    * Generate flows required to connect a process with current known sensors in a policy
+    * @param process Process operation
     * @tparam I Input Data type
     * @tparam O Output Data type
-    * @return A set ok flows needed to connect the process with the current known sensors
+    * @return A set of flows needed to connect the process with the current known sensors
     */
-  private def autoConnectProcess[I<:DataType, O<:DataType](p:Process[I,O]) = {
+  private def autoConnectProcess[I<:DataType, O<:DataType](process:Process[I,O]) = {
     var flows = new ArrayBuffer[Flow[_<:DataType]]()
-    p.inputsNames.foreach(i => {
+    process.inputsNames.foreach(i => {
       val possibleSensor = ios.filter(p => p.isInstanceOf[Sensor[I]]).find(s => s.asInstanceOf[Sensor[I]].url == i)
       possibleSensor match {
-        case Some(n) => flows += new Flow(n.asInstanceOf[Sensor[I]].output, p.getInput(i))
+        case Some(n) => flows += new Flow(n.asInstanceOf[Sensor[I]].output, process.getInput(i))
         case None => /* Nop */
 
       }
@@ -192,10 +230,10 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Return the set of sensors needed for a concept
-    * @param c Concept
+    * @param concept Concept
     * @return A sensor set
     */
-  def sensorsInvolved(c: Concept):Set[Sensor[_<:DataType]] = {
+  def sensorsInvolved(concept: Concept):Set[Sensor[_<:DataType]] = {
     var visited = List[Concept]()
     def inner(c:Concept):List[Sensor[_<:DataType]] = {
       c match {
@@ -204,31 +242,35 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
       }
     }
-    inner(c).toSet
+    inner(concept).toSet
   }
   /**
     * Select operator
     * @param n New policy's name
-    * @param e Set of concepts
+    * @param concepts Set of concepts
     * @return A new policy containing only selected concepts
     */
-  def select(e:Set[Concept], n:String = "select_") = {
+  def select(concepts:Set[Concept], n:String = "select_") = {
     var result = this
-    val notSelected = result.concepts -- e
+    val notSelected = result.concepts -- concepts
     notSelected.foreach(c => result = result.delete(c))
     result.name = n
     result
   }
 
   /**
-    * Return data types involved in a policy
+    * Data types involved in a policy
     * @return A set of data types involved
     */
-  def dataTypesInvolved[T<:DataType] = {
+  def getInvolvedDataTypes[T<:DataType] = {
     ios.map {_.dataType} ++ operations.map {_.iType} ++ operations.map {_.oType}
   }
 
-  def nonConnectedPorts = {
+  /**
+    * Ports that are not connected by a flow
+    * @return A list of non-connected flows
+    */
+  def getNonConnectedPorts = {
     // Compute list of ports
     val ports = concepts.foldLeft(List[Port[_]]()) { (acc, e) => e match {
       case x:DataInput[_] => x.output :: acc
@@ -243,6 +285,11 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     ports -- portsInUse
 
   }
+
+  /**
+    * Duplicate a policy
+    * @return A duplicated policy
+    */
   def duplicate = {
     // Convert flows between operations
     val corr = (this.flows.map { l => l.source } ++ this.flows.map{ l => l.destination}).map{ c => (c, c.duplicate)}.toMap
@@ -259,21 +306,48 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     new Policy(name,iosDuplicated.asInstanceOf[Set[PolicyIO[_<:DataType]]], operationsDuplicated.asInstanceOf[Set[Operation[_<:DataType, _<:DataType]]], linksDuplicated.asInstanceOf[Set[Flow[_<:DataType]]])
 
   }
-  def flowsTo(a:Concept) = flows.filter(l => l.destination == a)
 
-  def flowsFrom(a:Concept) = flows.filter(l => l.source == a)
+  /**
+    * Compute flows going to a concept
+    * @param concept Concept
+    * @return List of in-going flows
+    */
+  def flowsTo(concept:Concept) = flows.filter(l => l.destination == concept)
 
-  def ++(w:Policy):Policy = Policy.compose(this, w)
+  /**
+    * Compute flows going from a concept
+    * @param concept Concept
+    * @return List of out-going flows
+    */
+  def flowsFrom(concept:Concept) = flows.filter(l => l.source == concept)
 
-  override def toString = "Workflow[name=" + name + ";ios={" + ios + "};activites={" + operations + "};links={" + flows + "}]"
+  /**
+    * Compose the current policy with an other one
+    * @param other Other policy
+    * @return A new policy resulted from the composition of the current one and the one specified as a parameter
+    */
+  def ++(other:Policy):Policy = Policy.compose(this, other)
 
-  def exportToWiring() = ProcessingGenerator(this, toFile = true)
-  def exportToPython() = PythonGenerator(this, toFile = true)
-  def exportToGraphviz() = ToGraphviz.writeSource(this)
+  override def toString = "Policy[name=" + name + ";ios={" + ios + "};operations={" + operations + "};flows={" + flows + "}]"
+
+
+  def exportToWiring():Unit = ProcessingGenerator(this, toFile = true)
+  def exportToPython():Unit = PythonGenerator(this, toFile = true)
+
+  /**
+    * Export the policy to graphviz
+    */
+  def exportToGraphviz():Unit = ToGraphviz.writeSource(this)
 }
 
 object Policy extends LazyLogging{
 
+  /**
+    * Compose two policies together
+    * @param p1 Data collection policy
+    * @param p2 Data collection policy
+    * @return A composed data collection policy
+    */
   def compose(p1:Policy, p2:Policy) = {
 
     def composeName(p1:Policy, p2:Policy):String = {
