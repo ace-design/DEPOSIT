@@ -72,6 +72,48 @@ object ComprehensivePolicy2 extends DEPOSIT {
   def innerPolicy() = policy
 }
 
+object NonValidPolicy extends DEPOSIT {
+  this hasForName "NonValidPolicy"
+  this handles classOf[SmartCampusType]
+
+  val testSensor = declare aPeriodicSensor() named "Test" withPeriod 3
+  val testSensor2 = declare aPeriodicSensor() named "Test2" withPeriod 5
+  val collector = declare aCollector() named "Collector"
+
+  val op1 = define aFilter "value < 5"
+  val op2 = define anIncrementBy IntegerType(3)
+
+  flows {
+    testSensor() -> op1("input")
+    testSensor2() -> op1("input") //Whoups two data flows connected to the same port
+    op1("then") -> op2("input")
+    op2("output") -> collector()
+  }
+
+  def innerPolicy() = policy
+}
+
+object NonValidPolicy2 extends DEPOSIT {
+  this hasForName "NonValidPolicy2"
+  this handles classOf[SmartCampusType]
+
+  val testSensor = declare aPeriodicSensor() named "Test" withPeriod 3
+  val collector = declare aCollector() named "Collector"
+
+  val op1 = define aFilter "value < 5"
+  val op2 = define anIncrementBy IntegerType(3)
+  val op3 = define anAdder() withInputs ("i1","i2")
+
+  flows {
+    testSensor() -> op1("input")
+    op1("then") -> op2("input")
+    op2("output") -> op3("i1") //Whoups i2 is not connected
+    op3("output") -> collector()
+  }
+
+  def innerPolicy() = policy
+}
+
 object ComprehensivePolicyWithoutDSL {
   val ac443 = PeriodicSensor(300, "AC_443", classOf[SmartCampusType])
 

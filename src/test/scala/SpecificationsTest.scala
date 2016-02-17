@@ -6,8 +6,9 @@ import fr.unice.modalis.cosmic.deployment.network.Entity
 import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
 import fr.unice.modalis.cosmic.deployment.utils.TopologyModelBuilder
 import fr.unice.modalis.cosmic.deployment.{Decompose, Deploy, PreDeploy}
+import fr.unice.modalis.cosmic.deposit.core.Policy.NonValidPolicyException
 import fr.unice.modalis.cosmic.deposit.core._
-import fr.unice.modalis.cosmic.{ComprehensivePolicy, ComprehensivePolicyWithoutDSL}
+import fr.unice.modalis.cosmic.{ComprehensivePolicy, ComprehensivePolicyWithoutDSL, NonValidPolicy, NonValidPolicy2}
 import org.specs2.mutable.SpecificationWithJUnit
 
 /**
@@ -20,6 +21,15 @@ import org.specs2.mutable.SpecificationWithJUnit
 class SpecificationsTest extends SpecificationWithJUnit{
   val demo_policy = ComprehensivePolicy.innerPolicy()
 
+  "A non valid data collection policy defined with DEPOSIT" should {
+    "fail the validity check test (1)" in {
+      Policy.checkValidity(NonValidPolicy.innerPolicy()) must throwA[NonValidPolicyException].like {case e => e.getMessage === NonValidPolicy.innerPolicy().name + " is not valid because has an input port has more than one incoming data flow"}
+    }
+
+    "fail the validity check test (2)" in {
+      Policy.checkValidity(NonValidPolicy2.innerPolicy()) must throwA[NonValidPolicyException].like {case e => e.getMessage === NonValidPolicy2.innerPolicy().name + " is not valid because has empty ports"}
+    }
+  }
   "The demo data collection policy defined with DEPOSIT" should {
     "be named 'DemoPolicy'" in {
       demo_policy.name must_== "DemoPolicy"
@@ -29,6 +39,10 @@ class SpecificationsTest extends SpecificationWithJUnit{
     }
     "have 8 data flows" in {
       demo_policy.flows must have size 8
+    }
+
+    "be valid" in {
+      Policy.checkValidity(demo_policy) must not(throwA[NonValidPolicyException])
     }
 
     val topology = TopologyModelBuilder("assets/configurations/smartcampus_xbeenetwork.xml")

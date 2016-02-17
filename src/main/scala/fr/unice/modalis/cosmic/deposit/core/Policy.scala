@@ -267,17 +267,16 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   }
 
   /**
-    * Ports that are not connected by a flow
+    * Input Ports that are not connected by a flow
     * @return A list of non-connected flows
     */
-  def getNonConnectedPorts = {
-    // Compute list of ports
+  def getNonConnectedInputPorts = {
+    // Compute list of input ports
     val ports = concepts.foldLeft(List[Port[_]]()) { (acc, e) => e match {
-      case x:DataInput[_] => x.output :: acc
       case x:DataOutput[_] => x.input :: acc
-      case x:JoinPointInput[_] => x.output :: acc
       case x:JoinPointOutput[_] => x.input :: acc
-      case x:Operation[_, _] => x.inputs.toList ::: x.outputs.toList ::: acc
+      case x:Operation[_, _] => x.inputs.toList ::: acc
+      case _ => acc
     }}.toSet
 
     val portsInUse = flows.foldLeft(List[Port[_]]()) { (acc, e) => e.destination_input :: e.source_output :: acc}.toSet
@@ -341,6 +340,25 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 }
 
 object Policy extends LazyLogging{
+
+  case class NonValidPolicyException(policy:Policy, reason:String) extends Exception(policy.name + s" is not valid because $reason")
+
+  /**
+    * Check if the policy satisfies the validity properties. Returns nothing if the policy is valid but throws NonValidPolicyException if the policy is not valid
+    * @param policy Policy
+    */
+  def checkValidity(policy: Policy):Unit = {
+    // A policy should have sensors and collectors
+    if (policy.sensors.isEmpty) throw NonValidPolicyException(policy, "has no sensors")
+    if (policy.collectors.isEmpty) throw NonValidPolicyException(policy, "has no collectors")
+
+    // A policy should have no non-connected ports
+    if (policy.getNonConnectedInputPorts.nonEmpty) throw NonValidPolicyException(policy, "has empty ports")
+
+    // An operation input is connected by only one flow
+    if (!policy.operations.forall(operation => operation.inputs.forall(input => policy.flows.count(_.destination_input equals input) == 1))) throw NonValidPolicyException(policy, "has an input port has more than one incoming data flow")
+
+  }
 
   /**
     * Compose two policies together
