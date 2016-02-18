@@ -83,8 +83,10 @@ object RandomPolicy extends LazyLogging{
   }
 
   def apply(nodes:Int = 10, maxDegree:Int = 5) = {
+    if (nodes <= 1) throw new IllegalArgumentException(s"$nodes node is not a valid property")
+    if (maxDegree <= 1) throw new IllegalArgumentException(s"$maxDegree degree is not a valid property")
+
     logger.debug(s"Generating a random policy with $nodes nodes and $maxDegree as max degree")
-    assert(nodes > 1 && maxDegree > 1)
     convertGraphToDeposit(RandomGraph.diGraph(Graph, RandomGraphProperties(nodes, NodeDegreeRange(1,maxDegree))).draw)
   }
 }
