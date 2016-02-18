@@ -279,7 +279,26 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
       case _ => acc
     }}.toSet
 
-    val portsInUse = flows.foldLeft(List[Port[_]]()) { (acc, e) => e.destination_input :: e.source_output :: acc}.toSet
+    val portsInUse = flows.foldLeft(List[Port[_]]()) { (acc, e) => e.destination_input :: acc}.toSet
+
+    ports -- portsInUse
+
+  }
+
+  /**
+    * Input Ports that are not connected by a flow
+    * @return A list of non-connected flows
+    */
+  def getNonConnectedOutputPorts = {
+    // Compute list of input ports
+    val ports = concepts.foldLeft(List[Port[_]]()) { (acc, e) => e match {
+      case x:DataInput[_] => x.output :: acc
+      case x:JoinPointInput[_] => x.output :: acc
+      case x:Operation[_, _] => x.outputs.toList ::: acc
+      case _ => acc
+    }}.toSet
+
+    val portsInUse = flows.foldLeft(List[Port[_]]()) { (acc, e) => e.source_output :: acc}.toSet
 
     ports -- portsInUse
 
