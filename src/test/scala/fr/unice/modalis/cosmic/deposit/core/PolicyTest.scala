@@ -1,6 +1,8 @@
 package fr.unice.modalis.cosmic.deposit.core
 
 import fr.unice.modalis.cosmic.deposit.algo.{Unification, Weave}
+import fr.unice.modalis.cosmic.deposit.core.Policy.NonValidPolicyException
+import fr.unice.modalis.cosmic.deposit.dsl.DEPOSIT
 import org.specs2.mutable.SpecificationWithJUnit
 
 /**
@@ -9,6 +11,26 @@ import org.specs2.mutable.SpecificationWithJUnit
  */
 class PolicyTest extends SpecificationWithJUnit {
 
+  "Validation of policies" should {
+    "avoid loops" in {
+      object testPolicy extends DEPOSIT{
+        this handles classOf[SmartCampusType]
+        val a = declare aPeriodicSensor() named "A" withPeriod 3
+        val c = declare aCollector() named "C"
+        val b = define anAdder() withInputs("i1", "i2")
+
+        flows {
+          a() -> b("i1")
+          b("output") -> c()
+          b("output") -> b("i2")
+        }
+
+        def innerPolicy() = this.policy
+      }
+      Policy.checkValidity(testPolicy.innerPolicy) must throwA[NonValidPolicyException].like {case e => e.getMessage === testPolicy.innerPolicy().name + " is not valid because has a loop on a concept"}
+    }
+
+  }
   "Duplication of policies" should {
     val a = DCPTest.dcpA
     val b = DCPTest.dcpA.duplicate
