@@ -377,6 +377,11 @@ object Policy extends LazyLogging{
     // An operation input is connected by only one flow
     if (!policy.operations.forall(operation => operation.inputs.forall(input => policy.flows.count(_.destination_input equals input) == 1))) throw NonValidPolicyException(policy, "has an input port has more than one incoming data flow")
 
+    // A policy is acyclic
+    if (policy.toGraph.isCyclic) throw NonValidPolicyException(policy, "has a cycle")
+
+    // A policy has no loops
+    if (policy.flows.exists {f => f.source == f.destination}) throw NonValidPolicyException(policy, "has a loop on a concept")
   }
 
   /**
