@@ -15,10 +15,11 @@ class SimulatedOperation[I<:DataType, O<:DataType](val simulatedName:String, val
 }
 
 
-class SimulatedSensor[I<:DataType](override val url:String, override val dataType: Class[I]) extends GenericInput[I](url, dataType) with SimulatedConcept  {
+class SimulatedSensor[I<:DataType](override val url:String, override val dataType: Class[I]) extends Sensor[I] with SimulatedConcept  {
   override val simulatedName: String = url
-  override def duplicate: GenericInput[I] = new SimulatedSensor[I](url, dataType)
+  override def duplicate: SimulatedSensor[I] = new SimulatedSensor[I](url, dataType)
   override val commonName: String = "SimulatedSensor[" + simulatedName + "]"
+  override def ~=(x: Any): Boolean = x.isInstanceOf[SimulatedSensor[I]] && (x.asInstanceOf[SimulatedSensor[I]].url equals this.url) && (x.asInstanceOf[SimulatedSensor[I]].dataType equals this.dataType)
 }
 
 class SimulatedCollector[I<:DataType](override val name:String, override val dataType: Class[I]) extends Collector[I](name, dataType) with SimulatedConcept {
