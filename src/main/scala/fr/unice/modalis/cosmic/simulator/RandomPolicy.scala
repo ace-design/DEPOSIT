@@ -34,16 +34,33 @@ object RandomPolicy extends LazyLogging{
     val allPossibleflows = (for (output <- outputs; input <- inputs) yield (output, input)).map{e => Flow(e._1.asInstanceOf[Output[SmartCampusType]], e._2.asInstanceOf[Input[SmartCampusType]])}.filterNot(f => f.source == f.destination)
     logger.debug(allPossibleflows.size + " data flows are possible")
 
+    var previousResult = (0,0)
     while(policy.getNonConnectedInputPorts.nonEmpty) {
-      logger.info("Remaining input ports to connect: " + policy.getNonConnectedInputPorts.size)
+      val remaining = policy.getNonConnectedInputPorts.size
+      logger.info("Remaining input ports to connect: " + remaining)
 
-      //Select randomly a flow
-      val flow = allPossibleflows.toVector(scala.util.Random.nextInt(allPossibleflows.size))
 
-      // Check if destination port is not yet connected
-      val free = !policy.flows.exists {f => f.destination_input == flow.destination_input}
-      if (policy.add(flow).toGraph.isAcyclic && free)
-        policy = policy.add(flow)
+      if (previousResult._2 < 5) {
+        //Select randomly a flow
+        val flow = allPossibleflows.toVector(scala.util.Random.nextInt(allPossibleflows.size))
+
+        // Check if destination port is not yet connected
+        val free = !policy.flows.exists { f => f.destination_input == flow.destination_input }
+        if (policy.add(flow).toGraph.isAcyclic && free)
+          policy = policy.add(flow)
+
+        // Updating the invariants
+        if (previousResult._1 == remaining)
+          previousResult = (previousResult._1, previousResult._2 + 1)
+        else
+          previousResult = (remaining, 0)
+
+
+      } else { // We are probably in a blocked situation
+        // Add a sensor in the policy to lighten the generation process
+        policy = policy.add(SimulatedConceptFactory.apply(0, 1, classOf[SmartCampusType]))
+        previousResult = (remaining, 0)
+      }
 
     }
 
