@@ -16,6 +16,7 @@ object ToGraphviz {
       case Collector(n, _) => generateNodeShape("triangle", "crimson") + io.id + printlabel(n) + ";"
       case PeriodicSensor(_,n, _) => generateNodeShape("invtriangle", "blue") + io.id + printlabel(n) + ";"
       case EventSensor(n, _) => generateNodeShape("invtriangle", "green") + io.id + printlabel(n) + ";"
+      case x:Sensor[_] => generateNodeShape("invtriangle", "yellow") + io.id + printlabel(x.url) + ";"
       case a:JoinPointInput[_] if showStubs => generateNodeShape("doublecircle", "green") + io.id + (if(a.hasProperty("network").isDefined)  printlabel("\\[" + a.readProperty("network").get + "\\]")) +  ";"
       case a:JoinPointOutput[_] if showStubs =>  generateNodeShape("doublecircle", "crimson") + io.id + (if(a.hasProperty("network").isDefined)  printlabel("\\[" + a.readProperty("network").get + "\\]")) + ";"
       case GenericInput(name, _) => generateNodeShape("invtriangle", "darkslateblue") + io.id + printlabel(name) + ";"
