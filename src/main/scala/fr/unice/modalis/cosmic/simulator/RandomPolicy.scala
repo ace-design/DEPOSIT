@@ -37,7 +37,8 @@ object RandomPolicy extends LazyLogging{
     var previousResult = (0,0)
     while(policy.getNonConnectedInputPorts.nonEmpty) {
       val remaining = policy.getNonConnectedInputPorts.size
-      logger.info("Remaining input ports to connect: " + remaining)
+      if (remaining != previousResult._1)
+        logger.info("Remaining input ports to connect: " + remaining)
 
 
       if (previousResult._2 < 5) {
