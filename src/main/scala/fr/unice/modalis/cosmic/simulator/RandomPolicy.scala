@@ -80,6 +80,7 @@ object RandomPolicy extends LazyLogging{
       val newCollector = SimulatedConceptFactory(1, 0, classOf[SmartCampusType]).asInstanceOf[SimulatedCollector[_ <:DataType]]
       policy = policy.add(newCollector).add(new Flow(operation.asInstanceOf[SimulatedOperation[_ <:DataType,_ <:DataType]].getOutput("o1"), newCollector.input))
     }}
+    logger.info("Generation finished with " + policy.concepts.size + " concepts and " + policy.flows.size + " flows")
     policy
   }
 
