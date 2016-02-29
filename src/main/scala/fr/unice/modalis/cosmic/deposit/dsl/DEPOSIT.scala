@@ -247,14 +247,16 @@ trait DEPOSIT {
   /*********************
     ** Private helpers **
     ********************/
-  private def flush(): Unit = {
+  protected def flush(): Unit = {
     if (currentIO.isDefined) {
       policy = policy.copy(ios = policy.ios + currentIO.get.toIO)
       currentIO = None
     }
 
     if (currentOperation.isDefined) {
-      policy = policy.copy(operations = policy.operations + currentOperation.get.toOperation)
+      val operation = currentOperation.get.toOperation
+      policy = policy.copy(operations = policy.operations + operation)
+      lastOperation = Some(operation)
       currentOperation = None
     }
 
@@ -267,6 +269,7 @@ trait DEPOSIT {
   protected var defaultType:Option[Class[_<:SensorDataType]] = None
   protected var associationFile:Option[String] = None
   protected var targetFile:Option[String] = None
+  protected var lastOperation:Option[Operation[_,_]] = None
 
 
 

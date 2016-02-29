@@ -5,9 +5,11 @@ import fr.unice.modalis.cosmic.simulator.dsl.DEPOSITSimulator
 /**
   * Created by Cyril Cecchinel - I3S Laboratory on 29/02/2016.
   */
-object SmartParkingDemo extends DEPOSITSimulator {
+object SmartParkingDemo extends App with DEPOSITSimulator {
 
-  create aSmartParkingScenario() having 150 parkingSpaces() distributedIn 20 districts()
+  create aSmartParkingScenario() having 20 parkingSpaces() distributedIn 3 districts()
+
+  exportToGraphviz()
 
 }
 

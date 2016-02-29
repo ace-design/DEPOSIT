@@ -40,6 +40,13 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   def findConceptById(id:String) = concepts find {_.id equals id}
 
   /**
+    * Find a sensor by its name
+    * @param name Sensor name
+    * @return Result of name-lookup
+    */
+  def findSensorByName(name:String) = sensors find {_.name equals name}
+
+  /**
     * Graph representation
     * @return A Graph representation of this policy
     */

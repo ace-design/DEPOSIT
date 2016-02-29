@@ -1,11 +1,13 @@
 package fr.unice.modalis.cosmic.simulator.dsl
 
+import fr.unice.modalis.cosmic.deposit.core._
 import fr.unice.modalis.cosmic.deposit.dsl.DEPOSIT
 
 /**
   * Created by Cyril Cecchinel - I3S Laboratory on 29/02/2016.
   */
 trait DEPOSITSimulator extends DEPOSIT{
+
 
   /**
     * Create a simulation
@@ -21,6 +23,8 @@ trait DEPOSITSimulator extends DEPOSIT{
     */
   protected case class SimulationBuilder(simulationContext: SimulationContext.Value = SimulationContext.UNKNOWN) {
     def aSmartParkingScenario() = {
+      hasForName("SmartParkingSimulation_" + System.currentTimeMillis / 1000)
+      handles(classOf[SmartCampusType])
       this.copy(simulationContext = SimulationContext.SMART_PARKING)
       SensorBuilder(SimulationContext.SMART_PARKING)
     }
@@ -34,7 +38,10 @@ trait DEPOSITSimulator extends DEPOSIT{
   protected case class SensorBuilder(simulationContext: SimulationContext.Value) {
     def having(sensors:Int) = {
       simulationContext match {
-        case SimulationContext.SMART_PARKING => SmartParkingSensorBuilder(sensors)
+        case SimulationContext.SMART_PARKING => {
+          (1 to sensors) map {i => declare anEventSensor() named "PRK_" + i}
+          SmartParkingSensorBuilder(sensors)
+        }
       }
     }
 
@@ -46,7 +53,29 @@ trait DEPOSITSimulator extends DEPOSIT{
     protected case class SmartParkingSensorBuilder(sensorQuantity:Int = 0, districtQuantity:Int = 0) {
       def parkingSpaces() = this
       def districts() = this
-      def distributedIn(i:Int) = this.copy(districtQuantity = i)
+      def distributedIn(totalDistricts:Int) = {
+        for (district <- 1 to totalDistricts) {
+
+          val range = 1 to (if (district != totalDistricts) sensorQuantity / totalDistricts else sensorQuantity / totalDistricts + sensorQuantity % totalDistricts)
+          val inputs = for (input <- range) yield "i" + input
+          define anAdder() withInputs(inputs.map{e => e}:_*)
+          flush()
+          val sensors = (for (idx <- range) yield "PRK_" + ((district - 1) * (sensorQuantity / totalDistricts) + idx)).map {name => policy.findSensorByName(name).get}
+
+
+          var input:Int = 1
+          for (s <- sensors) {
+            val flow = Flow(s.output.asInstanceOf[Output[SmartCampusType]],lastOperation.get.getInput("i" + input).asInstanceOf[Input[SmartCampusType]])
+            input = input + 1
+            policy = policy.addFlow(flow)
+          }
+
+
+        }
+
+
+        this.copy(districtQuantity = totalDistricts)
+      }
     }
 
   }
