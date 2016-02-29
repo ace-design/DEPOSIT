@@ -37,6 +37,7 @@
         */
       protected case class SensorBuilder(simulationContext: SimulationContext.Value) {
         def having(sensors:Int) = {
+          assert(sensors > 1)
           simulationContext match {
             case SimulationContext.SMART_PARKING => {
               (1 to sensors) map {i => declare anEventSensor() named "PRK_" + i}
@@ -50,10 +51,11 @@
           * @param sensorQuantity Number of parking sensors
           * @param districtQuantity Number of districts
           */
-        protected case class SmartParkingSensorBuilder(sensorQuantity:Int = 0, districtQuantity:Int = 0) {
+        protected case class SmartParkingSensorBuilder(sensorQuantity:Int = 0, districtQuantity:Int = 1) {
           def parkingSpaces() = this
           def districts() = this
           def distributedIn(totalDistricts:Int) = {
+            assert(totalDistricts > 0)
             for (district <- 1 to totalDistricts) {
 
               val range = 1 to (if (district != totalDistricts) sensorQuantity / totalDistricts else sensorQuantity / totalDistricts + sensorQuantity % totalDistricts)
@@ -75,21 +77,27 @@
 
 
             }
-            val aggregator = new Add((for (i <- 1 to totalDistricts) yield "i" + i).toSet,classOf[SmartCampusType])
+            if (districtQuantity == 1) {
+              val adder = policy.concepts.collectFirst {case x:Add[_] => x}.get
+              val collector = new Collector("DemoCollector", classOf[SmartCampusType])
+              policy = policy.add(collector).add(Flow(adder.output, collector.input))
+            }
+            else {
+              val aggregator = new Add((for (i <- 1 to totalDistricts) yield "i" + i).toSet,classOf[SmartCampusType])
 
-            var inputAggregator:Int = 1
-             var flows = Set[Flow[SmartCampusType]]()
-             for (add  <- policy.concepts.collect {case x:Add[_] => x}) {
-               flows = flows + Flow(add.output.asInstanceOf[Output[SmartCampusType]], aggregator.getInput("i" + inputAggregator))
-               inputAggregator = inputAggregator + 1
-             }
+              var inputAggregator:Int = 1
+              var flows = Set[Flow[SmartCampusType]]()
+              for (add  <- policy.concepts.collect {case x:Add[_] => x}) {
+                flows = flows + Flow(add.output.asInstanceOf[Output[SmartCampusType]], aggregator.getInput("i" + inputAggregator))
+                inputAggregator = inputAggregator + 1
+              }
 
-             policy = policy.add(aggregator)
-             flows.foreach(f => policy = policy.add(f))
+              policy = policy.add(aggregator)
+              flows.foreach(f => policy = policy.add(f))
 
-             val collector = new Collector("DemoCollector", classOf[SmartCampusType])
-            policy = policy.add(collector).add(Flow(aggregator.output, collector.input))
-
+              val collector = new Collector("DemoCollector", classOf[SmartCampusType])
+              policy = policy.add(collector).add(Flow(aggregator.output, collector.input))
+              }
             this.copy(districtQuantity = totalDistricts)
           }
         }
