@@ -1,12 +1,13 @@
     package fr.unice.modalis.cosmic.simulator.dsl
 
+    import com.typesafe.scalalogging.LazyLogging
     import fr.unice.modalis.cosmic.deposit.core._
     import fr.unice.modalis.cosmic.deposit.dsl.DEPOSIT
 
     /**
       * Created by Cyril Cecchinel - I3S Laboratory on 29/02/2016.
       */
-    trait DEPOSITSimulator extends DEPOSIT{
+    trait DEPOSITSimulator extends DEPOSIT with LazyLogging{
 
 
       /**
@@ -54,14 +55,17 @@
         protected case class SmartParkingSensorBuilder(sensorQuantity:Int = 0, districtQuantity:Int = 1) {
           def parkingSpaces() = this
           def districts() = this
+
+          def withAThresholdValue() = SmartParkingThresholdBuilder(this)
           def distributedIn(totalDistricts:Int) = {
             assert(totalDistricts > 0)
             for (district <- 1 to totalDistricts) {
-
+              logger.debug(s"Creating district #$district")
               val range = 1 to (if (district != totalDistricts) sensorQuantity / totalDistricts else sensorQuantity / totalDistricts + sensorQuantity % totalDistricts)
               val inputs = for (input <- range) yield "i" + input
               define anAdder() withInputs(inputs.map{e => e}:_*)
               flush()
+              lastOperation.get.addProperty("name", "ADDER_DISTRICT_" + district)
               val sensors = (for (idx <- range) yield "PRK_" + ((district - 1) * (sensorQuantity / totalDistricts) + idx)).map {name => policy.findSensorByName(name).get}
 
 
@@ -100,6 +104,26 @@
               }
             this.copy(districtQuantity = totalDistricts)
           }
+
+          case class SmartParkingThresholdBuilder(builder: SmartParkingSensorBuilder) {
+            def of(value: Int) = {
+              val limit = 1 + (builder.sensorQuantity / builder.districtQuantity) * value / 100
+              logger.debug(s"Setting a threshold of $limit parking spaces for each district")
+              // Lookup for each district adder
+              val districtAdders = policy.operations.filter(o => o.properties.exists(p => p.name.equals("name") && p.value.asInstanceOf[String].startsWith("ADDER_DISTRICT_")))
+              for (adder <- districtAdders) {
+                val filter = Conditional(s"value < $limit", classOf[SmartCampusType])
+                policy = policy.add(filter).add(Flow(adder.getOutput().asInstanceOf[Output[SmartCampusType]],filter.getInput()))
+                val remoteScreen = new Collector("REMOTE_SCREEN", classOf[SmartCampusType])
+                val flow = new Flow(filter.getOutput("then"), remoteScreen.input)
+                policy = policy.add(remoteScreen).add(flow)
+              }
+
+
+            }
+          }
+
+
         }
 
       }
