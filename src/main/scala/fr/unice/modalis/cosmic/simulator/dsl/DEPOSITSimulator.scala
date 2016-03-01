@@ -77,7 +77,7 @@
 
 
             }
-            if (districtQuantity == 1) {
+            if (totalDistricts == 1) {
               val adder = policy.concepts.collectFirst {case x:Add[_] => x}.get
               val collector = new Collector("DemoCollector", classOf[SmartCampusType])
               policy = policy.add(collector).add(Flow(adder.output, collector.input))
