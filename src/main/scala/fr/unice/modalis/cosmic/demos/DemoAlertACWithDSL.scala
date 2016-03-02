@@ -19,8 +19,8 @@ object DemoAlertACWithDSL extends App with DEPOSIT{
 
 
   val temp_filter = define aFilter "value < 18"
-  val door_filter = define aFilter "value < 500"
-  val window_filter = define aFilter "value < 500"
+  val door_filter = define aProcess StandardizedPolicies.RawValueToOpeningSensor()
+  val window_filter = define aProcess StandardizedPolicies.RawValueToOpeningSensor()
 
   val produce = define aProducer new SmartCampusType("ALERT_AC", 1) withInputs("i1", "i2", "i3")
 
@@ -31,8 +31,8 @@ object DemoAlertACWithDSL extends App with DEPOSIT{
     door_443() -> door_filter("input")
     window_443() -> window_filter("input")
     temp_filter("then") -> produce("i1")
-    window_filter("then") -> produce("i2")
-    door_filter("then") -> produce("i3")
+    window_filter("open") -> produce("i2")
+    door_filter("open") -> produce("i3")
     produce("output") -> collector()
   }
 
