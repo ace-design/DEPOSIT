@@ -93,6 +93,7 @@
               define anAdder() withInputs(inputs.map{e => e}:_*)
               flush()
               lastOperation.get.addProperty("name", "ADDER_DISTRICT_" + district)
+              lastOperation.get.addProperty("district", district)
               val sensors = (for (idx <- range) yield "PRK_" + ((district - 1) * (sensorQuantity / districtQuantity) + idx)).map {name => policy.findSensorByName(name).get}
 
 
@@ -133,7 +134,7 @@
               for (adder <- districtAdders) {
                 val filter = Conditional(s"value < $limit", classOf[SmartCampusType])
                 policy = policy.add(filter).add(Flow(adder.getOutput().asInstanceOf[Output[SmartCampusType]],filter.getInput()))
-                val remoteScreen = new Collector("REMOTE_SCREEN", classOf[SmartCampusType])
+                val remoteScreen = new Collector("REMOTE_SCREEN_DISTRICT_#" + adder.readProperty("district").get, classOf[SmartCampusType])
                 val flow = new Flow(filter.getOutput("then"), remoteScreen.input)
                 policy = policy.add(remoteScreen).add(flow)
               }

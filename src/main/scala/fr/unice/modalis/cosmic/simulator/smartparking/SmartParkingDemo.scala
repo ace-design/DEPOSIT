@@ -7,12 +7,14 @@ import fr.unice.modalis.cosmic.simulator.dsl.DEPOSITSimulator
   */
 
 object ParkingExample extends DEPOSITSimulator {
-  create aSmartParkingScenario() having 100 parkingSpaces() distributedIn 5 districts() withAThresholdValue() of 30
+  create aSmartParkingScenario() having 50 parkingSpaces() distributedIn 5 districts() withAThresholdValue() of 30
 }
 
 object SmartParkingDemo extends App{
-  ParkingExample().exportToGraphviz()
 
+  val policy = ParkingExample()
+
+  /* Play with the generated policy */
 
 }
 
