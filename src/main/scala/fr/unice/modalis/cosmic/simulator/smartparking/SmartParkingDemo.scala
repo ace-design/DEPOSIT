@@ -11,7 +11,6 @@ object ParkingExample extends DEPOSITSimulator {
 }
 
 object SmartParkingDemo extends App{
-
   ParkingExample().exportToGraphviz()
 
 
