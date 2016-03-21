@@ -410,7 +410,7 @@ object Policy extends LazyLogging{
       (p1.name, p2.name) match {
         case ("", a) if a.nonEmpty => a
         case (a, "") if a.nonEmpty => a
-        case (a, b) if a.nonEmpty && b.nonEmpty => a + "_" + b
+        case (a, b) if a.nonEmpty && b.nonEmpty => s"comp_${System.currentTimeMillis}"
         case ("", "") => "policy" + scala.util.Random.alphanumeric.take(5).mkString
       }
     }
