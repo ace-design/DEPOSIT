@@ -1,7 +1,7 @@
 package fr.unice.modalis.cosmic.deployment.strategies
 
 import fr.unice.modalis.cosmic.deployment.infrastructure.NetworkTopology
-import fr.unice.modalis.cosmic.deployment.network.GenericNode
+import fr.unice.modalis.cosmic.deployment.network.{Entity, GenericNode}
 import fr.unice.modalis.cosmic.deposit.core.Concept
 
 import scalax.collection.Graph
@@ -18,7 +18,7 @@ trait DeploymentRepartition {
     * @param networkTopology Network topology
     * @return Where the concept should be placed
     */
-  def place(concept: Concept, networkTopology: NetworkTopology):GenericNode
+  def place(concept: Concept, networkTopology: NetworkTopology):Entity
 }
 
 
@@ -27,11 +27,11 @@ object DeploymentRepartition {
 }
 
 /**
-  * This heuristic place the concepts with a "closer to the sensors" property
+  * This strategy places the concepts with a "closer to the sensors" property
   */
 object ClosestToSensorsRepartition extends DeploymentRepartition {
 
-  override def place(concept: Concept, networkTopology: NetworkTopology): GenericNode = {
+  override def place(concept: Concept, networkTopology: NetworkTopology): Entity = {
     // Generate the oriented weighted topology graph
     val gNodes = networkTopology.resources.flatMap {_.sensors.map{_.name}} ++ networkTopology.resources.map{_.name}
     val gEdges = networkTopology.resources.flatMap(r => r.sensors.map {_.name}.map{_ ~> r.name % 1}) ++ networkTopology.edges.map{l => l.source.name ~> l.destination.name % 1}
