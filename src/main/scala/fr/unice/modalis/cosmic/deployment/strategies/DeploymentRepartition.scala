@@ -3,6 +3,7 @@ package fr.unice.modalis.cosmic.deployment.strategies
 import fr.unice.modalis.cosmic.deployment.infrastructure.NetworkTopology
 import fr.unice.modalis.cosmic.deployment.network.{Entity, GenericNode}
 import fr.unice.modalis.cosmic.deposit.core.Concept
+import fr.unice.modalis.cosmic.runtime.{RepositoriesManager, RepositoryNotFoundException}
 
 import scalax.collection.Graph
 import scalax.collection.GraphPredef._
@@ -24,8 +25,33 @@ trait DeploymentRepartition {
 
 object DeploymentRepartition {
   val CLOSEST_TO_SENSORS = ClosestToSensorsRepartition
+  val FREE_PLATFORMS = UseFreePlatforms
 }
 
+/**
+  * UseFreePlatforms strategy
+  * This strategy distribute in priority concepts on free platforms then apply Closest To the sensors strategy.
+  * If no free platforms has been found, Closest to the sensors strategy is used
+  */
+object UseFreePlatforms extends DeploymentRepartition {
+
+  override def place(concept: Concept, networkTopology: NetworkTopology): Entity = {
+    // Proxy
+    val proxy = RepositoriesManager.getRepository(networkTopology.name).getOrElse(throw new RepositoryNotFoundException(networkTopology.name))
+    // A concept can be projected on
+    val targets = concept.readProperty("targets").get.asInstanceOf[Set[Entity]]
+
+    // Select free platforms
+    val freeplatforms = for (t <- targets) yield {if (proxy.getPolicy(t).isEmpty) t}
+
+    if (freeplatforms.nonEmpty){
+      // If there are free platforms, replace targets with these platforms
+      concept.addProperty("targets", freeplatforms.asInstanceOf[Set[Entity]])
+    }
+
+    ClosestToSensorsRepartition.place(concept, networkTopology)
+  }
+}
 /**
   * This strategy places the concepts with a "closer to the sensors" property
   */
