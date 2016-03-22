@@ -11,7 +11,7 @@ import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
 import fr.unice.modalis.cosmic.deposit.algo.ExtendPolicy
 import fr.unice.modalis.cosmic.deposit.converter.ToGraphviz
 import fr.unice.modalis.cosmic.deposit.core._
-import fr.unice.modalis.cosmic.runtime.RepositoriesManager
+import fr.unice.modalis.cosmic.runtime.{RepositoriesManager, RepositoryNotFoundException}
 
 import scala.collection.mutable
 
@@ -21,7 +21,7 @@ object AutoDeploy extends LazyLogging {
     logger.info("AutoDeploy initialisation of " + policy.name + " on " + infrastructureModel.topology.name)
     val repository = RepositoriesManager.getRepository(customRepository.getOrElse(infrastructureModel.topology.name)).getOrElse {
       logger.error("Repository not found")
-      throw new Exception("Repository not found")
+      throw new RepositoryNotFoundException(infrastructureModel.topology.name)
     }
 
     val policies = Decompose(policy, infrastructureModel)

@@ -101,3 +101,5 @@ case class Repository(infrastructureModel: InfrastructureModel) extends LazyLogg
   private val policies = mutable.Map[Entity, Policy]()
 
 }
+
+case class RepositoryNotFoundException(name:String) extends Exception(s"The repository $name does not exist")
