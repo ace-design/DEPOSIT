@@ -3837,6 +3837,76 @@
                 </language>
             </languages>
         </entity>
+        <entity computation="High" name="RELAY_1" type="Raspberry">
+            <sensors/>
+            <communications>
+                <communication>
+                    <features>
+                        <feature>Media</feature>
+                        <feature>Way</feature>
+                        <feature>Out</feature>
+                        <feature>WAN</feature>
+                    </features>
+                </communication>
+                <communication>
+                    <features>
+                        <feature>Media</feature>
+                        <feature>Way</feature>
+                        <feature>In</feature>
+                        <feature>WAN</feature>
+                    </features>
+                </communication>
+            </communications>
+            <powers>
+                <power>
+                    <features>
+                        <feature>Mains</feature>
+                    </features>
+                </power>
+            </powers>
+            <languages>
+                <language>
+                    <features>
+                        <feature>Python</feature>
+                    </features>
+                </language>
+            </languages>
+        </entity>
+        <entity computation="High" name="RELAY_2" type="Raspberry">
+            <sensors/>
+            <communications>
+                <communication>
+                    <features>
+                        <feature>Media</feature>
+                        <feature>Way</feature>
+                        <feature>Out</feature>
+                        <feature>WAN</feature>
+                    </features>
+                </communication>
+                <communication>
+                    <features>
+                        <feature>Media</feature>
+                        <feature>Way</feature>
+                        <feature>In</feature>
+                        <feature>WAN</feature>
+                    </features>
+                </communication>
+            </communications>
+            <powers>
+                <power>
+                    <features>
+                        <feature>Mains</feature>
+                    </features>
+                </power>
+            </powers>
+            <languages>
+                <language>
+                    <features>
+                        <feature>Python</feature>
+                    </features>
+                </language>
+            </languages>
+        </entity>
         <entity computation="High" name="RP_2" type="Raspberry">
             <sensors/>
             <communications>
@@ -4110,10 +4180,12 @@
         <connection from="ARD_2_449" to="RP_5"/>
         <connection from="ARD_1_450" to="RP_5"/>
         <connection from="ARD_2_450" to="RP_5"/>
-        <connection from="RP_1" to="SmartCampus"/>
-        <connection from="RP_2" to="SmartCampus"/>
+        <connection from="RP_1" to="RELAY_1"/>
+        <connection from="RP_2" to="RELAY_1"/>
         <connection from="RP_3" to="SmartCampus"/>
-        <connection from="RP_4" to="SmartCampus"/>
+        <connection from="RP_4" to="RELAY_2"/>
         <connection from="RP_5" to="SmartCampus"/>
+        <connection from="RELAY_1" to="SmartCampus"/>
+        <connection from="RELAY_2" to="SmartCampus"/>
     </connections>
 </sensornetwork>
