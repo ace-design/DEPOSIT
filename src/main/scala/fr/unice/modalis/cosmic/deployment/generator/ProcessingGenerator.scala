@@ -218,7 +218,11 @@ object ProcessingGenerator extends CodeGenerator{
 
   override def generateInputs(policy: Policy): (String, String) = {
     def generatePeriodicDeclaration(a:PeriodicSensor[_], f:String) = "TimedEvent.addTimer(" + a.wishedPeriod * 1000 + ", " + f + ");\n"
-    def generateEventDeclaration(a:EventSensor[_], f:String) = "AnalogEvent.addAnalogPort(" + Utils.lookupSensorAssignment(a.name) + ", " + f + ", 500);\n"
+    def generateEventDeclaration(a:EventSensor[_], f:String) = {
+      val pin = if (a.hasProperty("pin").isDefined) a.readProperty("pin").get.asInstanceOf[String] else Utils.lookupSensorAssignment(a.name)
+      "AnalogEvent.addAnalogPort(" +  pin + ", " + f + ", 500);\n"
+    }
+
     var body = ""
     var declaration = ""
     for (s <- policy.sources) {

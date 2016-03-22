@@ -1,15 +1,20 @@
 package fr.unice.modalis.cosmic.simulator.smartparking
-
 import fr.unice.modalis.cosmic.simulator.dsl.DEPOSITSimulator
+
 
 /**
   * Created by Cyril Cecchinel - I3S Laboratory on 29/02/2016.
   */
-object SmartParkingDemo extends App with DEPOSITSimulator {
 
-  create aSmartParkingScenario() having 20 parkingSpaces() distributedIn 3 districts()
+object ParkingExample extends DEPOSITSimulator {
+  create aSmartParkingScenario() having 50 parkingSpaces() distributedIn 5 districts() withAThresholdValue() of 30
+}
 
-  exportToGraphviz()
+object SmartParkingDemo extends App{
+
+  val policy = ParkingExample()
+
+  /* Play with the generated policy */
 
 }
 
