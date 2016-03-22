@@ -1,6 +1,7 @@
 package fr.unice.modalis.cosmic.simulator.smartbuilding
 
 import fr.unice.modalis.cosmic.demos.StandardizedPolicies
+import fr.unice.modalis.cosmic.deployment.generator.CodeGenerator
 import fr.unice.modalis.cosmic.deployment.infrastructure.InfrastructureModel
 import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
 import fr.unice.modalis.cosmic.deployment.utils.TopologyModelBuilder
@@ -90,7 +91,10 @@ object OnePolicy extends App {
   val infraModel = InfrastructureModel(topology, DeploymentRepartition.CLOSEST_TO_SENSORS)
 
   val t1 = System.currentTimeMillis()
-  Deploy(PreDeploy(OfficeBuilder("401"), topology), topology, DeploymentRepartition.CLOSEST_TO_SENSORS)
+  Deploy(PreDeploy(OfficeBuilder("401"), topology), topology, DeploymentRepartition.CLOSEST_TO_SENSORS).foreach { p =>
+    val generator = p.readProperty("generator").get.asInstanceOf[CodeGenerator]
+    generator.apply(p, toFile = true)
+  }
   val t2 = System.currentTimeMillis()
 
   println(s"Time elapsed to deploy one policy: ${t2 - t1} ms")
@@ -100,7 +104,10 @@ object GlobalPolicy extends App with DEPOSIT{
   val topology = TopologyModelBuilder("assets/configurations/demo_smartbuilding.xml")
 
   val t1 = System.currentTimeMillis()
-  GlobalSmartBuildingDemo.deploy()
+  GlobalSmartBuildingDemo.deploy().foreach { p =>
+    val generator = p.readProperty("generator").get.asInstanceOf[CodeGenerator]
+    generator.apply(p, toFile = true)
+  }
   val t2 = System.currentTimeMillis()
   println(s"Time elapsed to deploy a global policy: ${t2 - t1} ms")
 }
@@ -111,7 +118,10 @@ object GlobalPolicyWithComposition extends App {
   val t1 = System.currentTimeMillis()
   val p = (401 to 450).foldLeft(new Policy("")){(acc, e) => acc ++ OfficeBuilder(e.toString)}
   val preDeploy = PreDeploy(p, topology)
-  Deploy(preDeploy, topology, DeploymentRepartition.CLOSEST_TO_SENSORS)
+  Deploy(preDeploy, topology, DeploymentRepartition.CLOSEST_TO_SENSORS).foreach { p =>
+    val generator = p.readProperty("generator").get.asInstanceOf[CodeGenerator]
+    generator.apply(p, toFile = true)
+  }
   val t2 = System.currentTimeMillis()
   println(s"Time elapsed to deploy a composed policy: ${t2 - t1} ms")
 }
