@@ -1,5 +1,6 @@
 package fr.unice.modalis.cosmic.deployment.strategies
 
+import com.typesafe.scalalogging.LazyLogging
 import fr.unice.modalis.cosmic.deployment.infrastructure.NetworkTopology
 import fr.unice.modalis.cosmic.deployment.network.{Entity, GenericNode}
 import fr.unice.modalis.cosmic.deposit.core.Concept
@@ -12,7 +13,7 @@ import scalax.collection.edge.Implicits._
   * We specify the different heuristics for the deployment over a sensing infrastructure
   * Created by Cyril Cecchinel - I3S Laboratory on 17/11/2015.
   */
-trait DeploymentRepartition {
+trait DeploymentRepartition extends LazyLogging {
   /**
     * Place a concept over a network topology
     * @param concept Concept to place
@@ -42,8 +43,9 @@ object UseFreePlatforms extends DeploymentRepartition {
     val targets = concept.readProperty("targets").get.asInstanceOf[Set[Entity]]
 
     // Select free platforms
-    val freeplatforms = for (t <- targets) yield {if (proxy.getPolicy(t).isEmpty) t}
+    val freeplatforms = targets.filter(proxy.getPolicy(_).isEmpty)
 
+    logger.debug(s"Freeplatforms for $concept are ${freeplatforms.map(_.name)}")
     if (freeplatforms.nonEmpty){
       // If there are free platforms, replace targets with these platforms
       concept.addProperty("targets", freeplatforms.asInstanceOf[Set[Entity]])
@@ -89,6 +91,9 @@ object ClosestToSensorsRepartition extends DeploymentRepartition {
     // Find which concept is the closest to a sensor according the average distance
     val resultAsAString = averageDistanceFromSensors.filterKeys(k => possibleTargetsForConcept contains networkTopology.resources.find(_.name equals k).get).minBy(_._2)._1
 
-    networkTopology.resources.find(_.name equals resultAsAString).get
+    val result = networkTopology.resources.find(_.name equals resultAsAString).get
+
+    logger.debug(s"Concept $concept will be deployed on ${result.name}")
+    result
   }
 }
