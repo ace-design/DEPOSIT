@@ -424,29 +424,28 @@ object Policy extends LazyLogging{
       if (p2.sensors.nonEmpty && p1.sensors.nonEmpty) {
         // Return similar sensors contained in p1 and p2
         val similar = p2.sensors.map {s => (s, p1.sensors.find(_ ~= s))}
-
+        logger.debug(s"Simular sensors: $similar")
         if (similar.forall(_._2.isEmpty)){
           // If there is no similar sensors, return a trivial composition result
           new Policy(composeName(p1, p2), p1.ios ++ p2.ios, p1.operations ++ p2.operations, p1.flows ++ p2.flows)
         }
         else
         {
-          // Prepare fusion by computing new flows to add
-          val newFlows = for (f <- p2.flows) yield {
-            // If there is a concept in p1 which can be a source for a p2 flow
-            if (similar.map {_._1.asInstanceOf[Concept]}.contains(f.source)) {
-              if (similar.exists(_._1 equals f.source.asInstanceOf[Sensor[_<:DataType]])) {
-                val res = similar.find(_._1 equals f.source.asInstanceOf[Sensor[_<:DataType]]).get._2
-                if (res.isDefined) Some(Flow(res.get.output, f.destination_input)) else None
-              } else None
+          val newFlows = for (couple <- similar) yield {
+            val sensorinP2 = couple._1
+            val targetinP2 = p2.flows.find(_.source == sensorinP2).get
+            if (couple._2.isDefined){
+              val sensorinP1 = couple._2.get
+              Some(new Flow(sensorinP1.output, targetinP2.destination_input))
             } else None
           }
+
         logger.debug("New flows resulting from sensor fusion: " + newFlows.flatten)
 
           // Return a policy where sensors has been fused
           // Delete similar sensors in p2
           var p2withoutSimilarities = p2
-          similar.map{_._1}.foreach(s => p2withoutSimilarities = p2.delete(s))
+          similar.map{_._1}.foreach(s => p2withoutSimilarities = p2withoutSimilarities.delete(s))
           Policy(composeName(p1, p2),
                 p1.ios ++ p2withoutSimilarities.ios,
                 p1.operations ++ p2withoutSimilarities.operations,
@@ -458,7 +457,7 @@ object Policy extends LazyLogging{
     }
 
 
-    logger.debug("Prepare to compose " + p1.name + " with " + p2.name)
+    logger.debug(s"Prepare to compose ${p1.name}  ({${p1.sensors.map(_.name)}) with ${p2.name} ({${p2.sensors.map(_.name)})")
     sensorFusion(p1, p2)
 
   }
