@@ -12,7 +12,11 @@ import fr.unice.modalis.cosmic.deposit.dsl.DEPOSIT
 /**
   * Created by Cyril Cecchinel - I3S Laboratory on 21/03/2016.
   */
-
+protected object ExperimentalValues {
+  val RANGE = 401 to 450
+  val STRATEGY = DeploymentRepartition.CLOSEST_TO_SENSORS
+  val PERIOD = 300
+}
 protected object OfficePolicy extends DEPOSIT {
   this hasForName "ALERT_AC"
   this handles classOf[SmartCampusType]
@@ -47,10 +51,10 @@ protected object GlobalSmartBuildingDemo extends DEPOSIT{
   this handles classOf[SmartCampusType]
   this targets "assets/configurations/demo_smartbuilding.xml"
 
-  for (i <- 401 to 450) {
+  for (i <- ExperimentalValues.RANGE) {
     val door = declare anEventSensor() named s"DOOR_$i"
     val window = declare anEventSensor() named s"WINDOW_$i"
-    val ac = declare aPeriodicSensor() named s"AC_$i" withPeriod 300
+    val ac = declare aPeriodicSensor() named s"AC_$i" withPeriod ExperimentalValues.PERIOD
 
     val process = define aProcess OfficePolicy()
 
@@ -65,14 +69,44 @@ protected object GlobalSmartBuildingDemo extends DEPOSIT{
   }
 }
 
+protected object GlobalCelsiusToFahrenheitConverter extends DEPOSIT {
+  this hasForName "CelsiusToFahrenheit"
+  this handles classOf[SmartCampusType]
+  this targets "assets/configurations/demo_smartbuilding.xml"
 
+  for (i <- ExperimentalValues.RANGE) {
+    val temp = declare aPeriodicSensor() named s"TEMP_$i" withPeriod ExperimentalValues.PERIOD
+    val process = define aProcess StandardizedPolicies.CelsiusToFahrenheit()
+    val collector = declare aCollector() named "SmartCampus"
+
+    flows {
+      temp() -> process("celsius")
+      process("fahrenheit") -> collector()
+    }
+  }
+}
+protected object OfficeConverterBuilder extends DEPOSIT {
+  def apply(office:String):Policy = {
+
+    val dataType = classOf[SmartCampusType]
+    val temp = PeriodicSensor(ExperimentalValues.PERIOD, s"AC_$office", dataType)
+    val process = Process(StandardizedPolicies.CelsiusToFahrenheit(), dataType, dataType)
+    val collector = Collector("SmartCampus", dataType)
+
+    val l1 = Flow(temp.output, process.getInput("celsius"))
+    val l4 = Flow(process.getOutput("fahrenheit"), collector.input)
+
+    new Policy(s"Implem_TEMP_$office").add(temp).add(process).add(collector).add(l1).add(l4)
+
+  }
+}
 protected object OfficeBuilder extends DEPOSIT {
   def apply(office:String):Policy = {
 
     val dataType = classOf[SmartCampusType]
     val door = EventSensor(s"DOOR_$office", dataType)
     val window = EventSensor(s"WINDOW_$office", dataType)
-    val ac = PeriodicSensor(300, s"AC_$office", dataType)
+    val ac = PeriodicSensor(ExperimentalValues.PERIOD, s"AC_$office", dataType)
     val process = Process(OfficePolicy(), dataType, dataType)
     val collector = Collector("SmartCampus", dataType)
 
@@ -88,10 +122,10 @@ protected object OfficeBuilder extends DEPOSIT {
 
 object OnePolicy extends App {
   val topology = TopologyModelBuilder("assets/configurations/demo_smartbuilding.xml")
-  val infraModel = InfrastructureModel(topology, DeploymentRepartition.CLOSEST_TO_SENSORS)
+  val infraModel = InfrastructureModel(topology, ExperimentalValues.STRATEGY)
 
   val t1 = System.currentTimeMillis()
-  Deploy(PreDeploy(OfficeBuilder("401"), topology), topology, DeploymentRepartition.CLOSEST_TO_SENSORS).foreach { p =>
+  Deploy(PreDeploy(OfficeBuilder("401"), topology), topology, ExperimentalValues.STRATEGY).foreach { p =>
     val generator = p.readProperty("generator").get.asInstanceOf[CodeGenerator]
     generator.apply(p, toFile = true)
   }
@@ -100,7 +134,7 @@ object OnePolicy extends App {
   println(s"Time elapsed to deploy one policy: ${t2 - t1} ms")
 }
 
-object GlobalPolicy extends App with DEPOSIT{
+object GlobalPolicy extends App {
   val topology = TopologyModelBuilder("assets/configurations/demo_smartbuilding.xml")
 
   val t1 = System.currentTimeMillis()
@@ -114,14 +148,64 @@ object GlobalPolicy extends App with DEPOSIT{
 
 object GlobalPolicyWithComposition extends App {
   val topology = TopologyModelBuilder("assets/configurations/demo_smartbuilding.xml")
-  val infraModel = InfrastructureModel(topology, DeploymentRepartition.CLOSEST_TO_SENSORS)
+  val infraModel = InfrastructureModel(topology, ExperimentalValues.STRATEGY)
   val t1 = System.currentTimeMillis()
-  val p = (401 to 450).foldLeft(new Policy("")){(acc, e) => acc ++ OfficeBuilder(e.toString)}
+  val p = ExperimentalValues.RANGE.foldLeft(new Policy("")){(acc, e) => acc ++ OfficeBuilder(e.toString)}
   val preDeploy = PreDeploy(p, topology)
-  Deploy(preDeploy, topology, DeploymentRepartition.CLOSEST_TO_SENSORS).foreach { p =>
+  Deploy(preDeploy, topology, ExperimentalValues.STRATEGY).foreach { p =>
     val generator = p.readProperty("generator").get.asInstanceOf[CodeGenerator]
     generator.apply(p, toFile = true)
   }
   val t2 = System.currentTimeMillis()
   println(s"Time elapsed to deploy a composed policy: ${t2 - t1} ms")
+}
+
+object GlobalPolicyConverter extends App {
+  val topology = TopologyModelBuilder("assets/configurations/demo_smartbuilding.xml")
+
+  val t1 = System.currentTimeMillis()
+  val p = ExperimentalValues.RANGE.foldLeft(new Policy("")){(acc, e) => acc ++ OfficeConverterBuilder(e.toString)}
+
+  println(s"Concepts before expand ${p.concepts.size}")
+  val preDeploy = PreDeploy(p, topology)
+
+  println(s"Concepts after expand ${preDeploy.concepts.size}")
+  val deploy = Deploy(preDeploy, topology, ExperimentalValues.STRATEGY)
+
+  deploy.foreach { p =>
+    val generator = p.readProperty("generator").get.asInstanceOf[CodeGenerator]
+    generator.apply(p, toFile = true)
+  }
+
+  val t2 = System.currentTimeMillis()
+  println(s"Time elapsed to deploy a global policy: ${t2 - t1} ms")
+}
+
+object TwoPoliciesWithComposition extends App {
+  val topology = TopologyModelBuilder("assets/configurations/demo_smartbuilding.xml")
+
+
+
+
+ val policy1 = ExperimentalValues.RANGE.foldLeft(new Policy("")){(acc, e) => acc ++ OfficeBuilder(e.toString)}
+ val policy2 = ExperimentalValues.RANGE.foldLeft(new Policy("")){(acc, e) => acc ++ OfficeConverterBuilder(e.toString)}
+
+ val composition = policy1 ++ policy2
+
+  val t1 = System.currentTimeMillis()
+
+  println(s"Concepts before expend ${composition.concepts.size}")
+  val preDeploy = PreDeploy(composition, topology)
+  println(preDeploy.ios)
+
+  println(s"Concepts after expend ${preDeploy.concepts.size}")
+  val deploy = Deploy(preDeploy, topology, ExperimentalValues.STRATEGY)
+  deploy.foreach { p =>
+    val generator = p.readProperty("generator").get.asInstanceOf[CodeGenerator]
+    generator.apply(p, toFile = true)
+  }
+
+  val t2 = System.currentTimeMillis()
+  println(s"Time elapsed to deploy the two policies: ${t2 - t1} ms")
+
 }
