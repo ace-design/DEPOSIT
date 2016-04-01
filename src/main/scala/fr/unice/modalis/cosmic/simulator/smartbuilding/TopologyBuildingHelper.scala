@@ -3,7 +3,8 @@ package fr.unice.modalis.cosmic.simulator.smartbuilding
 /**
   * Created by Cyril Cecchinel - I3S Laboratory on 21/03/2016.
   */
-protected object TopologyHelper {
+
+protected object TopologyBuildingHelper {
 
   def apply(name:String, officeRange:Range, bridgeRange:Range) = {
     <sensornetwork id={s"$name"}>

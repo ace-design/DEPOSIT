@@ -65,21 +65,23 @@ object TopologyModelBuilder {
 
 
 
-    val entities = for (e <- configuration \\ "sensornetwork" \\ "entities" \\ "entity";
-                        id = (e \\ "@name").text;
-                        computation = EntityComputation.withName((e \\ "@computation").text);
-                        etype = EntityType.withName((e \\ "@type").text)) yield {
+    val entities = (configuration \\ "sensornetwork" \ "entities" \ "entity").map(n =>
+      buildEntity((n \\ "@name").text,
+        for (s <- n \\ "sensors" \\ "sensor"; sid = (s \ "@id").text; pin = s \@ "pin"; spin = if (pin.isEmpty) None else Some(pin)) yield buildSensor(sid, spin, s),
+        computation = EntityComputation.withName((n \\ "@computation").text),
+        etype = EntityType.withName((n \\ "@type").text),
+        n))
 
 
-      val sensors = for (s <- e \\ "sensors" \\ "sensor"; sid = (s \ "@id").text; pin = s \@ "pin"; spin = if (pin.isEmpty) None else Some(pin)) yield buildSensor(sid, spin, s)
+    val edges = (configuration \\ "sensornetwork" \ "connections" \ "connection").map(n => {
+      val source = (n \\ "@from").text
+      val destination = (n \\ "@to").text
 
-      buildEntity(id, sensors, computation, etype, e)
+      Edge(source, destination)
     }
 
-    val edges = for (e <- configuration \\ "connections" \\ "connection";
-                     source = entities find (_.name equals (e \\ "@from").text);
-                     target = entities find (_.name equals (e \\ "@to").text)
-                     if source.isDefined && target.isDefined) yield Edge(source.get, target.get)
+    )
+
 
     new NetworkTopology(name, entities.toSet, edges.toSet)
   }

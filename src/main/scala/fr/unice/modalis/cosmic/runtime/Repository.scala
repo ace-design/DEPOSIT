@@ -49,6 +49,7 @@ object RepositoriesManager {
   */
 case class Repository(infrastructureModel: InfrastructureModel) extends LazyLogging{
 
+  var nbUpdates = 0
   /**
     * Get the association between entities and policies
     * @return a map between entities and policies
@@ -73,8 +74,12 @@ case class Repository(infrastructureModel: InfrastructureModel) extends LazyLogg
   def updatePolicy(policy: Policy, entity: Entity):Unit = {
     assert(infrastructureModel.topology.resources.contains(entity))
     logger.debug("Update entity " + entity.name + " with policy " + policy.name)
-    if (policies.contains(entity))
+    if (policies.contains(entity)){
+
       logger.warn("Replacing " + policies(entity).name + " with " + policy.name + " on " + entity.name)
+      nbUpdates = nbUpdates + 1
+
+    }
     policies.update(entity, policy)
   }
 

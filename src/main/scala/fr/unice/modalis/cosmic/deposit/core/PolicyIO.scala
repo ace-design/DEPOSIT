@@ -28,11 +28,14 @@ trait DataIO[T<:DataType] extends PolicyIO[T]{
 
 trait DataInput[T<:DataType] extends DataIO[T]{
   val output:Output[T]
+  override def placingConstraintsEquation(e:Entity) = e.communication.exists(_.cWay == CommunicationWay.In)
 }
 
 
 trait DataOutput[T<:DataType] extends DataIO[T] {
   val input:Input[T]
+  override def placingConstraintsEquation(e:Entity) = e.communication.exists(_.cWay == CommunicationWay.Out)
+
 }
 
 
@@ -78,6 +81,9 @@ case class JoinPointInput[I<:DataType](toConceptInput:Input[I], dataType: Class[
    * @return copy of this concept
    */
   override def duplicate: Concept = new JoinPointInput[I](toConceptInput, dataType)
+
+  override def placingConstraintsEquation(e:Entity) = e.communication.exists(_.cWay == CommunicationWay.In)
+
 }
 
 case class JoinPointOutput[O<:DataType](fromConceptOutput:Output[O], dataType: Class[O]) extends JoinPoint[O] with DataOutput[O]{
@@ -91,6 +97,9 @@ case class JoinPointOutput[O<:DataType](fromConceptOutput:Output[O], dataType: C
    * @return copy of this concept
    */
   override def duplicate: JoinPointOutput[O] = new JoinPointOutput[O](fromConceptOutput, dataType)
+
+  override def placingConstraintsEquation(e:Entity) = e.communication.exists(_.cWay == CommunicationWay.Out)
+
 }
 
 
