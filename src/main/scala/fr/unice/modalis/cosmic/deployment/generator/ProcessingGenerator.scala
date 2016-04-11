@@ -58,6 +58,12 @@ object ProcessingGenerator extends CodeGenerator{
       val input_var = Variable(a.id + "_" + a.input.name, generateDataTypeName(a.dataType))
       Instruction(Set(input_var), "send(" + input_var.name + "," + origin + ");", Set())
 
+    case a:JoinPointInput[T] =>
+      val id = a.readProperty("network")
+      val origin = if (id.isDefined) "\"" + id.get + "\"" else "String(BOARD_ID)"
+      val output_var = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.dataType))
+      Instruction(Set(), "receive(" + output_var.name + "," + origin + ");", Set(output_var))
+
     case a:Extract[T, T] =>
       val input_var = Variable(a.id + "_" + a.input.name, generateDataTypeName(a.iType))
       val output_var = Variable(a.id + "_" + a.output.name, generateDataTypeName(a.oType))
