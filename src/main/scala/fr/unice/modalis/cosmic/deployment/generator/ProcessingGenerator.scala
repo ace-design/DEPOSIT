@@ -1,5 +1,6 @@
 package fr.unice.modalis.cosmic.deployment.generator
 
+import com.typesafe.scalalogging.LazyLogging
 import fr.unice.modalis.cosmic.deployment.exception.InappropriateConceptForGenerator
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.ProgrammingLanguage.ProgrammingLanguage
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.{ProgrammingLanguage, SensorBrand, SensorType}
@@ -13,7 +14,7 @@ import scala.io.Source
  * Created by Cyril Cecchinel - I3S Laboratory on 02/10/15.
  */
 
-object ProcessingGenerator extends CodeGenerator{
+object ProcessingGenerator extends CodeGenerator with LazyLogging{
 
 
   val LAST_VALUE_PREFIX = "lastValue_"
@@ -241,6 +242,8 @@ object ProcessingGenerator extends CodeGenerator{
           val res = generatePeriodicSensor(a)
           declaration = declaration + generatePeriodicDeclaration(a, res._1)
           body = body + res._2
+        case a:JoinPointInput[_] =>
+         logger.warn("Join point inputs are MOCKED on ARDUINO")
         case _ => throw new InappropriateConceptForGenerator(s, "Arduino")
       }
     }
