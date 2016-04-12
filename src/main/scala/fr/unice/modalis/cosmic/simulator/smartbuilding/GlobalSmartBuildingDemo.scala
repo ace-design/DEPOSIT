@@ -315,12 +315,12 @@ object CompositionAtRuntime extends App {
     println("*******")
     p.concepts.foreach(c => println(c.commonName + " -- " + c.properties))
   })
-  /*AutoDeploy(policy2, model)
+  AutoDeploy(policy2, model)
   val tinter2 = System.currentTimeMillis()
   println(s"Time elapsed for policy 2 ${tinter2 - tbegin2} ms")
   val tend = System.currentTimeMillis()
 
   println(s"Time elapsed ${tend - tbegin} ms")
-  println(s"Number of updates: ${RepositoriesManager.getRepository(topology.name).get.nbUpdates}")*/
+  println(s"Number of updates: ${RepositoriesManager.getRepository(topology.name).get.nbUpdates}")
 
 }

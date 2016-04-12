@@ -3,7 +3,7 @@ package fr.unice.modalis.cosmic.simulator.smartparking
 /**
   * Created by Cyril Cecchinel - I3S Laboratory on 25/03/2016.
   */
-protected object TopologyParkingHelper {
+object TopologyParkingHelper {
   def generateParking(parkingNumber:String) = {
     <entity computation="Low" name={s"BOARD_$parkingNumber"} type="Arduino">
       <sensors>
