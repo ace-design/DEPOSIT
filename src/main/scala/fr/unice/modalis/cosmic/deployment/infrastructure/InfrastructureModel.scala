@@ -36,6 +36,7 @@ case class NetworkTopology(name:String, resources:Set[Entity], edges:Set[Edge]) 
   def findSensorByName(s:String) = resources.flatMap {_.sensors}.find(_.name equals s)
   def findEntityByName(s:String) = resources.find {_.name equals s}
 
+  lazy val reachableSensors = resources.map{r => r.name -> getSensorsFromNode(r.name)}.toMap
 }
 
 
