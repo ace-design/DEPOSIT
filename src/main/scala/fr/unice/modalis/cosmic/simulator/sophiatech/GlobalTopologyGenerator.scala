@@ -250,20 +250,20 @@ object GlobalTopologyGenerator {
       }
     }).flatten
 
+    val output = GatewayGenerator("OUTPUT")
+    val gatewaysToOutput = for (gateway <- gatewaysName) yield ConnectionGenerator(gateway.toString(), "GATEWAY_OUTPUT")
+    val outputToServers = for (server <- serversName) yield ConnectionGenerator("GATEWAY_OUTPUT", server.toString())
 
-    val gatewaysToServers = (for (gateway <- gatewaysName) yield {for (server <- serversName) yield {
-      ConnectionGenerator(gateway.toString(), server.toString())
-    }}).flatten
 
     val sensorsPlatformsToGateway = pathThroughRelays.flatMap(computePath)
 
-    val allConnections = sensorsPlatformsToGateway ++ gatewaysToServers
+    val allConnections = sensorsPlatformsToGateway ++ gatewaysToOutput ++ gatewaysToOutput ++ outputToServers
 
 
 
       <sensornetwork id="DemoTopology">
         <entities>
-          {offices ++ parkingSpaces ++ relays.flatten ++ gateways ++ servers}
+          {offices ++ parkingSpaces ++ relays.flatten ++ gateways ++ servers ++ output}
         </entities>
         <connections>
           {allConnections}
@@ -277,12 +277,12 @@ object GlobalTopologyGenerator {
 object GenerateSophiaTechTopology extends App {
 
   val generated = GlobalTopologyGenerator("SophiaTech",
-    nbOffices = 800,
-    nbParkingSpaces = 500,
-    maxStageLevel = 3,
-    maxRelayPerStage = 10,
-    maxGateway = 3,
-    maxServer = 5)
+    nbOffices = 500,
+    nbParkingSpaces = 10,
+    maxStageLevel = 2,
+    maxRelayPerStage = 3,
+    maxGateway = 2,
+    maxServer = 2)
 
   val tbegin = System.currentTimeMillis()
   val topology = TopologyModelBuilder.loadFromSpineFM(generated)
