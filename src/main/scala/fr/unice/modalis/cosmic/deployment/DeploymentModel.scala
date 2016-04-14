@@ -139,14 +139,15 @@ object PreDeploy extends LazyLogging{
 
     // Step 1: compute Sensors involved for each operation of the policy
     policy.concepts.foreach(c => c.addProperty("sensors", policy.sensorsInvolved(c)))
+    policy.concepts.foreach(c => println(c.commonName + "---" + c.readProperty("sensors")))
+
     // Step 2: compute which sensors are reachable from each point of the sensing infrastructure topology
-    topology.resources.foreach(r => r.addProperty("sensors", topology.getSensorsFromNode(r.name)))
+    // Moved to topological model
 
     // Step 3: compute where operations can be projected
     for (concept <- policy.concepts; sensorsNeeded = concept.readProperty("sensors").getOrElse(Set[Sensor[_]]()).asInstanceOf[Set[Sensor[_]]].map(_.url)) yield {
       var targets:Set[GenericNode] = Set.empty
-      for (resource <- topology.resources; sensorsConnected = resource.readProperty("sensors").getOrElse(Set[Sensor[_]]()).asInstanceOf[Set[network.Sensor]].map(_.name)) yield {
-
+      for (resource <- topology.resources; sensorsConnected = topology.reachableSensors(resource.name).map{_.name}) yield {
         if (sensorsNeeded.forall(sensorsConnected.contains)) {
 
           // If the resource is programmable and the concept can be projected on the resource

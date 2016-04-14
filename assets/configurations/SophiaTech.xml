@@ -50326,7 +50326,7 @@
             <feature>Media</feature>
             <feature>Way</feature>
             <feature>Out</feature>
-            <feature>XBEE</feature>
+            <feature>WAN</feature>
             <feature>Wireless</feature>
           </features>
         </communication>
