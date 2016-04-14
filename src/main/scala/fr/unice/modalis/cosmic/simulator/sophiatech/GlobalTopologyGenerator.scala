@@ -150,7 +150,7 @@ protected object GatewayGenerator {
             <feature>Media</feature>
             <feature>Way</feature>
             <feature>Out</feature>
-            <feature>XBEE</feature>
+            <feature>WAN</feature>
             <feature>Wireless</feature>
           </features>
         </communication>
@@ -289,5 +289,5 @@ object GenerateSophiaTechTopology extends App {
   val tend = System.currentTimeMillis()
 
   println(s"Elapsed: ${tend - tbegin}ms")
-  XML.save("assets/configurations/SophiaTech.xml", generated)
+  XML.save("assets/configurations/SophiaTechLight.xml", generated)
 }
