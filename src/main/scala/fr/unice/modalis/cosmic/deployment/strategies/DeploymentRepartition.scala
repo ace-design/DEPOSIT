@@ -3,7 +3,7 @@ package fr.unice.modalis.cosmic.deployment.strategies
 import com.typesafe.scalalogging.LazyLogging
 import fr.unice.modalis.cosmic.deployment.infrastructure.NetworkTopology
 import fr.unice.modalis.cosmic.deployment.network.{Entity, GenericNode}
-import fr.unice.modalis.cosmic.deposit.core.Concept
+import fr.unice.modalis.cosmic.deposit.core.{Concept, Sensor}
 import fr.unice.modalis.cosmic.runtime.{RepositoriesManager, RepositoryNotFoundException}
 
 import scalax.collection.Graph
@@ -60,6 +60,9 @@ object UseFreePlatforms extends DeploymentRepartition {
 object ClosestToSensorsRepartition extends DeploymentRepartition {
 
   override def place(concept: Concept, networkTopology: NetworkTopology): Entity = {
+
+    def containsAtLeastOne[A](a:Set[A], b: Set[A]) = a.exists(b.contains(_))
+
     // Generate the oriented weighted topology graph
     val gNodes = networkTopology.resources.flatMap {_.sensors.map{_.name}} ++ networkTopology.resources.map{_.name}
     val gEdges = networkTopology.resources.flatMap(r => r.sensors.map {_.name}.map{_ ~> r.name % 1}) ++ networkTopology.edges.map{l => l.source ~> l.destination % 1}
@@ -68,13 +71,13 @@ object ClosestToSensorsRepartition extends DeploymentRepartition {
 
     def n(outer:String): graph.NodeT = graph get outer
 
-    // List of sensors
-    val sensors = gNodes -- networkTopology.resources.map {_.name}
-    // List of others resources
-    val others = networkTopology.resources.map{_.name}
+    // Sensors need for concept
+    val sensorsNeeded = concept.readProperty("sensors").getOrElse(Set[Sensor[_]]()).asInstanceOf[Set[Sensor[_]]].map(_.url)
+    // Find which entities reach those sensors
+    val interestingEntities = networkTopology.reachableSensors.filter(p => p._2.map{_.name}.exists(sensorsNeeded.contains))
 
-    val distanceFromSensors = (for (o <- others) yield {
-      (o, for (s <- sensors) yield {
+    val distanceFromSensors = (for (o <- interestingEntities.keys) yield {
+      (o, for (s <- sensorsNeeded) yield {
         n(s) shortestPathTo n(o) match {
           case None => (n(s), None)
           case Some(path) => (n(s), Some(path.edges.map(_.weight).sum))
