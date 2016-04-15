@@ -61,8 +61,6 @@ object ClosestToSensorsRepartition extends DeploymentRepartition {
 
   override def place(concept: Concept, networkTopology: NetworkTopology): Entity = {
 
-    def containsAtLeastOne[A](a:Set[A], b: Set[A]) = a.exists(b.contains(_))
-
     // Generate the oriented weighted topology graph
     val gNodes = networkTopology.resources.flatMap {_.sensors.map{_.name}} ++ networkTopology.resources.map{_.name}
     val gEdges = networkTopology.resources.flatMap(r => r.sensors.map {_.name}.map{_ ~> r.name % 1}) ++ networkTopology.edges.map{l => l.source ~> l.destination % 1}
