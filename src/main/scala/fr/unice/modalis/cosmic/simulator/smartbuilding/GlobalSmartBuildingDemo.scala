@@ -296,8 +296,8 @@ object TwoPoliciesWithComposition extends App {
 }
 
 object CompositionAtRuntime extends App {
-  val topology = TopologyModelBuilder("assets/configurations/demo_smartbuilding.xml")
-  val model = InfrastructureModel(topology, DeploymentRepartition.FREE_PLATFORMS)
+  val topology = TopologyModelBuilder("assets/configurations/SophiaTech.xml")
+  val model = InfrastructureModel(topology, DeploymentRepartition.CLOSEST_TO_SENSORS)
 
   RepositoriesManager.addRepository(Repository(model))
 
