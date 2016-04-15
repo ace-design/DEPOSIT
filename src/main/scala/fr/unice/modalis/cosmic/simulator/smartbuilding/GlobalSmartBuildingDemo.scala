@@ -28,7 +28,7 @@ protected object ParkingSpaceMonitoringBuilder extends DEPOSIT {
     val produceFree = Produce(Set("i1"), new SmartCampusType(place, 1), None, dataType, dataType)
     val produceOccupied = Produce(Set("i1"), new SmartCampusType(place, 0), None, dataType, dataType)
 
-    val collector = Collector("SmartCampus", dataType)
+    val collector = Collector("SERVER_1", dataType)
     val collector2 = collector.duplicate
 
     val l1 = Flow(sensor.output, filter.input)
@@ -116,7 +116,7 @@ protected object OfficeConverterBuilder extends DEPOSIT {
     val dataType = classOf[SmartCampusType]
     val temp = PeriodicSensor(ExperimentalValues.PERIOD, s"AC_$office", dataType)
     val process = Process(StandardizedPolicies.CelsiusToFahrenheit(), dataType, dataType)
-    val collector = Collector("SmartCampus", dataType)
+    val collector = Collector("SERVER_1", dataType)
 
     val l1 = Flow(temp.output, process.getInput("celsius"))
     val l4 = Flow(process.getOutput("fahrenheit"), collector.input)
@@ -133,7 +133,7 @@ protected object OfficeBuilder extends DEPOSIT {
     val window = EventSensor(s"WINDOW_$office", dataType)
     val ac = PeriodicSensor(ExperimentalValues.PERIOD, s"AC_$office", dataType)
     val process = Process(OfficePolicy(), dataType, dataType)
-    val collector = Collector("SmartCampus", dataType)
+    val collector = Collector("SERVER_1", dataType)
 
     val l1 = Flow(door.output, process.getInput("DOOR"))
     val l2 = Flow(window.output, process.getInput("WINDOW"))

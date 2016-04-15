@@ -68,6 +68,12 @@ protected object OfficeBoardsGenerator {
             <feature>GroveTemperature</feature>
           </features>
         </sensor>
+        <sensor id={s"WINDOW_$officeId"} pin="2">
+          <features>
+            <feature>GroveMagnetic</feature>
+            <feature>Magnetic</feature>
+          </features>
+        </sensor>
       </sensors>
       <communications>
         <communication>
@@ -151,7 +157,6 @@ protected object GatewayGenerator {
             <feature>Way</feature>
             <feature>Out</feature>
             <feature>WAN</feature>
-            <feature>Wireless</feature>
           </features>
         </communication>
         <communication>
@@ -277,11 +282,11 @@ object GlobalTopologyGenerator {
 object GenerateSophiaTechTopology extends App {
 
   val generated = GlobalTopologyGenerator("SophiaTech",
-    nbOffices = 500,
-    nbParkingSpaces = 10,
-    maxStageLevel = 2,
-    maxRelayPerStage = 3,
-    maxGateway = 2,
+    nbOffices = 800,
+    nbParkingSpaces = 500,
+    maxStageLevel = 3,
+    maxRelayPerStage = 5,
+    maxGateway = 3,
     maxServer = 2)
 
   val tbegin = System.currentTimeMillis()
@@ -289,5 +294,5 @@ object GenerateSophiaTechTopology extends App {
   val tend = System.currentTimeMillis()
 
   println(s"Elapsed: ${tend - tbegin}ms")
-  XML.save("assets/configurations/SophiaTechLight.xml", generated)
+  XML.save("assets/configurations/SophiaTech.xml", generated)
 }
