@@ -139,7 +139,6 @@ object PreDeploy extends LazyLogging{
 
     // Step 1: compute Sensors involved for each operation of the policy
     policy.concepts.foreach(c => c.addProperty("sensors", policy.sensorsInvolved(c)))
-    policy.concepts.foreach(c => println(c.commonName + "---" + c.readProperty("sensors")))
 
     // Step 2: compute which sensors are reachable from each point of the sensing infrastructure topology
     // Moved to topological model

@@ -282,11 +282,11 @@ object GlobalTopologyGenerator {
 object GenerateSophiaTechTopology extends App {
 
   val generated = GlobalTopologyGenerator("SophiaTech",
-    nbOffices = 800,
-    nbParkingSpaces = 500,
-    maxStageLevel = 3,
-    maxRelayPerStage = 5,
-    maxGateway = 3,
+    nbOffices = 500,
+    nbParkingSpaces = 400,
+    maxStageLevel = 2,
+    maxRelayPerStage = 3,
+    maxGateway = 2,
     maxServer = 2)
 
   val tbegin = System.currentTimeMillis()

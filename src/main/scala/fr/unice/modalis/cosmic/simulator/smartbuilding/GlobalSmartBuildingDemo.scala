@@ -3,24 +3,15 @@ package fr.unice.modalis.cosmic.simulator.smartbuilding
 import fr.unice.modalis.cosmic.demos.StandardizedPolicies
 import fr.unice.modalis.cosmic.deployment.generator.CodeGenerator
 import fr.unice.modalis.cosmic.deployment.infrastructure.InfrastructureModel
-import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
 import fr.unice.modalis.cosmic.deployment.utils.TopologyModelBuilder
-import fr.unice.modalis.cosmic.deployment.{AutoDeploy, Deploy, PreDeploy}
+import fr.unice.modalis.cosmic.deployment.{Deploy, PreDeploy}
 import fr.unice.modalis.cosmic.deposit.core._
 import fr.unice.modalis.cosmic.deposit.dsl.DEPOSIT
-import fr.unice.modalis.cosmic.runtime.{RepositoriesManager, Repository}
+import fr.unice.modalis.cosmic.simulator.ExperimentalValues
 
-/**
-  * Created by Cyril Cecchinel - I3S Laboratory on 21/03/2016.
-  */
-protected object ExperimentalValues {
-  val RANGE = 401 to 420
-  val STRATEGY = DeploymentRepartition.CLOSEST_TO_SENSORS
-  val PERIOD = 300
-  val INFRA_XML = "assets/configurations/SophiaTech.xml"
-}
 
-protected object ParkingSpaceMonitoringBuilder extends DEPOSIT {
+
+object ParkingSpaceMonitoringBuilder extends DEPOSIT {
   def apply(place:String):Policy = {
 
     val dataType = classOf[SmartCampusType]
@@ -77,7 +68,7 @@ protected object GlobalSmartBuildingDemo extends DEPOSIT{
   this handles classOf[SmartCampusType]
   this targets ExperimentalValues.INFRA_XML
 
-  for (i <- ExperimentalValues.RANGE) {
+  for (i <- ExperimentalValues.RANGE_OFFICE) {
     val door = declare anEventSensor() named s"DOOR_$i"
     val window = declare anEventSensor() named s"WINDOW_$i"
     val ac = declare aPeriodicSensor() named s"AC_$i" withPeriod ExperimentalValues.PERIOD
@@ -100,7 +91,7 @@ protected object GlobalCelsiusToFahrenheitConverter extends DEPOSIT {
   this handles classOf[SmartCampusType]
   this targets ExperimentalValues.INFRA_XML
 
-  for (i <- ExperimentalValues.RANGE) {
+  for (i <- ExperimentalValues.RANGE_OFFICE) {
     val temp = declare aPeriodicSensor() named s"TEMP_$i" withPeriod ExperimentalValues.PERIOD
     val process = define aProcess StandardizedPolicies.CelsiusToFahrenheit()
     val collector = declare aCollector() named "SmartCampus"
@@ -111,7 +102,7 @@ protected object GlobalCelsiusToFahrenheitConverter extends DEPOSIT {
     }
   }
 }
-protected object OfficeConverterBuilder extends DEPOSIT {
+object OfficeConverterBuilder extends DEPOSIT {
   def apply(office:String):Policy = {
 
     val dataType = classOf[SmartCampusType]
@@ -209,7 +200,7 @@ object GlobalPolicyWithComposition extends App {
   val topology = TopologyModelBuilder(ExperimentalValues.INFRA_XML)
   val infraModel = InfrastructureModel(topology, ExperimentalValues.STRATEGY)
   val t1 = System.currentTimeMillis()
-  val p = ExperimentalValues.RANGE.foldLeft(new Policy("")){(acc, e) => acc ++ OfficeBuilder(e.toString)}
+  val p = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc ++ OfficeBuilder(e.toString)}
   println(s"Concepts before expand ${p.concepts.size}")
   val preDeploy = PreDeploy(p, topology)
 
@@ -223,7 +214,7 @@ object GlobalPolicyConverter extends App {
   val topology = TopologyModelBuilder(ExperimentalValues.INFRA_XML)
 
   val t1 = System.currentTimeMillis()
-  val p = ExperimentalValues.RANGE.foldLeft(new Policy("")){(acc, e) => acc ++ OfficeConverterBuilder(e.toString)}
+  val p = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc ++ OfficeConverterBuilder(e.toString)}
 
   println(s"Concepts before expand ${p.concepts.size}")
   val preDeploy = PreDeploy(p, topology)
@@ -240,7 +231,7 @@ object GlobalPolicyConverterWithComposition extends App {
   val topology = TopologyModelBuilder(ExperimentalValues.INFRA_XML)
   val infraModel = InfrastructureModel(topology, ExperimentalValues.STRATEGY)
   val t1 = System.currentTimeMillis()
-  val p = ExperimentalValues.RANGE.foldLeft(new Policy("")){(acc, e) => acc ++ OfficeConverterBuilder(e.toString)}
+  val p = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc ++ OfficeConverterBuilder(e.toString)}
   println(s"Concepts before expand ${p.concepts.size}")
   val preDeploy = PreDeploy(p, topology)
 
@@ -254,8 +245,8 @@ object TwoPoliciesWithComposition extends App {
   val topology = TopologyModelBuilder(ExperimentalValues.INFRA_XML)
 
 
- val policy1 = ExperimentalValues.RANGE.foldLeft(new Policy("")){(acc, e) => acc ++ OfficeBuilder(e.toString)}
- val policy2 = ExperimentalValues.RANGE.foldLeft(new Policy("")){(acc, e) => acc ++ OfficeConverterBuilder(e.toString)}
+ val policy1 = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc ++ OfficeBuilder(e.toString)}
+ val policy2 = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc ++ OfficeConverterBuilder(e.toString)}
 
  val composition = policy1 ++ policy2
 
@@ -271,32 +262,3 @@ object TwoPoliciesWithComposition extends App {
 
 }
 
-object CompositionAtRuntime extends App {
-  val topology = TopologyModelBuilder(ExperimentalValues.INFRA_XML)
-  val model = InfrastructureModel(topology, DeploymentRepartition.CLOSEST_TO_SENSORS)
-
-  RepositoriesManager.addRepository(Repository(model))
-
-  val tbegin = System.currentTimeMillis()
-  val policy1 = ExperimentalValues.RANGE.foldLeft(new Policy("")){(acc, e) => acc ++ OfficeBuilder(e.toString)}
-  AutoDeploy(policy1, model)
-  val tinter1 = System.currentTimeMillis()
-
-  println(s"Time elapsed for policy 1 ${tinter1 - tbegin} ms")
-  val tbegin2 = System.currentTimeMillis()
-  val policy2 = ExperimentalValues.RANGE.foldLeft(new Policy("")){(acc, e) => acc ++ OfficeConverterBuilder(e.toString)}
-  val policies = Deploy(PreDeploy(policy2, topology), topology, DeploymentRepartition.FREE_PLATFORMS)
-
-  policies.foreach(p => {
-    println("*******")
-    p.concepts.foreach(c => println(c.commonName + " -- " + c.properties))
-  })
-  AutoDeploy(policy2, model)
-  val tinter2 = System.currentTimeMillis()
-  println(s"Time elapsed for policy 2 ${tinter2 - tbegin2} ms")
-  val tend = System.currentTimeMillis()
-
-  println(s"Time elapsed ${tend - tbegin} ms")
-  println(s"Number of updates: ${RepositoriesManager.getRepository(topology.name).get.nbUpdates}")
-
-}
