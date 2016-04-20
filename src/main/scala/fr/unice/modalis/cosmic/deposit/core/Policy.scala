@@ -265,11 +265,8 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     * @return A new policy containing only selected concepts
     */
   def select(concepts:Set[Concept], n:String = "select_") = {
-    var result = this
-    val notSelected = result.concepts -- concepts
-    notSelected.foreach(c => result = result.delete(c))
-    result.name = n
-    result
+    val flows = this.flows.filter(f => (concepts contains f.source) && (concepts contains f.destination))
+    Policy(n, concepts collect {case x:PolicyIO[_] => x}, concepts collect {case x:Operation[_,_] => x}, flows)
   }
 
   /**
