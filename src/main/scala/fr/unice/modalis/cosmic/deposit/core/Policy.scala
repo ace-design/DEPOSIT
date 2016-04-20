@@ -248,16 +248,19 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     * @return A sensor set
     */
   def sensorsInvolved(concept: Concept):Set[Sensor[_<:DataType]] = {
-    var visited = List[Concept]()
-    def inner(c:Concept):List[Sensor[_<:DataType]] = {
-      c match {
-        case n:Sensor[_] => List(n)
-        case n:Concept => flowsTo(n).map(_.source).foldLeft(List[Sensor[_<:DataType]]()){ (acc, c) => if (!visited.contains(c)) {visited = c :: visited; inner(c) ::: acc} else acc}
 
+    val graph = this.toGraph
+    def n(outer: Concept): graph.NodeT = graph get outer
+
+    concept match {
+      case x:Sensor[_] => Set(x)
+      case _ => {
+        val res = sensors.flatMap(s => n(s.asInstanceOf[Concept]).pathTo(n(concept))).map{p => p.toList.head}.map{_.n1.toString}
+        sensors.filter(s => res contains s.toString)
       }
     }
-    inner(concept).toSet
   }
+
   /**
     * Select operator
     * @param n New policy's name
