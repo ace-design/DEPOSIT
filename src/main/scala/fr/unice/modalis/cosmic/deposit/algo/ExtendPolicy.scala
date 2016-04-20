@@ -121,9 +121,6 @@ object FactorizePolicy {
 object Weave {
 
   def apply(p1: Policy, p2: Policy, associations:Set[Unification[_<:DataType]]) = {
-    if (!p1.isExtendable) throw new NotExpendableException(p1)
-    if (!p2.isExtendable) throw new NotExpendableException(p2)
-
     val flows = for (x<-associations) yield createFlow(x)
     var newPolicy = p1 ++ p2
     for (l <- flows) yield newPolicy = newPolicy.addFlow(l)

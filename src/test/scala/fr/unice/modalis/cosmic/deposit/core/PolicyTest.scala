@@ -160,9 +160,6 @@ class PolicyTest extends SpecificationWithJUnit {
       }
     }
     "weave a policy" in {
-      "not expendable policies can't be weaved" in {
-        Weave(DCPTest.p1, DCPTest.p2, Set()) must throwA[NotExpendableException]
-      }
       "unify join points" in {
         val u1 = new Unification[IntegerType](
           DCPTest.p1e.outputJoinPoints.head.asInstanceOf[JoinPointOutput[IntegerType]],
