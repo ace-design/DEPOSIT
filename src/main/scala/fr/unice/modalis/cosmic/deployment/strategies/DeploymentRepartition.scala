@@ -74,6 +74,7 @@ object ClosestToSensorsRepartition extends DeploymentRepartition {
     // Find which entities reach those sensors
     val interestingEntities = networkTopology.reachableSensors.filter(p => p._2.map{_.name}.exists(sensorsNeeded.contains))
 
+
     val distanceFromSensors = (for (o <- interestingEntities.keys) yield {
       (o, for (s <- sensorsNeeded) yield {
         n(s) shortestPathTo n(o) match {
@@ -83,8 +84,7 @@ object ClosestToSensorsRepartition extends DeploymentRepartition {
       })
     }).toMap
 
-
-    val averageDistanceFromSensors = distanceFromSensors.map{ e => val values = e._2.toMap.values.flatten; (e._1, values.foldLeft(0.0)(_ + _) /values.foldLeft(0.0){(r,_) => r + 1})}
+    val averageDistanceFromSensors = distanceFromSensors.par.map{ e => val values = e._2.toMap.values.flatten; (e._1, values.foldLeft(0.0)(_ + _) /values.foldLeft(0.0){(r,_) => r + 1})}
 
 
     val possibleTargetsForConcept = concept.readProperty("targets").get.asInstanceOf[Set[GenericNode]]

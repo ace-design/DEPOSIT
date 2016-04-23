@@ -13,15 +13,19 @@ import scala.xml.{Elem, NodeSeq, XML}
   */
 
 protected object ParkingBoardGenerator {
-  def apply(placeId:String) = {
-    <entity computation="Low" name={s"BOARD_$placeId"} type="Arduino">
+  def apply(nbParkingDistrict:Int, parkingSpacesPerDistrict:Int) = {
+    <entity computation="Low" name={s"BOARD_$nbParkingDistrict"} type="Arduino">
       <sensors>
-        <sensor id={s"PRK_$placeId"} pin="1">
-          <features>
-            <feature>Magnetic</feature>
-            <feature>GroveMagnetic</feature>
-          </features>
-        </sensor>
+        {
+          for (i <- (nbParkingDistrict - 1) * parkingSpacesPerDistrict + 1 to nbParkingDistrict * parkingSpacesPerDistrict) yield{
+            <sensor id={s"PRK_$i"} pin="1">
+              <features>
+                <feature>Magnetic</feature>
+                <feature>GroveMagnetic</feature>
+              </features>
+            </sensor>
+          }
+        }
       </sensors>
       <communications>
         <communication>
@@ -232,12 +236,12 @@ object GlobalTopologyGenerator {
   }
 
 
-  def apply(name:String, nbOffices:Int, nbParkingSpaces:Int, maxStageLevel:Int = 3, maxRelayPerStage:Int = 5, maxGateway:Int = 2, maxServer:Int = 2) = {
+  def apply(name:String, nbOffices:Int, nbParkingDistrict:Int, maxStageLevel:Int = 3, maxRelayPerStage:Int = 5, maxGateway:Int = 2, maxServer:Int = 2, parkingSpacesPerDistrict:Int = 100) = {
 
     def random(l:List[NodeSeq]) = Random.shuffle(l).head
 
     val offices = (for (i <- 1 to nbOffices) yield OfficeBoardsGenerator(i.toString)).toList
-    val parkingSpaces = (for (i <- 1 to nbParkingSpaces) yield ParkingBoardGenerator(i.toString)).toList
+    val parkingSpaces = (for (i <- 1 to nbParkingDistrict) yield ParkingBoardGenerator(i, parkingSpacesPerDistrict)).toList
 
     val servers = (for (i <- 1 to maxServer) yield ServerGenerator(i.toString)).toList
     val serversName = servers.map{e => e.map{_.attribute("name").get.head}}
@@ -282,17 +286,18 @@ object GlobalTopologyGenerator {
 object GenerateSophiaTechTopology extends App {
 
   val generated = GlobalTopologyGenerator("SophiaTech",
-    nbOffices = 500,
-    nbParkingSpaces = 400,
+    nbOffices = 1000,
+    nbParkingDistrict = 5,
     maxStageLevel = 2,
     maxRelayPerStage = 3,
     maxGateway = 2,
-    maxServer = 2)
+    maxServer = 2,
+    parkingSpacesPerDistrict = 100)
 
   val tbegin = System.currentTimeMillis()
   val topology = TopologyModelBuilder.loadFromSpineFM(generated)
   val tend = System.currentTimeMillis()
 
   println(s"Elapsed: ${tend - tbegin}ms")
-  XML.save("assets/configurations/SophiaTech.xml", generated)
+  XML.save("assets/configurations/Large3.xml", generated)
 }

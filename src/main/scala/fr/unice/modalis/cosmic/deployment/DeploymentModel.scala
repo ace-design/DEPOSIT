@@ -24,7 +24,10 @@ object AutoDeploy extends LazyLogging {
       throw new RepositoryNotFoundException(infrastructureModel.topology.name)
     }
 
+    val tbegin = System.currentTimeMillis()
     val policies = Decompose(policy, infrastructureModel)
+    println(s"Decomposition (${policy.name}): ${System.currentTimeMillis() - tbegin} ms")
+
 
     logger.debug("Registering policies in repository...")
     policies.foreach { p =>
@@ -72,7 +75,12 @@ object Decompose extends LazyLogging{
  */
 object PreDeploy extends LazyLogging{
 
-  def apply(policy: Policy, topology: NetworkTopology) = prepare(policy, topology)
+  def apply(policy: Policy, topology: NetworkTopology) = {
+    val tbegin = System.currentTimeMillis()
+    val res = prepare(policy, topology)
+    println(s"\tTime PreDeploy: ${System.currentTimeMillis() - tbegin} ms")
+    res
+  }
 
   /**
    * Expand processes
@@ -170,7 +178,12 @@ object Deploy {
 
 
   def apply(policy: Policy, topology: NetworkTopology, targets: Map[Concept, String]) = deploy(policy, topology, targets)
-  def apply(policy: Policy, topology: NetworkTopology, heuristic: DeploymentRepartition) = deploy(policy, topology, heuristic)
+  def apply(policy: Policy, topology: NetworkTopology, heuristic: DeploymentRepartition) = {
+    val tbegin = System.currentTimeMillis()
+    val res = deploy(policy, topology, heuristic)
+    println(s"\tTime Deploy: ${System.currentTimeMillis() - tbegin} ms")
+    res
+  }
 
 
   private def getNetworkFlows(policies:Set[Policy], ref:Policy) = {
@@ -206,17 +219,20 @@ object Deploy {
     val projectionGrouped = projection.toSeq.groupBy(_._2).map { e => e._1 -> e._2.map(_._1)}
 
     // Split the global policies into sub-policy and extend it with Join Points
+    val tbegin0 = System.currentTimeMillis()
     val rawPolicies = projectionGrouped.map {e =>
       val extendedpolicy =  ExtendPolicy(policy.select(e._2.toSet, policy.name + "_" + e._1.name), onlyEmptyPorts = false)
       extendedpolicy.addProperty("board", e._1.name)
       extendedpolicy.addProperty("generator", Features.codeGeneratorAssociation(e._1.language))
       extendedpolicy
     }
+    println(s"\t\t\tSub-policies spliting: ${System.currentTimeMillis() - tbegin0} ms")
 
     // Compute which join points are network-related
     val networkFlows = getNetworkFlows(rawPolicies.toSet, policy)
 
 
+    val tbegin = System.currentTimeMillis()
     // Associating same network id to linked join points
     for (l <- networkFlows.groupBy(_.source_output); src = l._1; dsts = l._2.map(_.destination_input)) {
 
@@ -228,7 +244,7 @@ object Deploy {
         if (optionJoinPointInput.isDefined) optionJoinPointInput.get.addProperty("network",uid)
       }
     }
-
+    println(s"\t\t\tAssociating network id: ${System.currentTimeMillis() - tbegin} ms")
     // Delete non-relevant join points
     val readyToDeployedPolicies = rawPolicies.map { deleteNonRelevantJoinPoints }
     readyToDeployedPolicies.foreach(p => ToGraphviz.writeSource(p))
@@ -245,11 +261,13 @@ object Deploy {
     * @return A policy for each platform of the sensing infrastructure
     */
   def deploy(policy: Policy, topology: NetworkTopology, heuristic: DeploymentRepartition):Iterable[Policy] = {
-    val targets = policy.concepts.map { c =>
+    val tbegin = System.currentTimeMillis()
+
+    val targets = policy.concepts.par.map { c =>
       val place = heuristic.place(c, topology)
       c -> place.name
     }.toMap[Concept, String]
-
-    deploy(policy, topology, targets)
+    println(s"\t\tTime for placing: ${System.currentTimeMillis() - tbegin} ms")
+    deploy(policy, topology, targets.seq)
   }
 }

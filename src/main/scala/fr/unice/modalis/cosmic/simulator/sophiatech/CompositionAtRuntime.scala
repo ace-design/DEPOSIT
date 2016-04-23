@@ -2,7 +2,6 @@ package fr.unice.modalis.cosmic.simulator.sophiatech
 
 import fr.unice.modalis.cosmic.deployment.AutoDeploy
 import fr.unice.modalis.cosmic.deployment.infrastructure.InfrastructureModel
-import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
 import fr.unice.modalis.cosmic.deployment.utils.TopologyModelBuilder
 import fr.unice.modalis.cosmic.deposit.core.Policy
 import fr.unice.modalis.cosmic.runtime.{RepositoriesManager, Repository}
@@ -14,7 +13,7 @@ import fr.unice.modalis.cosmic.simulator.smartbuilding.{OfficeBuilder, OfficeCon
   */
 object CompositionAtRuntime extends App {
   val topology = TopologyModelBuilder(ExperimentalValues.INFRA_XML)
-  val model = InfrastructureModel(topology, DeploymentRepartition.CLOSEST_TO_SENSORS)
+  val model = InfrastructureModel(topology, ExperimentalValues.STRATEGY)
 
   RepositoriesManager.addRepository(Repository(model))
   val policy1 = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc ++ OfficeBuilder(e.toString)}
@@ -36,8 +35,8 @@ object CompositionAtRuntime extends App {
   val tinter3 = System.currentTimeMillis()
   println(s"Time elapsed for policy 3 ${tinter3 - tbegin3} ms")
 
-  val tend = System.currentTimeMillis()
 
+  val tend = System.currentTimeMillis()
   println(s"Time elapsed ${tend - tbegin} ms")
   println(s"Number of updates: ${RepositoriesManager.getRepository(topology.name).get.nbUpdates}")
 
