@@ -3,10 +3,10 @@ package fr.unice.modalis.cosmic.simulator.sophiatech
 import java.io.File
 
 import com.github.tototoshi.csv.CSVWriter
-import fr.unice.modalis.cosmic.deployment.AutoDeploy
 import fr.unice.modalis.cosmic.deployment.infrastructure.InfrastructureModel
 import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
 import fr.unice.modalis.cosmic.deployment.utils.TopologyModelBuilder
+import fr.unice.modalis.cosmic.deployment.{Deploy, PreDeploy}
 import fr.unice.modalis.cosmic.deposit.core.Policy
 import fr.unice.modalis.cosmic.runtime.{RepositoriesManager, Repository}
 import fr.unice.modalis.cosmic.simulator.smartbuilding.{OfficeBuilder, OfficeConverterBuilder, ParkingSpaceMonitoringBuilder}
@@ -18,7 +18,7 @@ object Benchmark extends App{
 
   var valuesRun = List[(Int,List[(Int,Long)])]()
 
-  for (exec <- 1 to 10) {
+  for (exec <- 1 to 1) {
     println(s"*** Execution #$exec ***")
 
     var xpResults = List[(Int,Long)]()
@@ -31,7 +31,9 @@ object Benchmark extends App{
       val policy2 = RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc ++ OfficeConverterBuilder(e.toString)}
       val policy3 = RANGE_PRK.foldLeft(new Policy("")) { (acc, e) => acc ++ ParkingSpaceMonitoringBuilder(e.toString)}
 
-      println(s"#Sensors $i")
+      val NB_SENSORS = i * 3 + i/2
+
+      println(s"#Sensors $NB_SENSORS")
       val model = GlobalTopologyGenerator("SophiaTech",
         nbOffices = i,
         nbParkingDistrict = 5,
@@ -42,15 +44,28 @@ object Benchmark extends App{
         parkingSpacesPerDistrict = i/2)
       scala.xml.XML.save("assets/configurations/demo_smartcampus.xml", model)
       val infra_model = InfrastructureModel(TopologyModelBuilder.loadFromSpineFM("assets/configurations/demo_smartcampus.xml"), DeploymentRepartition.CLOSEST_TO_SENSORS)
-      RepositoriesManager.addRepository(Repository(infra_model))
+      val repo = Repository(infra_model)
+      RepositoriesManager.addRepository(repo)
 
-      val t1 = System.currentTimeMillis()
-      AutoDeploy(policy1, infra_model)
-      AutoDeploy(policy2, infra_model)
-      AutoDeploy(policy3, infra_model)
-      val t2 = System.currentTimeMillis()
-      println(s"Deployment time for 3 policies ($i sensors): ${t2 - t1} ms")
-      xpResults = (i, t2 - t1) :: xpResults
+      val t1a = System.currentTimeMillis()
+      Deploy(PreDeploy(policy1, infra_model.topology), infra_model.topology, DeploymentRepartition.CLOSEST_TO_SENSORS)
+      val t2a = System.currentTimeMillis()
+      println(s"Deployment p1 ($NB_SENSORS sensors): ${t2a - t1a} ms")
+
+      val t1b = System.currentTimeMillis()
+      Deploy(PreDeploy(policy2, infra_model.topology), infra_model.topology, DeploymentRepartition.CLOSEST_TO_SENSORS)
+      val t2b = System.currentTimeMillis()
+      println(s"Deployment p2 ($NB_SENSORS sensors): ${t2b - t1b} ms")
+
+      val t1c = System.currentTimeMillis()
+      Deploy(PreDeploy(policy3, infra_model.topology), infra_model.topology, DeploymentRepartition.CLOSEST_TO_SENSORS)
+      val t2c = System.currentTimeMillis()
+      println(s"Deployment p3 ($NB_SENSORS sensors): ${t2c - t1c} ms")
+
+
+
+      //println(s"Deployment time for 3 policies ($i sensors): ${t2 - t1} ms")
+      //xpResults = (i, t2 - t1) :: xpResults
       new File("assets/configurations/demo_smartcampus.xml").delete()
     }
     xpResults = xpResults.reverse
