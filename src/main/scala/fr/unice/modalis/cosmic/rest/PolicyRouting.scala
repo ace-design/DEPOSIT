@@ -19,6 +19,14 @@ trait PolicyRouting extends HttpService{
     }
   }
 
+  case class UpdatePeriod(period:Int)
+
+
+  object UpdatePeriodProtocol extends DefaultJsonProtocol {
+    implicit val updateFormat = jsonFormat1(UpdatePeriod)
+  }
+
+
   val policyRouting = {
     var repo: Repository = null
 
@@ -32,8 +40,8 @@ trait PolicyRouting extends HttpService{
             }.toArray.toJson.toString())
           }
         }
-      } ~ pathPrefix("policy" / Segment) {policy =>
-        var _policy:Policy = null
+      } ~ pathPrefix("policy" / Segment) { policy =>
+        var _policy: Policy = null
         pathEndOrSingleSlash {
           get {
             _policy = repo.getPolicies.find(_._2.name equals policy).get._2
@@ -43,7 +51,7 @@ trait PolicyRouting extends HttpService{
           pathEndOrSingleSlash {
             get {
               _policy.generate()
-              complete("ok")
+              complete(s"OK")
             }
           }
         } ~ pathPrefix("sensors") {
@@ -57,9 +65,24 @@ trait PolicyRouting extends HttpService{
             }
           }
         } ~ pathPrefix("sensors" / Segment) { sensor =>
-          get {
-            respondWithMediaType(`application/json`) {
-              complete(convertSensor(_policy.findSensorByName(sensor).get).toJson.toString())
+          var _sensor:Sensor[_<:DataType] = _policy.findSensorByName(sensor).get
+          pathEndOrSingleSlash {
+            get {
+              respondWithMediaType(`application/json`) {
+                complete(convertSensor(_sensor).toJson.toString())
+              }
+            } ~ put {
+              import UpdatePeriodProtocol._
+              import spray.httpx.SprayJsonSupport.sprayJsonUnmarshaller
+
+              _sensor match {
+                case x:EventSensor[_] => complete("event")
+                case x:PeriodicSensor[_] =>
+                  entity(as[UpdatePeriod]) { update =>
+                    x.wishedPeriod = update.period
+                    complete(convertSensor(_sensor).toJson.toString())
+                  }
+              }
             }
           }
         }

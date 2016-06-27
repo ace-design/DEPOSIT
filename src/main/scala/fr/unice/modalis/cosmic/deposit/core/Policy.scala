@@ -47,7 +47,6 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     } else throw new UnsupportedOperationException(s"The policy $name has not been pre-deployed")
   }
 
-
   /**
     * Find a concept by its id
     *

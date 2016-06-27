@@ -129,7 +129,7 @@ trait Sensor[T<:DataType] extends DataInput[T]{
  * @param url Sensor URL
  * @tparam T Data type
  */
-case class PeriodicSensor[T<:DataType](wishedPeriod:Int, override val url: String, dataType: Class[T]) extends Sensor[T] {
+case class PeriodicSensor[T<:DataType](var wishedPeriod:Int, override val url: String, dataType: Class[T]) extends Sensor[T] {
 
   override val commonName: String = "PERIODIC_SENSOR[" + wishedPeriod + ";" + url + "]"
 
