@@ -4,7 +4,6 @@ import java.util.NoSuchElementException
 
 import com.typesafe.scalalogging.LazyLogging
 import fr.unice.modalis.cosmic.deployment.exception.NoTargetFoundException
-import fr.unice.modalis.cosmic.deployment.generator.CodeGenerator
 import fr.unice.modalis.cosmic.deployment.infrastructure.{Features, InfrastructureModel, NetworkTopology}
 import fr.unice.modalis.cosmic.deployment.network.GenericNode
 import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
@@ -44,9 +43,7 @@ object AutoDeploy extends LazyLogging {
     logger.debug("Generating source file...")
     repository.getPolicies.values.foreach { p =>
       logger.debug("Generate source file for " + p.name)
-      val generator = p.readProperty("generator").get.asInstanceOf[CodeGenerator]
-      logger.debug("Calling " + generator + "for " + p.name)
-      generator.apply(p, toFile = true)
+      p.generate()
     }
 
 

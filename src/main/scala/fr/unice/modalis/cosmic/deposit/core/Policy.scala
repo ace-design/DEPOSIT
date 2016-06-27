@@ -2,7 +2,7 @@ package fr.unice.modalis.cosmic.deposit.core
 
 
 import com.typesafe.scalalogging.LazyLogging
-import fr.unice.modalis.cosmic.deployment.generator.{ProcessingGenerator, PythonGenerator}
+import fr.unice.modalis.cosmic.deployment.generator.{CodeGenerator, ProcessingGenerator, PythonGenerator}
 import fr.unice.modalis.cosmic.deposit.converter.{ToGraph, ToGraphviz}
 
 import scala.collection.mutable.ArrayBuffer
@@ -11,14 +11,16 @@ import scala.collection.mutable.ArrayBuffer
 /**
   * Policy definition
   * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
+  *
   * @param operations Workflow element list
   * @param flows Link list
   */
-case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Set[Operation[_<:DataType,_<:DataType]], flows:Set[Flow[_<:DataType]]) extends Properties{
+case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Set[Operation[_<:DataType,_<:DataType]], flows:Set[Flow[_<:DataType]]) extends Properties with LazyLogging{
+
 
 
   // Constructors
-  def this(name:String) = this(name, Set.empty, Set.empty, Set.empty)
+  def this(name: String) = this(name, Set.empty, Set.empty, Set.empty)
   def this() = this("policy" + scala.util.Random.alphanumeric.take(5).mkString, Set.empty, Set.empty, Set.empty)
 
   // Sources and Collectors (lazy computation)
@@ -32,8 +34,23 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   lazy val concepts = ios ++ operations
   lazy val isExtendable = inputJoinPoints.nonEmpty || outputJoinPoints.nonEmpty
 
+
+  /**
+    * Generate the code source for this policy
+    * Pre-condition: The policy has been PreDeployed
+    */
+  def generate(): Unit = {
+    if (readProperty("generator").isDefined) {
+      val generator = readProperty("generator").get.asInstanceOf[CodeGenerator]
+      logger.debug("Calling " + generator + "for " + name)
+      generator.apply(this, toFile = true)
+    } else throw new UnsupportedOperationException(s"The policy $name has not been pre-deployed")
+  }
+
+
   /**
     * Find a concept by its id
+    *
     * @param id Concept if
     * @return Result of id-lookup
     */
@@ -41,6 +58,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Find a concept by its common name
+    *
     * @param commonName Common name
     * @return Result of common name-lookup
     */
@@ -48,6 +66,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Find a sensor by its name
+    *
     * @param name Sensor name
     * @return Result of name-lookup
     */
@@ -55,12 +74,14 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Graph representation
+    *
     * @return A Graph representation of this policy
     */
   def toGraph = ToGraph(this)
 
   /**
     * Add a concept in the policy
+    *
     * @param concept Concept to add
     * @return A new policy with the concept added
     */
@@ -74,6 +95,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Add a flow in the policy
+    *
     * @param flow Flow to add
     * @return A new policy with the flow added
     */
@@ -83,6 +105,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Delete a concept in the policy (remove also flows from and to this concepts)
+    *
     * @param concept Concept to delete
     * @return A new policy with the concept and relatives flows deleted
     */
@@ -96,6 +119,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Delete a flow in the policy
+    *
     * @param flow Flow to delete
     * @return A new policy with the flow deleted
     */
@@ -105,6 +129,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Add an I/O to the policy
+    *
     * @param io I/O to add
     * @return A new policy with the I/O added
     */
@@ -114,6 +139,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Add an operation in the current workflow
+    *
     * @param operation Operation to add
     * @return A new policy with the operation added
     */
@@ -126,6 +152,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Add a flow in the current policy
+    *
     * @param flow Flow
     * @return A new policy with the flow added
     */
@@ -135,6 +162,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Delete an operation in the current workflow (Delete also all flows referring this activity)
+    *
     * @param operation Operation to delete
     * @return A policy without this operation and flows referring this operation
     */
@@ -144,6 +172,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Delete an IO in the current policy (/!\ Delete also all flows referring this IO)
+    *
     * @param io I/O to delete
     * @return A policy without this IO and flows referring this IO
     */
@@ -153,6 +182,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Delete a flow in the current policy
+    *
     * @param flow Flow to delete
     * @return A new policy with the flow removed
     */
@@ -163,6 +193,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Compute the sub-policy between a root and a leaf
+    *
     * @param root Root concept
     * @param leaf Leaf concept
     * @return A sub-policy corresponding to the extraction of concepts and flows between the root and the leaf
@@ -193,6 +224,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Find the next policy concepts
+    *
     * @param concept Current policy concept
     * @return A set of (Concept,Flow) referring to the next concepts and flows
     */
@@ -207,6 +239,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Find the previous policy concepts
+    *
     * @param concept Current policy concept
     * @return A set of (Concept,Flow) referring to the previous concepts and flows
     */
@@ -222,6 +255,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Generate flows required to connect a process with current known sensors in a policy
+    *
     * @param process Process operation
     * @tparam I Input Data type
     * @tparam O Output Data type
@@ -244,6 +278,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Return the set of sensors needed for a concept
+    *
     * @param concept Concept
     * @return A sensor set
     */
@@ -260,6 +295,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   }
   /**
     * Select operator
+    *
     * @param n New policy's name
     * @param concepts Set of concepts
     * @return A new policy containing only selected concepts
@@ -271,6 +307,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Data types involved in a policy
+    *
     * @return A set of data types involved
     */
   def getInvolvedDataTypes[T<:DataType] = {
@@ -279,6 +316,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Input Ports that are not connected by a flow
+    *
     * @return A list of non-connected flows
     */
   def getNonConnectedInputPorts = {
@@ -298,6 +336,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Input Ports that are not connected by a flow
+    *
     * @return A list of non-connected flows
     */
   def getNonConnectedOutputPorts = {
@@ -317,6 +356,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Duplicate a policy
+    *
     * @return A duplicated policy
     */
   def duplicate = {
@@ -338,6 +378,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Compute flows going to a concept
+    *
     * @param concept Concept
     * @return List of in-going flows
     */
@@ -345,6 +386,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Compute flows going from a concept
+    *
     * @param concept Concept
     * @return List of out-going flows
     */
@@ -352,6 +394,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Compose the current policy with an other one
+    *
     * @param other Other policy
     * @return A new policy resulted from the composition of the current one and the one specified as a parameter
     */
@@ -375,6 +418,7 @@ object Policy extends LazyLogging{
 
   /**
     * Check if the policy satisfies the validity properties. Returns nothing if the policy is valid but throws NonValidPolicyException if the policy is not valid
+    *
     * @param policy Policy
     */
   def checkValidity(policy: Policy):Unit = {
@@ -397,6 +441,7 @@ object Policy extends LazyLogging{
 
   /**
     * Compose two policies together
+    *
     * @param p1 Data collection policy
     * @param p2 Data collection policy
     * @return A composed data collection policy
