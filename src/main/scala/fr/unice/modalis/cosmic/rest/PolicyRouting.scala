@@ -12,11 +12,22 @@ import spray.routing.HttpService
 trait PolicyRouting extends HttpService{
 
 
-  def convertSensor(s:Sensor[_<:DataType]): Map[String, String] = {
-    s match {
-      case x:EventSensor[_] => Map("name" -> x.url, "type" -> x.dataType.getSimpleName)
-      case x:PeriodicSensor[_] => Map("name" -> x.url, "type" -> x.dataType.getSimpleName, "period" -> x.wishedPeriod.toString)
+  implicit object SensorFormat extends JsonWriter[Sensor[_<:DataType]] {
+    override def write(obj: Sensor[_ <: DataType]): JsValue = obj match {
+      case x:EventSensor[_] => JsObject("name" -> JsString(x.url), "type" -> JsString(x.dataType.getSimpleName))
+      case x:PeriodicSensor[_] => JsObject("name" -> JsString(x.url), "type" -> JsString(x.dataType.getSimpleName), "period" -> JsNumber(x.wishedPeriod))
     }
+  }
+
+  implicit object CollectorFormat extends JsonWriter[Collector[_<:DataType]]{
+    override def write(obj: Collector[_ <: DataType]): JsValue = JsObject("name" -> JsString(obj.name), "type" -> JsString(obj.dataType.getSimpleName))
+  }
+
+  implicit object PolicyFormat extends JsonWriter[Policy] {
+    override def write(obj: Policy): JsValue = JsObject("name" -> JsString(obj.name),
+      "sensors" -> JsArray(obj.sensors.map{SensorFormat.write}.toVector),
+      "collectors" -> JsArray(obj.collectors.collect{case x:Collector[_] => x}.map{CollectorFormat.write}.toVector)
+    )
   }
 
   case class UpdatePeriod(period:Int)
@@ -45,7 +56,9 @@ trait PolicyRouting extends HttpService{
         pathEndOrSingleSlash {
           get {
             _policy = repo.getPolicies.find(_._2.name equals policy).get._2
-            complete(_policy.toString)
+            respondWithMediaType(`application/json`) {
+              complete(PolicyFormat.write(_policy).toString())
+            }
           }
         } ~ pathPrefix("deploy") {
           pathEndOrSingleSlash {
@@ -65,11 +78,12 @@ trait PolicyRouting extends HttpService{
             }
           }
         } ~ pathPrefix("sensors" / Segment) { sensor =>
+
           var _sensor:Sensor[_<:DataType] = _policy.findSensorByName(sensor).get
           pathEndOrSingleSlash {
             get {
               respondWithMediaType(`application/json`) {
-                complete(convertSensor(_sensor).toJson.toString())
+                complete(SensorFormat.write(_sensor).toString())
               }
             } ~ put {
               import UpdatePeriodProtocol._
@@ -80,7 +94,7 @@ trait PolicyRouting extends HttpService{
                 case x:PeriodicSensor[_] =>
                   entity(as[UpdatePeriod]) { update =>
                     x.wishedPeriod = update.period
-                    complete(convertSensor(_sensor).toJson.toString())
+                    complete(SensorFormat.write(_sensor).toString())
                   }
               }
             }
