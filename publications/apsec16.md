@@ -3,9 +3,17 @@
 ## Article abstract
 This companion page is attached to the article *Automated Deployement of Data Collection Policies over Heterogeneous Shared Sensing Infrastructures* written by Cyril Cecchinel, Philippe Collet and Sebastien Mosser, submitted to APSEC 2016.  
 
-Smart buildings and smart cities rely on interconnected sensor networks that collect data about their environment to support various applications.
+  Smart buildings and smart cities rely on interconnected sensor
+  networks that collect data about their environment to support various
+  applications.
 
-Developing and deploying the data collection architectures of these systems is a challenging problem. The specificities of the sensor platforms compel software engineers to work at a low level.  This activity tedious, producing code that badly exploit the network architecture, and hampering reuse of data collection policies.  Moreover several data collection programs cannot be guaranteed to be deployable on a shared infrastructure.
+Developing and deploying the data collection architectures of these
+  systems is a challenging problem. The specificities of the sensor platforms 
+  compel software engineers to work at a low level. This makes this activity tedious, producing code that
+  badly exploit the network architecture, and hampering reuse of data
+  collection policies.  Moreover, several data collection programs
+  cannot be guaranteed to be deployable on a shared infrastructure.
+
 
 In this paper, we present an automated approach that supports
   *(i)* the definition of data collection policies at a higher
@@ -13,8 +21,7 @@ In this paper, we present an automated approach that supports
   platforms and the network topology, and *(iii)* the automatic
   composition and deployment of the policies on top of heterogeneous
   sensing infrastructures following different strategies. The approach is
-  tooled and has been assessed on a smart campus.
-
+  tooled and has been assessed on both realistic and simulated deployments.
 ## Introduction
 The goal of this companion page is to illustrate the toolchain with an implementation of example models:
 * the data collection policy (defined in Sec.2)
@@ -106,7 +113,7 @@ source=Platform
 target=Programming
 
 SELECTED Arduino => SELECT Wiring;
-SELECTED telosB => SELECT newC;
+SELECTED telosB => SELECT nesC;
 ```
 
 (ie. The selection of Arduino triggers the selection of the Wiring programming language)
