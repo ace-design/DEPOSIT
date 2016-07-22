@@ -718,7 +718,3 @@ object ComprehensivePolicy extends DEPOSIT{
   }
 
 }
-
-object Runner extends App {
-
-}
