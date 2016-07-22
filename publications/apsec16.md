@@ -234,5 +234,6 @@ The comprehensive policy can be inlined as follow:
 ```scala
 val policy = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc ++ TemplatePolicy(e)}
 ```
-where RANGE_OFFICE = 1 to 50
+where RANGE_OFFICE = 1 to 50.
+
 In this case, we compose 50 times the TemplatePolicy that has been instanciated for each office
