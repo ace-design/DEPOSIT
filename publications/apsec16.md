@@ -28,6 +28,7 @@ The goal of this companion page is to illustrate the toolchain with an implement
 * the variability models depicting the sensing infrastructure (Fig 2.)
 * the network topology (Fig. 1)
 
+The source codes used during the validation are presented in annex.
 ## Data collection policy
 
 ### Scenario
