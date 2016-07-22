@@ -228,7 +228,11 @@ val office443_policy = TemplatePolicy(443)
 ### Generating the comprehensive policy (without composition)
 The comprehensive policy (without composition) can be accessed [here](https://github.com/ace-design/DEPOSIT/blob/master/src/main/scala/fr/unice/modalis/cosmic/simulator/smartbuilding/ComprehensivePolicy.scala)
 
-From the running, we have obtained the following result: 
+### Generating the comprehensive policy (with composition)
+The comprehensive policy can be inlined as follow:
 
-
-
+```scala
+val policy = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc ++ TemplatePolicy(e)}
+```
+where RANGE_OFFICE = 1 to 50
+In this case, we compose 50 times the TemplatePolicy that has been instanciated for each office
