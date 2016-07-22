@@ -16,7 +16,7 @@ In this paper, we present an automated approach that supports
   tooled and has been assessed on a smart campus.
 
 ## Introduction
-The goal of this companion page is to illustrate an implementation of the models handled by the toolchain:
+The goal of this companion page is to illustrate the toolchain with an implementation of example models:
 * the data collection policy (defined in Sec.2)
 * the variability models depicting the sensing infrastructure (Fig 2.)
 * the network topology (Fig. 1)
@@ -33,7 +33,7 @@ with door and window opening sensors, and air
 conditioning sensors.
 
 ### Implementation
-The following code presents the implementation (using the DEPOSIT DSL) of the data collection implementing the scenario presented in Sec. 2.
+The following code presents an internal DSL Scala implementation (using the [DEPOSIT DSL](https://github.com/ace-design/DEPOSIT/blob/master/src/main/scala/fr/unice/modalis/cosmic/deposit/dsl/DEPOSIT.scala)) of the data collection implementing the scenario depicted in Sec. 2.
 
 On the first two lines, the software engineer defines the name of the data collection policy and the data-type she wants to use. Then, she declares the sensors and the collector she needs to use. The software engineer defines next the operations she wants to perform on data. Finally, she wire the data-flows between the policy elements.
 
@@ -188,4 +188,47 @@ The network topology is assimilated to a graph where vertices represent platform
    </connections>
 </sensornetwork>
 ```
+
+## Annexes
+### Template source code
+The following code is a Scala implementation of the template data collection policy (Sec 4.A.).
+```scala
+object TemplatePolicy{
+	def apply(officeNumber:Int) = {
+		this hasForName s"EnergyLossAlert_$officeNumber"
+		this handles classOf[SmartCampusType]
+
+		val ac = declare aPeriodicSensor() named s"AC_$officeNumber" withPeriod 120
+		val door = declare anEventSensor() named s"DOOR_$officeNumber"
+		val window = declare anEventSensor() named s"WINDOW_$officeNumber"
+		val collector = declare aCollector() named "ConnectedFaculty"
+
+		val temp_filter = define aFilter "value < 18"
+		val door_state= define aProcess StandardizedPolicies.RawValueToOpeningSensor()
+		val window_state = define aProcess StandardizedPolicies.RawValueToOpeningSensor()
+		val produce = define aProducer new SmartCampusType(s"ALERT_AC_$officeNumber", 1) 	withInputs("i1", 	"i2", "i3")
+
+		flows { 
+		  ac() -> temp_filter("input")
+		  door() -> door_filter("input")
+		  window() -> window_filter("input")
+		  temp_filter("then") -> produce("i1")
+		  window_state("open") -> produce("i2")
+		  door_state("open") -> produce("i3")
+		  produce("output") -> collector()
+		}
+	}
+}
+```
+
+This template is instanciated for a given office (*e.g.* office 443) as follows:
+```scala
+val office443_policy = TemplatePolicy(443)
+```
+### Generating the comprehensive policy (without composition)
+The comprehensive policy (without composition) can be accessed [here](https://github.com/ace-design/DEPOSIT/blob/master/src/main/scala/fr/unice/modalis/cosmic/simulator/smartbuilding/ComprehensivePolicy.scala)
+
+From the running, we have obtained the following result: 
+
+
 

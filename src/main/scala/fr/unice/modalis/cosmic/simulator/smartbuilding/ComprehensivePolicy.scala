@@ -8,6 +8,7 @@ import fr.unice.modalis.cosmic.simulator.ExperimentalValues
   * Created by Cyril Cecchinel - I3S Laboratory on 22/07/2016.
   */
 object TemplatePolicy {
+  // Util object. A renamer TemplatePolicy -> OfficeBuilder
   def apply(i:Int) = OfficeBuilder(i.toString)
 }
 
@@ -21,7 +22,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process1 = define aProcess TemplatePolicy(1)
 
-  val collector1 = declare aCollector() named "ConnectedFaculty"
+  val collector1 = declare aCollector() named "SmartCampus"
 
   flows {
     door1() -> process1("DOOR_1")
@@ -35,7 +36,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process2 = define aProcess TemplatePolicy(2)
 
-  val collector2 = declare aCollector() named "ConnectedFaculty"
+  val collector2 = declare aCollector() named "SmartCampus"
 
   flows {
     door2() -> process2("DOOR_2")
@@ -49,7 +50,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process3 = define aProcess TemplatePolicy(3)
 
-  val collector3 = declare aCollector() named "ConnectedFaculty"
+  val collector3 = declare aCollector() named "SmartCampus"
 
   flows {
     door3() -> process3("DOOR_3")
@@ -63,7 +64,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process4 = define aProcess TemplatePolicy(4)
 
-  val collector4 = declare aCollector() named "ConnectedFaculty"
+  val collector4 = declare aCollector() named "SmartCampus"
 
   flows {
     door4() -> process4("DOOR_4")
@@ -77,7 +78,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process5 = define aProcess TemplatePolicy(5)
 
-  val collector5 = declare aCollector() named "ConnectedFaculty"
+  val collector5 = declare aCollector() named "SmartCampus"
 
   flows {
     door5() -> process5("DOOR_5")
@@ -91,7 +92,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process6 = define aProcess TemplatePolicy(6)
 
-  val collector6 = declare aCollector() named "ConnectedFaculty"
+  val collector6 = declare aCollector() named "SmartCampus"
 
   flows {
     door6() -> process6("DOOR_6")
@@ -105,7 +106,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process7 = define aProcess TemplatePolicy(7)
 
-  val collector7 = declare aCollector() named "ConnectedFaculty"
+  val collector7 = declare aCollector() named "SmartCampus"
 
   flows {
     door7() -> process7("DOOR_7")
@@ -119,7 +120,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process8 = define aProcess TemplatePolicy(8)
 
-  val collector8 = declare aCollector() named "ConnectedFaculty"
+  val collector8 = declare aCollector() named "SmartCampus"
 
   flows {
     door8() -> process8("DOOR_8")
@@ -133,7 +134,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process9 = define aProcess TemplatePolicy(9)
 
-  val collector9 = declare aCollector() named "ConnectedFaculty"
+  val collector9 = declare aCollector() named "SmartCampus"
 
   flows {
     door9() -> process9("DOOR_9")
@@ -147,7 +148,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process10 = define aProcess TemplatePolicy(10)
 
-  val collector10 = declare aCollector() named "ConnectedFaculty"
+  val collector10 = declare aCollector() named "SmartCampus"
 
   flows {
     door10() -> process10("DOOR_10")
@@ -161,7 +162,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process11 = define aProcess TemplatePolicy(11)
 
-  val collector11 = declare aCollector() named "ConnectedFaculty"
+  val collector11 = declare aCollector() named "SmartCampus"
 
   flows {
     door11() -> process11("DOOR_11")
@@ -175,7 +176,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process12 = define aProcess TemplatePolicy(12)
 
-  val collector12 = declare aCollector() named "ConnectedFaculty"
+  val collector12 = declare aCollector() named "SmartCampus"
 
   flows {
     door12() -> process12("DOOR_12")
@@ -189,7 +190,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process13 = define aProcess TemplatePolicy(13)
 
-  val collector13 = declare aCollector() named "ConnectedFaculty"
+  val collector13 = declare aCollector() named "SmartCampus"
 
   flows {
     door13() -> process13("DOOR_13")
@@ -203,7 +204,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process14 = define aProcess TemplatePolicy(14)
 
-  val collector14 = declare aCollector() named "ConnectedFaculty"
+  val collector14 = declare aCollector() named "SmartCampus"
 
   flows {
     door14() -> process14("DOOR_14")
@@ -217,7 +218,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process15 = define aProcess TemplatePolicy(15)
 
-  val collector15 = declare aCollector() named "ConnectedFaculty"
+  val collector15 = declare aCollector() named "SmartCampus"
 
   flows {
     door15() -> process15("DOOR_15")
@@ -231,7 +232,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process16 = define aProcess TemplatePolicy(16)
 
-  val collector16 = declare aCollector() named "ConnectedFaculty"
+  val collector16 = declare aCollector() named "SmartCampus"
 
   flows {
     door16() -> process16("DOOR_16")
@@ -245,7 +246,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process17 = define aProcess TemplatePolicy(17)
 
-  val collector17 = declare aCollector() named "ConnectedFaculty"
+  val collector17 = declare aCollector() named "SmartCampus"
 
   flows {
     door17() -> process17("DOOR_17")
@@ -259,7 +260,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process18 = define aProcess TemplatePolicy(18)
 
-  val collector18 = declare aCollector() named "ConnectedFaculty"
+  val collector18 = declare aCollector() named "SmartCampus"
 
   flows {
     door18() -> process18("DOOR_18")
@@ -273,7 +274,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process19 = define aProcess TemplatePolicy(19)
 
-  val collector19 = declare aCollector() named "ConnectedFaculty"
+  val collector19 = declare aCollector() named "SmartCampus"
 
   flows {
     door19() -> process19("DOOR_19")
@@ -287,7 +288,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process20 = define aProcess TemplatePolicy(20)
 
-  val collector20 = declare aCollector() named "ConnectedFaculty"
+  val collector20 = declare aCollector() named "SmartCampus"
 
   flows {
     door20() -> process20("DOOR_20")
@@ -301,7 +302,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process21 = define aProcess TemplatePolicy(21)
 
-  val collector21 = declare aCollector() named "ConnectedFaculty"
+  val collector21 = declare aCollector() named "SmartCampus"
 
   flows {
     door21() -> process21("DOOR_21")
@@ -315,7 +316,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process22 = define aProcess TemplatePolicy(22)
 
-  val collector22 = declare aCollector() named "ConnectedFaculty"
+  val collector22 = declare aCollector() named "SmartCampus"
 
   flows {
     door22() -> process22("DOOR_22")
@@ -329,7 +330,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process23 = define aProcess TemplatePolicy(23)
 
-  val collector23 = declare aCollector() named "ConnectedFaculty"
+  val collector23 = declare aCollector() named "SmartCampus"
 
   flows {
     door23() -> process23("DOOR_23")
@@ -343,7 +344,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process24 = define aProcess TemplatePolicy(24)
 
-  val collector24 = declare aCollector() named "ConnectedFaculty"
+  val collector24 = declare aCollector() named "SmartCampus"
 
   flows {
     door24() -> process24("DOOR_24")
@@ -357,7 +358,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process25 = define aProcess TemplatePolicy(25)
 
-  val collector25 = declare aCollector() named "ConnectedFaculty"
+  val collector25 = declare aCollector() named "SmartCampus"
 
   flows {
     door25() -> process25("DOOR_25")
@@ -371,7 +372,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process26 = define aProcess TemplatePolicy(26)
 
-  val collector26 = declare aCollector() named "ConnectedFaculty"
+  val collector26 = declare aCollector() named "SmartCampus"
 
   flows {
     door26() -> process26("DOOR_26")
@@ -385,7 +386,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process27 = define aProcess TemplatePolicy(27)
 
-  val collector27 = declare aCollector() named "ConnectedFaculty"
+  val collector27 = declare aCollector() named "SmartCampus"
 
   flows {
     door27() -> process27("DOOR_27")
@@ -399,7 +400,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process28 = define aProcess TemplatePolicy(28)
 
-  val collector28 = declare aCollector() named "ConnectedFaculty"
+  val collector28 = declare aCollector() named "SmartCampus"
 
   flows {
     door28() -> process28("DOOR_28")
@@ -413,7 +414,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process29 = define aProcess TemplatePolicy(29)
 
-  val collector29 = declare aCollector() named "ConnectedFaculty"
+  val collector29 = declare aCollector() named "SmartCampus"
 
   flows {
     door29() -> process29("DOOR_29")
@@ -427,7 +428,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process30 = define aProcess TemplatePolicy(30)
 
-  val collector30 = declare aCollector() named "ConnectedFaculty"
+  val collector30 = declare aCollector() named "SmartCampus"
 
   flows {
     door30() -> process30("DOOR_30")
@@ -441,7 +442,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process31 = define aProcess TemplatePolicy(31)
 
-  val collector31 = declare aCollector() named "ConnectedFaculty"
+  val collector31 = declare aCollector() named "SmartCampus"
 
   flows {
     door31() -> process31("DOOR_31")
@@ -455,7 +456,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process32 = define aProcess TemplatePolicy(32)
 
-  val collector32 = declare aCollector() named "ConnectedFaculty"
+  val collector32 = declare aCollector() named "SmartCampus"
 
   flows {
     door32() -> process32("DOOR_32")
@@ -469,7 +470,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process33 = define aProcess TemplatePolicy(33)
 
-  val collector33 = declare aCollector() named "ConnectedFaculty"
+  val collector33 = declare aCollector() named "SmartCampus"
 
   flows {
     door33() -> process33("DOOR_33")
@@ -483,7 +484,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process34 = define aProcess TemplatePolicy(34)
 
-  val collector34 = declare aCollector() named "ConnectedFaculty"
+  val collector34 = declare aCollector() named "SmartCampus"
 
   flows {
     door34() -> process34("DOOR_34")
@@ -497,7 +498,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process35 = define aProcess TemplatePolicy(35)
 
-  val collector35 = declare aCollector() named "ConnectedFaculty"
+  val collector35 = declare aCollector() named "SmartCampus"
 
   flows {
     door35() -> process35("DOOR_35")
@@ -511,7 +512,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process36 = define aProcess TemplatePolicy(36)
 
-  val collector36 = declare aCollector() named "ConnectedFaculty"
+  val collector36 = declare aCollector() named "SmartCampus"
 
   flows {
     door36() -> process36("DOOR_36")
@@ -525,7 +526,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process37 = define aProcess TemplatePolicy(37)
 
-  val collector37 = declare aCollector() named "ConnectedFaculty"
+  val collector37 = declare aCollector() named "SmartCampus"
 
   flows {
     door37() -> process37("DOOR_37")
@@ -539,7 +540,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process38 = define aProcess TemplatePolicy(38)
 
-  val collector38 = declare aCollector() named "ConnectedFaculty"
+  val collector38 = declare aCollector() named "SmartCampus"
 
   flows {
     door38() -> process38("DOOR_38")
@@ -553,7 +554,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process39 = define aProcess TemplatePolicy(39)
 
-  val collector39 = declare aCollector() named "ConnectedFaculty"
+  val collector39 = declare aCollector() named "SmartCampus"
 
   flows {
     door39() -> process39("DOOR_39")
@@ -567,7 +568,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process40 = define aProcess TemplatePolicy(40)
 
-  val collector40 = declare aCollector() named "ConnectedFaculty"
+  val collector40 = declare aCollector() named "SmartCampus"
 
   flows {
     door40() -> process40("DOOR_40")
@@ -581,7 +582,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process41 = define aProcess TemplatePolicy(41)
 
-  val collector41 = declare aCollector() named "ConnectedFaculty"
+  val collector41 = declare aCollector() named "SmartCampus"
 
   flows {
     door41() -> process41("DOOR_41")
@@ -595,7 +596,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process42 = define aProcess TemplatePolicy(42)
 
-  val collector42 = declare aCollector() named "ConnectedFaculty"
+  val collector42 = declare aCollector() named "SmartCampus"
 
   flows {
     door42() -> process42("DOOR_42")
@@ -609,7 +610,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process43 = define aProcess TemplatePolicy(43)
 
-  val collector43 = declare aCollector() named "ConnectedFaculty"
+  val collector43 = declare aCollector() named "SmartCampus"
 
   flows {
     door43() -> process43("DOOR_43")
@@ -623,7 +624,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process44 = define aProcess TemplatePolicy(44)
 
-  val collector44 = declare aCollector() named "ConnectedFaculty"
+  val collector44 = declare aCollector() named "SmartCampus"
 
   flows {
     door44() -> process44("DOOR_44")
@@ -637,7 +638,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process45 = define aProcess TemplatePolicy(45)
 
-  val collector45 = declare aCollector() named "ConnectedFaculty"
+  val collector45 = declare aCollector() named "SmartCampus"
 
   flows {
     door45() -> process45("DOOR_45")
@@ -651,7 +652,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process46 = define aProcess TemplatePolicy(46)
 
-  val collector46 = declare aCollector() named "ConnectedFaculty"
+  val collector46 = declare aCollector() named "SmartCampus"
 
   flows {
     door46() -> process46("DOOR_46")
@@ -665,7 +666,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process47 = define aProcess TemplatePolicy(47)
 
-  val collector47 = declare aCollector() named "ConnectedFaculty"
+  val collector47 = declare aCollector() named "SmartCampus"
 
   flows {
     door47() -> process47("DOOR_47")
@@ -679,7 +680,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process48 = define aProcess TemplatePolicy(48)
 
-  val collector48 = declare aCollector() named "ConnectedFaculty"
+  val collector48 = declare aCollector() named "SmartCampus"
 
   flows {
     door48() -> process48("DOOR_48")
@@ -693,7 +694,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process49 = define aProcess TemplatePolicy(49)
 
-  val collector49 = declare aCollector() named "ConnectedFaculty"
+  val collector49 = declare aCollector() named "SmartCampus"
 
   flows {
     door49() -> process49("DOOR_49")
@@ -707,7 +708,7 @@ object ComprehensivePolicy extends DEPOSIT{
 
   val process50 = define aProcess TemplatePolicy(50)
 
-  val collector50 = declare aCollector() named "ConnectedFaculty"
+  val collector50 = declare aCollector() named "SmartCampus"
 
   flows {
     door50() -> process50("DOOR_50")
@@ -715,5 +716,9 @@ object ComprehensivePolicy extends DEPOSIT{
     ac50() -> process50("AC_50")
     process50("RESULT") -> collector50()
   }
+
+}
+
+object Runner extends App {
 
 }
