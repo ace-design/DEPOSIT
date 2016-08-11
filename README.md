@@ -1,7 +1,7 @@
 DEPOSIT Framework
 ========
 
-DEPOSIT *(Data collEction POlicies for Sensing InfrasTructures)* is a tooled approach allowing software engineers to model and deploy data collection policies to shared sensor networks.
+DEPOSIT *(Data collEction POlicies for Sensing InfrasTructures)* is a toolchain allowing software engineers to model and deploy data collection policies to shared sensor networks.
 
 This framework is built around:
 * A modeling language based on data-flows
