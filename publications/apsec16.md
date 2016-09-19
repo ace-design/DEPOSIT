@@ -1,7 +1,8 @@
 # Automated Deployement of Data Collection Policies over Heterogeneous Shared Sensing Infrastructures 
 
+This companion page is attached to the article *Automated Deployement of Data Collection Policies over Heterogeneous Shared Sensing Infrastructures* written by Cyril Cecchinel, Philippe Collet and Sebastien Mosser and accepted at APSEC 2016.  
+
 ## Article abstract
-This companion page is attached to the article *Automated Deployement of Data Collection Policies over Heterogeneous Shared Sensing Infrastructures* written by Cyril Cecchinel, Philippe Collet and Sebastien Mosser, submitted to APSEC 2016.  
 
   Smart buildings and smart cities rely on interconnected sensor
   networks that collect data about their environment to support various
