@@ -11,7 +11,8 @@ object Features {
     "Light" -> SensorType.Light,
     "Humidity" -> SensorType.Humidity,
     "Presence" -> SensorType.Presence,
-    "Magnetic" -> SensorType.Magnetic
+    "Magnetic" -> SensorType.Magnetic,
+    "Sound" -> SensorType.Sound
   )
 
   val featureBrandAssociation = Map(
@@ -25,7 +26,8 @@ object Features {
     "DFMagnetic" -> SensorBrand.DFMagnetic,
     "EBMagnetic" -> SensorBrand.EBMagnetic,
     "GrovePresence" -> SensorBrand.GrovePresence,
-    "EBLight" -> SensorBrand.EBLight
+    "EBLight" -> SensorBrand.EBLight,
+    "GroveSound" -> SensorBrand.GroveSound
   )
 
   val featurePowerAssociation = Map(
@@ -39,7 +41,8 @@ object Features {
     "WiFi" -> CommunicationType.WiFi,
     "Serial" -> CommunicationType.Serial,
     "USB" -> CommunicationType.USB,
-    "WAN" -> CommunicationType.WAN
+    "WAN" -> CommunicationType.WAN,
+    "I2C" -> CommunicationType.I2C
   )
 
   val featureCommunicationWayAssociation = Map(
@@ -63,12 +66,12 @@ object Features {
 
   object SensorType extends Enumeration {
     type SensorType = Value
-    val Temperature, Light, Humidity, Presence, Magnetic, UNKNOWN = Value
+    val Temperature, Light, Humidity, Presence, Magnetic, Sound, UNKNOWN = Value
   }
 
   object SensorBrand extends Enumeration {
     type SensorBrand = Value
-    val GroveLight, DFLight, DFTemperature, GroveTemperature, EBLight, EBTemperature, PhidgetTemperature, GroveMagnetic, DFMagnetic, EBMagnetic, GrovePresence, UNKNOWN = Value
+    val GroveLight, GroveSound, DFLight, DFTemperature, GroveTemperature, EBLight, EBTemperature, PhidgetTemperature, GroveMagnetic, DFMagnetic, EBMagnetic, GrovePresence, UNKNOWN = Value
   }
 
   object ProgrammingLanguage extends Enumeration {
@@ -77,7 +80,7 @@ object Features {
   }
   object CommunicationType extends Enumeration {
     type CommunicationType = Value
-    val XBEE, ZWave, WiFi, Serial, USB, WAN = Value
+    val XBEE, ZWave, WiFi, Serial, USB, WAN, I2C = Value
   }
 
 
