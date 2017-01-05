@@ -59,6 +59,7 @@ object AutoDeploy extends LazyLogging {
 object Decompose extends LazyLogging{
   /**
     * Decompose a data collection policy
+    *
     * @param policy Data collection policy
     * @param infrastructureModel Infrastructure model
     * @return A policy for each platform of the sensing infrastructure
@@ -84,7 +85,8 @@ object PreDeploy extends LazyLogging{
 
   /**
    * Expand processes
-   * @param p Policy
+    *
+    * @param p Policy
    * @return A policy with processes expanded
    */
   def expandProcesses(p:Policy) = {
@@ -95,7 +97,8 @@ object PreDeploy extends LazyLogging{
 
   /**
    * Get the repartition of operation on a given topology
-   * @param p Policy
+    *
+    * @param p Policy
    * @param topology Network topology
    * @return A hashmap (GenericNode, Set(operations))
    */
@@ -110,7 +113,8 @@ object PreDeploy extends LazyLogging{
 
   /**
    * Compute the sensors involved for each operation and each node
-   * @param p Data collection policy
+    *
+    * @param p Data collection policy
    * @param topology Network topology
    */
   def prepare(p:Policy, topology: NetworkTopology) = {
@@ -153,13 +157,16 @@ object PreDeploy extends LazyLogging{
 
     // Step 3: compute where operations can be projected
     for (concept <- policy.concepts; sensorsNeeded = concept.readProperty("sensors").getOrElse(Set[Sensor[_]]()).asInstanceOf[Set[Sensor[_]]].map(_.url)) yield {
+      logger.debug(s"$concept needs $sensorsNeeded")
       var targets:Set[GenericNode] = Set.empty
       for (resource <- topology.resources; sensorsConnected = topology.reachableSensors(resource.name).map{_.name}) yield {
         if (sensorsNeeded.forall(sensorsConnected.contains)) {
-
           // If the resource is programmable and the concept can be projected on the resource
-          if (resource.isProgrammable && concept.placingConstraintsEquation(resource))
+          logger.debug(s"${resource.name} reaches all the sensors needed by $concept")
+          if (resource.isProgrammable && concept.placingConstraintsEquation(resource)) {
+            logger.debug(s"${resource.name} could satisfy the needs for $concept")
             targets = targets + resource
+          }
         }
       }
       if (targets.nonEmpty)
@@ -193,6 +200,7 @@ object Deploy {
 
   /**
     * Manual deployment of a pre-deployed policy over a sensing infrastructure
+    *
     * @param policy Pre-deployed policy
     * @param topology Network topology model
     * @param targets Manual association concept -> platform
@@ -201,6 +209,7 @@ object Deploy {
   def deploy (policy:Policy, topology: NetworkTopology, targets: Map[Concept, String]):Iterable[Policy] = {
     /**
       * Delete join points not involved in a network communication
+      *
       * @param policy Policy
       * @return A policy without join points not involved in a network communication
       */
@@ -255,6 +264,7 @@ object Deploy {
 
   /**
     * Deploy a policy over a sensing infrastructure according a heuristic
+    *
     * @param policy Pre-deployed policy
     * @param topology Network topology model
     * @param heuristic Manual association concept -> platform
