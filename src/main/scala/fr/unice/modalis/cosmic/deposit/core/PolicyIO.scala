@@ -1,7 +1,7 @@
 package fr.unice.modalis.cosmic.deposit.core
 
-import fr.unice.modalis.cosmic.deployment.infrastructure.Features.{CommunicationType, CommunicationWay}
-import fr.unice.modalis.cosmic.deployment.network.{Communication, Entity}
+import fr.unice.modalis.cosmic.deployment.infrastructure.Features.CommunicationWay
+import fr.unice.modalis.cosmic.deployment.network.Entity
 
 /**
  * Input/Output trait
@@ -185,7 +185,7 @@ case class Collector[T<:DataType](endpoint:String, dataType: Class[T]) extends D
   val name = endpoint
 
   override def toString:String = "COLLECTOR[" + endpoint + "]"
-  override def placingConstraintsEquation(e:Entity) = e.communication contains Communication(CommunicationType.WAN, CommunicationWay.Out)
+  override def placingConstraintsEquation(e:Entity) = true // e.communication contains Communication(CommunicationType.WAN, CommunicationWay.Out)
   override val commonName: String = toString
 
 
