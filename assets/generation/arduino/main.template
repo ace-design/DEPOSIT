@@ -1,6 +1,22 @@
+/**
+* ARDUINO UNO - set BOARD to 1 (= uno ;-))
+* ARDUINO YUN - set BOARD to 0
+**/
+#define BOARD #@board_type@#
+
 #include <AnalogEvent.h>
 #include <TimedEvent.h>
+
 #@libraries@#
+
+#if BOARD == 0
+#include <Process.h>
+#include <Bridge.h>
+#include <YunClient.h>
+#include <Console.h>
+YunClient client;
+#endif
+
 #define BOARD_ID #@board_id@#
 #define OFFSET #@period@#
 
@@ -14,8 +30,16 @@ int timestamp0 = 0;
 struct SmartCampusType nullValue = {-1, BOARD_ID, {"", 0, -1}};
 
 void setup() {
+#if BOARD == 1
 Serial.begin(9600);
-//start();
+Serial.println("Arduino Uno starting ...");
+
+#elif BOARD == 0
+Bridge.begin();
+pinMode(13, OUTPUT);
+digitalWrite(13, HIGH);
+#endif
+start();
 #@sensor_instructions@#
 #@setup_instructions@#
 }
@@ -24,7 +48,9 @@ Serial.begin(9600);
 #@flush@#
 
 void start() {
- getTimestamp();
+  #if BOARD == 0
+  getTimestamp();
+  #endif
 }
 
 void loop() {
@@ -44,6 +70,7 @@ flush();
 
 void program_call(TimerInformation * Sender) { program(); }
 
+#if BOARD == 1
 void getTimestamp() {
     while(timestamp0 == 0) {
         Serial.println("timestamp?");
@@ -51,19 +78,57 @@ void getTimestamp() {
         timestamp0 = Serial.parseInt();
     }
 }
+#elif BOARD == 0
+void getTimestamp() {
+    Process date;
+    if (!date.running())  {
+        date.begin("date");
+        date.addParameter("+%s");
+        date.run();
+    }
+  String ts = date.readString();
+  char tsArray[11];
+  ts.toCharArray(tsArray,11);
+  timestamp0 = atol(tsArray);
+}
+#endif
 
 long currentTime() {
   return millis() + timestamp0;
 }
 
-void send(struct SmartCampusType s){
-  send(s, String(s.src));
-}
-
 void send(struct SmartCampusType s, String from){
   if (s.t != 0) {
     String json = "{\"t\":" + String(s.t) + ",\"src\":\"" + from + "\",\"data\": { \"n\":\"" + s.data.n + "\", \"v\":" + String(s.data.v) + ", \"t\":" + String(s.data.t) + "}}";
+    #if BOARD == 1
     Serial.println(json);
+    #elif BOARD == 0
+    // Unsupported operation
+    #endif
     delay(100);
   }
+}
+
+
+void send(struct SmartCampusType s){
+    if (s.t > 0){
+        String data = "{ \"n\":\"" + s.data.n + "\", \"v\":\"" + String(s.data.v) + "\", \"t\":\"" + String(s.data.t) + "\"}";
+        #if BOARD == 1
+        Serial.println(data);
+        delay(100);
+        #elif BOARD == 0
+        if (client.connect("sparks-vm5.i3s.unice.fr",8080)){
+            client.println("POST /collector/value HTTP/1.1");
+            client.println("Host: sparks-vm5.i3s.unice.fr");
+            client.println("Content-Type: application/json");
+            client.print("Content-Length: ");
+            client.println(data.length());
+            client.println();
+            client.print(data);
+          }
+          if (client.connected()) {
+            client.stop();  // DISCONNECT FROM THE SERVER
+        }
+        #endif
+    }
 }
