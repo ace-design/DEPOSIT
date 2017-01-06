@@ -48,5 +48,5 @@ case class Edge(source: String, destination:String, media:Media = Media.Unknown)
 
 object Media extends Enumeration {
   type Media = Value
-  val XBee, Serial, ZWave, USB, Unknown = Value
+  val XBee, Serial, ZWave, USB, Unknown, WAN, I2C = Value
 }

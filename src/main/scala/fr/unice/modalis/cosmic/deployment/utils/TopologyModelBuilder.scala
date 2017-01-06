@@ -2,7 +2,7 @@ package fr.unice.modalis.cosmic.deployment.utils
 
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.{EntityComputation, EntityType}
 import fr.unice.modalis.cosmic.deployment.infrastructure.{Features, NetworkTopology}
-import fr.unice.modalis.cosmic.deployment.network.{Communication, Edge, Entity, Sensor}
+import fr.unice.modalis.cosmic.deployment.network._
 
 import scala.xml.{Elem, NodeSeq, XML}
 
@@ -76,8 +76,9 @@ object TopologyModelBuilder {
     val edges = (configuration \\ "sensornetwork" \ "connections" \ "connection").map(n => {
       val source = (n \\ "@from").text
       val destination = (n \\ "@to").text
+      val media = (n \\ "@media").text
 
-      Edge(source, destination)
+      Edge(source, destination, try { Media.withName(media) } catch {case e:NoSuchElementException => Media.Unknown})
     }
 
     )
