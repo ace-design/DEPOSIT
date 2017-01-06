@@ -91,7 +91,7 @@ object Features {
 
   object EntityType extends Enumeration {
     type EntityType = Value
-    val Arduino, Raspberry, CubieBoard, Server, Misc = Value
+    val Arduino, Raspberry, CubieBoard, Server, Misc, Uno, Yun = Value
   }
 
   object EntityComputation extends Enumeration {

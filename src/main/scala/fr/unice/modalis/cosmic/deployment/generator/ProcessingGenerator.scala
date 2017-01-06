@@ -164,7 +164,15 @@ object ProcessingGenerator extends CodeGenerator with LazyLogging{
     generatedCode = replace ("global_pointers", generateGlobalPointers(p), generatedCode)
     generatedCode = replace ("libraries", generateLibraries(p), generatedCode)
     generatedCode = replace("period", if (hasPeriodicSensors(p)) computePeriod(p).toString else "", generatedCode)
+    generatedCode = replace("board_type", generateBoardType(p), generatedCode)
     generatedCode
+  }
+
+  def generateBoardType(p:Policy) = {
+    p.readProperty("board_type").get.asInstanceOf[String] match {
+      case "Yun" => "0"
+      case _ => "1" //Default: Uno platform
+    }
   }
 
   def generateSetupInstructions(p:Policy) = {

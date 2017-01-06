@@ -232,6 +232,7 @@ object Deploy {
     val rawPolicies = projectionGrouped.map {e =>
       val extendedpolicy =  ExtendPolicy(policy.select(e._2.toSet, policy.name + "_" + e._1.name), onlyEmptyPorts = false)
       extendedpolicy.addProperty("board", e._1.name)
+      extendedpolicy.addProperty("board_type", e._1.eType.toString)
       extendedpolicy.addProperty("generator", Features.codeGeneratorAssociation(e._1.language))
       extendedpolicy
     }
