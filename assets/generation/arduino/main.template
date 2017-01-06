@@ -2,6 +2,7 @@
 * ARDUINO UNO - set BOARD to 1 (= uno ;-))
 * ARDUINO YUN - set BOARD to 0
 **/
+
 #define BOARD #@board_type@#
 
 #include <AnalogEvent.h>
@@ -26,7 +27,7 @@ YunClient client;
 #@global_sensor_values@#
 #@global_pointers@#
 
-int timestamp0 = 0;
+unsigned long timestamp0 = 0;
 struct SmartCampusType nullValue = {-1, BOARD_ID, {"", 0, -1}};
 
 void setup() {
@@ -93,8 +94,8 @@ void getTimestamp() {
 }
 #endif
 
-long currentTime() {
-  return millis() + timestamp0;
+unsigned long currentTime() {
+  return timestamp0 + (millis() / 1000); // Will overflow every 50 days
 }
 
 void send(struct SmartCampusType s, String from){
