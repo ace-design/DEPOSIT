@@ -5,8 +5,10 @@
 
 #define BOARD #@board_type@#
 
+#include <Wire.h>
 #include <AnalogEvent.h>
 #include <TimedEvent.h>
+
 
 #@libraries@#
 
@@ -132,4 +134,11 @@ void send(struct SmartCampusType s){
         }
         #endif
     }
+}
+
+void sendI2C(int v){
+    Wire.beginTransmission(8);
+    Wire.write(v >> 8);
+    Wire.write(v & 255);
+    Wire.endTransmission();
 }
