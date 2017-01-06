@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sensornetwork id="LearningCentreSophia" strategy="ClosestToTheSensor">
+   <entities>
+      <entity computation="High" name="ARD_1_LC" type="Yun">
+         <sensors>
+            <sensor id="SOUND_1" pin="3">
+               <features>
+                  <feature>GroveSound</feature>
+                  <feature>Sound</feature>
+               </features>
+            </sensor>
+         </sensors>
+         <communications>
+            <communication>
+               <features>
+                  <feature>Media</feature>
+                  <feature>Way</feature>
+                  <feature>Out</feature>
+                  <feature>WAN</feature>
+               </features>
+            </communication>
+         </communications>
+         <powers>
+            <power>
+               <features>
+                  <feature>Mains</feature>
+               </features>
+            </power>
+         </powers>
+         <languages>
+            <language>
+               <features>
+                  <feature>Processing</feature>
+               </features>
+            </language>
+         </languages>
+      </entity>
+      <entity computation="Cloud" name="SmartCampus" remote="http://sparks-vm5.i3s.unice.fr:8080/collector/value" type="Server">
+         <sensors />
+         <communications>
+            <communication>
+               <features>
+                  <feature>Media</feature>
+                  <feature>Way</feature>
+                  <feature>In</feature>
+                  <feature>WAN</feature>
+               </features>
+            </communication>
+         </communications>
+         <powers>
+            <power>
+               <features>
+                  <feature>Mains</feature>
+               </features>
+            </power>
+         </powers>
+         <languages>
+            <language>
+               <features>
+                  <feature>Java</feature>
+               </features>
+            </language>
+         </languages>
+      </entity>
+   </entities>
+   <connections>
+      <connection from="ARD_1_LC" to="SmartCampus" />
+   </connections>
+</sensornetwork>
+
