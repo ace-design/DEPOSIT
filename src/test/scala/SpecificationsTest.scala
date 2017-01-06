@@ -53,6 +53,19 @@ class SpecificationsTest extends SpecificationWithJUnit{
     }
 
   }
+  "Ports" should {
+
+    val extract = Extract("v", classOf[SmartCampusType], classOf[IntegerType])
+
+    "provide an access to their input and output datatypes" in {
+      extract.input.dType === classOf[SmartCampusType]
+      extract.output.dType === classOf[IntegerType]
+    }
+
+    "provide an access to their parent" in {
+      extract.input.parent === extract
+    }
+  }
   "A non valid data collection policy defined with DEPOSIT" should {
     "fail the validity check test (1)" in {
       Policy.checkValidity(NonValidPolicy.innerPolicy()) must throwA[NonValidPolicyException].like {case e => e.getMessage === NonValidPolicy.innerPolicy().name + " is not valid because has an input port has more than one incoming data flow"}
