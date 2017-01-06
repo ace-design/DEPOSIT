@@ -18,8 +18,8 @@ trait Operation[I<:DataType, O<:DataType] extends Concept with Properties{
   final val DEFAULT_INPUT_NAME = "input"
   final val DEFAULT_OUTPUT_NAME = "output"
 
-  lazy val inputs = inputsNames.foldLeft(Set[Input[I]]()){(acc, e) => acc + new Input[I](e, this)}
-  lazy val outputs = outputsNames.foldLeft(Set[Output[O]]()){(acc, e) => acc + new Output[O](e, this)}
+  lazy val inputs = inputsNames.foldLeft(Set[Input[I]]()){(acc, e) => acc + new Input[I](e, this, iType)}
+  lazy val outputs = outputsNames.foldLeft(Set[Output[O]]()){(acc, e) => acc + new Output[O](e, this, oType)}
 
   val iType:Class[I]
   val oType:Class[O]
@@ -78,7 +78,7 @@ case class Rename[I<:DataType](newName:String, iType : Class[I]) extends Operati
  * Merge atomic types to a given composite type
  * @param to Targeted composite type
  */
-case class Merge[I<:AtomicType, O<:CompositeType](to:Class[O], iType:Class[I] = classOf[AtomicType]) extends Operation[I,O] {
+case class Merge[I<:AtomicType, O<:CompositeType](to:Class[O], iType:Class[I]) extends Operation[I,O] {
   override val inputsNames: Set[String] = DataType.factory(oType.getSimpleName).asInstanceOf[CompositeType].bindings.keySet
   override val outputsNames: Set[String] = Set(DEFAULT_OUTPUT_NAME)
   lazy val oType = to

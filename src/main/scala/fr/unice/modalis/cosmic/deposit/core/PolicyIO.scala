@@ -41,7 +41,7 @@ trait DataOutput[T<:DataType] extends DataIO[T] {
 
 
 case class GenericInput[T<:DataType](name:String, dataType: Class[T]) extends DataInput[T] {
-  val output = new Output[T](name, this)
+  val output = new Output[T](name, this, dataType)
   override val commonName: String = name
 
   /**
@@ -54,7 +54,7 @@ case class GenericInput[T<:DataType](name:String, dataType: Class[T]) extends Da
 }
 
 case class GenericOutput[T<:DataType](name:String, dataType: Class[T]) extends DataOutput[T] {
-  val input = new Input[T](name, this)
+  val input = new Input[T](name, this, dataType)
   val url: String = name
   override val commonName: String = name
 
@@ -70,7 +70,7 @@ case class GenericOutput[T<:DataType](name:String, dataType: Class[T]) extends D
 trait JoinPoint[T<:DataType] extends PolicyIO[T]
 
 case class JoinPointInput[I<:DataType](toConceptInput:Input[I], dataType: Class[I]) extends JoinPoint[I] with DataInput[I]{
-  val output = new Output[I](this)
+  val output = new Output[I](this, dataType)
   override def toString:String = "JOIN_POINT_INPUT[to=" + toConceptInput + "]"
 
   override val name: String = "JoinPoint" + id
@@ -87,7 +87,7 @@ case class JoinPointInput[I<:DataType](toConceptInput:Input[I], dataType: Class[
 }
 
 case class JoinPointOutput[O<:DataType](fromConceptOutput:Output[O], dataType: Class[O]) extends JoinPoint[O] with DataOutput[O]{
-  val input = new Input[O](this)
+  val input = new Input[O](this, dataType)
   override def toString:String = "JOIN_POINT_OUTPUT[from=" + fromConceptOutput + "]"
   override val name: String = "JointPoint" + id
   override val commonName: String = "JOIN_POINT_OUTPUT"
@@ -109,9 +109,9 @@ case class JoinPointOutput[O<:DataType](fromConceptOutput:Output[O], dataType: C
  */
 trait Sensor[T<:DataType] extends DataInput[T]{
   val url:String
-  val output = new Output[T](url, this)
+  val output = new Output[T](url, this, dataType)
   override val name = url
-
+  val dataType: Class[T]
   override def placingConstraintsEquation(e:Entity) = e.sensors.map(_.name) contains url
 
   /**
@@ -181,7 +181,7 @@ case class EventSensor[T<:DataType](override val url:String, dataType: Class[T])
  * @tparam T Data type
  */
 case class Collector[T<:DataType](endpoint:String, dataType: Class[T]) extends DataOutput[T] {
-  val input = new Input[T](endpoint, this)
+  val input = new Input[T](endpoint, this, dataType)
   val name = endpoint
 
   override def toString:String = "COLLECTOR[" + endpoint + "]"

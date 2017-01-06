@@ -10,6 +10,8 @@ trait Port[+T <: DataType] {
   var name:String
   def setName(n: String) = name = n // /!\ Mutable field, PoC Only
 
+  val dType: Class[_ <: DataType]
+
   val id = parent.id + "_" + name
 }
 
@@ -17,16 +19,16 @@ trait Port[+T <: DataType] {
  * Workflow component input
  * @tparam T Data type
  */
-case class Input[+T <: DataType](var name:String, parent:Concept) extends Port[T] {
+case class Input[+T <: DataType](var name:String, parent:Concept, dType:Class[_ <: DataType]) extends Port[T] {
 
-  def this(parent:Concept) = this("input_" + scala.util.Random.alphanumeric.take(5).mkString, parent)
+  def this(parent:Concept, dType:Class[_ <: DataType]) = this("input_" + scala.util.Random.alphanumeric.take(5).mkString, parent, dType)
 }
 
 /**
  * Workflow component output
  * @tparam T Data type
  */
-case class Output[+T <: DataType](var name:String, parent:Concept) extends Port[T] {
-  def this(parent:Concept) = this("output_" + scala.util.Random.alphanumeric.take(5).mkString, parent)
+case class Output[+T <: DataType](var name:String, parent:Concept, dType:Class[_ <: DataType]) extends Port[T] {
+  def this(parent:Concept, dType:Class[_ <: DataType]) = this("output_" + scala.util.Random.alphanumeric.take(5).mkString, parent, dType)
 
 }
