@@ -2,7 +2,7 @@ package fr.unice.modalis.cosmic.deployment.generator
 
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.ProgrammingLanguage.ProgrammingLanguage
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.{ProgrammingLanguage, SensorBrand, SensorType}
-import fr.unice.modalis.cosmic.deposit.core.{Concept, DCPTest, Policy, SensorDataType}
+import fr.unice.modalis.cosmic.deposit.core._
 import org.specs2.mutable.SpecificationWithJUnit
 
 import scala.collection.immutable.HashMap
@@ -29,7 +29,7 @@ class CodeGeneratorTest  extends SpecificationWithJUnit{
 
     override def generateInputs(policy: Policy): (String,String) = ???
 
-    override def generateConstant(s: SensorDataType): String = ???
+    override def generateConstant(s: DataType): String = ???
 
     override def generateInstruction[T <: SensorDataType, U <: SensorDataType](c: Concept, policy: Policy): Instruction = ???
 
@@ -38,6 +38,10 @@ class CodeGeneratorTest  extends SpecificationWithJUnit{
     override val language: ProgrammingLanguage = ProgrammingLanguage.None
     override val sensorTypeHandling: HashMap[SensorType.Value, (String, String, String)] = HashMap()
     override val sensorBrandHandling: HashMap[SensorBrand.Value, (String, String)] = HashMap()
+
+    override def generateDataStructure(dataType: DataType): String = ???
+
+    override def generateIntraMessage(dataType: DataType): String = ???
   }
 
   "A code generator" should {

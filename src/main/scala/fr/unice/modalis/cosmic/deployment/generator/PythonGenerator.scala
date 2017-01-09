@@ -51,7 +51,8 @@ object PythonGenerator extends CodeGenerator{
   }
   /**
    * Building an instruction from a concept
-   * @param c Concept
+    *
+    * @param c Concept
    * @param policy Data collection policy
    * @tparam T Input sensor data type
    * @tparam U Output sensor data type
@@ -148,7 +149,8 @@ object PythonGenerator extends CodeGenerator{
   }
   /**
    * Generate the data inputs
-   * @param policy Data collection policy
+    *
+    * @param policy Data collection policy
    * @return Compilable code defining data inputs
    */
   override def generateInputs(policy: Policy): (String, String) = {
@@ -169,7 +171,8 @@ object PythonGenerator extends CodeGenerator{
 
   /**
    * Generate global variables
-   * @param policy Data collection policy
+    *
+    * @param policy Data collection policy
    * @return Compilable code defining global variables
    */
   override def generateGlobalVariables(policy: Policy): String = generateGlobalVariables(policy, inBody = false)
@@ -181,7 +184,8 @@ object PythonGenerator extends CodeGenerator{
   }
   /**
    * Generate the executable data collection policy
-   * @param policy Data collection policy
+    *
+    * @param policy Data collection policy
    * @return Compilable code defining the policy body
    */
   override def generatePolicyBody(policy: Policy) = generateInstructionList(policy).foldLeft(""){(acc, e) => acc + "\t" + e.body + "\n"}
@@ -205,10 +209,11 @@ object PythonGenerator extends CodeGenerator{
   }
   /**
    * Generate constant
-   * @param s Sensor data value
+    *
+    * @param s Sensor data value
    * @return Compilable code defining a constant
    */
-  override def generateConstant(s:SensorDataType) = {
+  override def generateConstant(s:DataType) = {
     s match {
       case SmartCampusType((n, v, t)) if t.value == 0 => "{\"n\":\"" + n.value + "\",\"v\":\"" + v.value + "\", \"t\": currentTime()}"
       case SmartCampusType((n, v, t)) => "{\"n\":\"" + n.value + "\",\"v\":" + v.value + ", \"t\":" + t.value + "}"
@@ -217,14 +222,16 @@ object PythonGenerator extends CodeGenerator{
 
   /**
    * Generate associated Data Structures
-   * @param p Data collection policy
+    *
+    * @param p Data collection policy
    * @return Compilable code defining data structures
    */
   override def generateDataStructures(p: Policy): String = ""
 
   /**
    * Produce a compilable source file
-   * @param name File name
+    *
+    * @param name File name
    * @param code Compilable code
    */
   override def produceSourceFile(name: String, code: String): Unit = {
@@ -263,4 +270,8 @@ object PythonGenerator extends CodeGenerator{
   override val language: ProgrammingLanguage = ProgrammingLanguage.Python
   override val sensorTypeHandling: HashMap[SensorType.Value, (String, String, String)] = HashMap()
   override val sensorBrandHandling: HashMap[SensorBrand.Value, (String, String)] = HashMap()
+
+  override def generateDataStructure(dataType: DataType): String = ???
+
+  override def generateIntraMessage(dataType: DataType): String = ???
 }

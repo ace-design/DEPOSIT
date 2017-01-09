@@ -137,15 +137,24 @@ object PreDeploy extends LazyLogging{
       }
     }
 
-    // Step 0** : Refine collectors with public urls from topology model
+    // Step 0** : Refine collectors with public urls and connection type from topology model
     policy.collectors.foreach {c =>
       val collector = topology.findEntityByName(c.name)
       try{
-        if (collector.get.publicUrl.isDefined)
+        if (collector.get.publicUrl.isDefined) {
           c.addProperty("url", collector.get.publicUrl.get)
+        }
         } catch {
         case e:NoSuchElementException => logger.warn("Collector " + c.name + " has not been found in " + topology.name)
       }
+      try {
+        val edge = topology.edges.find(_.destination equals c.name).get
+        c.addProperty("connection", edge.media)
+
+      } catch {
+        case e:NoSuchElementException => logger.warn("No media type found in " + topology.name + " for " + c.name)
+      }
+
       }
 
 

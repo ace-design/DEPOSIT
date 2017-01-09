@@ -30,7 +30,6 @@ YunClient client;
 #@global_pointers@#
 
 unsigned long timestamp0 = 0;
-struct SmartCampusType nullValue = {-1, BOARD_ID, {"", 0, -1}};
 
 void setup() {
 #if BOARD == 1
@@ -136,9 +135,9 @@ void send(struct SmartCampusType s){
     }
 }
 
-void sendI2C(int v){
+void sendI2C(struct IntegerType d){
     Wire.beginTransmission(8);
-    Wire.write(v >> 8);
-    Wire.write(v & 255);
+    Wire.write(d.data.v >> 8);
+    Wire.write(d.data.v & 255);
     Wire.endTransmission();
 }

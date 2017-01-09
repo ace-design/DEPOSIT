@@ -5,7 +5,7 @@ import java.io.PrintWriter
 import fr.unice.modalis.cosmic.deployment.generator.ProcessingGenerator._
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.ProgrammingLanguage.ProgrammingLanguage
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.{SensorBrand, SensorType}
-import fr.unice.modalis.cosmic.deposit.core.{Concept, PeriodicSensor, Policy, SensorDataType}
+import fr.unice.modalis.cosmic.deposit.core._
 import org.chocosolver.solver.Solver
 import org.chocosolver.solver.constraints.IntConstraintFactory
 import org.chocosolver.solver.variables.VariableFactory
@@ -30,6 +30,11 @@ trait CodeGenerator {
   val sensorBrandHandling:HashMap[SensorBrand.Value, (String, String)]
 
   def apply(p:Policy) = generate(p)
+
+
+  def generateIntraMessage(dataType: DataType):String
+
+  def generateDataStructure(dataType: DataType):String
 
   /**
    * Generate associated Data Structures
@@ -64,7 +69,7 @@ trait CodeGenerator {
    * @param s Sensor data value
    * @return Compilable code defining a constant
    */
-  def generateConstant(s:SensorDataType):String
+  def generateConstant(s:DataType):String
 
   /**
    * Building an instruction from a concept
@@ -92,8 +97,9 @@ trait CodeGenerator {
   def generate(p:Policy) = {
     var generatedCode = Source.fromFile(templateFile).getLines().mkString("\n")
     generatedCode = replace("data_structures", generateDataStructures(p), generatedCode)
-    generatedCode = replace("datacollectionpolicy", generatePolicyBody(p), generatedCode)
     generatedCode = replace("global_variables", generateGlobalVariables(p), generatedCode)
+    //generatedCode = replace("null_values", generateNullValues(p), generatedCode)
+    generatedCode = replace("datacollectionpolicy", generatePolicyBody(p), generatedCode)
     val inputsTxt = generateInputs(p)
     generatedCode = replace("sensor_instructions", inputsTxt._1, generatedCode)
     generatedCode = replace("dataacquisition", inputsTxt._2, generatedCode)
@@ -169,6 +175,8 @@ object CodeGenerator {
   }
 }
 
+case class IntraMessage(t:Long, src:String, data: DataType)
+
 case class NonHandledSensorException(io:Any) extends Exception("Non handled sensor " + io)
 
 case class NonGenerableException(p:Policy) extends Exception(p.name + " is not generable")
@@ -187,3 +195,4 @@ case class Variable(name:String, t:String)
  * @param outputs Set of output variables
  */
 case class Instruction(inputs:Set[Variable], body:String, outputs:Set[Variable])
+

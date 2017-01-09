@@ -25,6 +25,7 @@ trait SensorDataType extends CompositeType {
   def getObservationField:Field
   def getTimeField:Field
   def getNullValue:SensorDataType
+  def value:Product
 
 }
 /**
@@ -135,6 +136,18 @@ object DataType {
     case "DoubleType" => DoubleType(0)
     case _ => throw new UnknownDataTypeName(name)
   }
+
+  def nullValue(name:String) = name match {
+    case "SmartCampusType" => SmartCampusType((StringType("\"\""), IntegerType(0), LongType(-1L)))
+    case "SantanderParkingType" => SantanderParkingType((IntegerType(0), StringType("\"\""), DoubleType(0), IntegerType(0)))
+    case "IntegerSensorType" => IntegerSensorType((IntegerType(0), LongType(-1L)))
+    case "IntegerType" => IntegerType(0)
+    case "LongType" => LongType(0)
+    case "StringType" => StringType("")
+    case "DoubleType" => DoubleType(0)
+    case _ => throw new UnknownDataTypeName(name)
+  }
+
 
   def getValue(v:AtomicType) = {
     v match {
