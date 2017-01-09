@@ -19,6 +19,14 @@
                   <feature>WAN</feature>
                </features>
             </communication>
+            <communication>
+               <features>
+                  <feature>Media</feature>
+                  <feature>Way</feature>
+                  <feature>Out</feature>
+                  <feature>I2C</feature>
+               </features>
+            </communication>
          </communications>
          <powers>
             <power>
@@ -62,9 +70,37 @@
             </language>
          </languages>
       </entity>
+      <entity computation="Cloud" name="DISPLAY_1" remote="" type="Server">
+         <sensors />
+         <communications>
+            <communication>
+               <features>
+                  <feature>Media</feature>
+                  <feature>Way</feature>
+                  <feature>In</feature>
+                  <feature>I2C</feature>
+               </features>
+            </communication>
+         </communications>
+         <powers>
+            <power>
+               <features>
+                  <feature>Mains</feature>
+               </features>
+            </power>
+         </powers>
+         <languages>
+            <language>
+               <features>
+                  <feature>Processing</feature>
+               </features>
+            </language>
+         </languages>
+      </entity>
    </entities>
    <connections>
-      <connection from="ARD_1_LC" to="SmartCampus" />
+      <connection from="ARD_1_LC" to="SmartCampus" media="WAN" />
+      <connection from="ARD_1_LC" to="DISPLAY_1" media="I2C"/>
    </connections>
 </sensornetwork>
 
