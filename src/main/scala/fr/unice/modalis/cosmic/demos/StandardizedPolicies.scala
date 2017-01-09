@@ -9,6 +9,32 @@ import fr.unice.modalis.cosmic.deposit.dsl.DEPOSIT
   */
 object StandardizedPolicies {
 
+  /*
+   * This policy aims at convert a raw sound sensor to a sound-level sensor
+   * Input : sound / Outputs: {low,medium,high}
+   */
+  object RawValueToSoundSensor extends DEPOSIT {
+    this hasForName "RawValueToSoundSensor"
+    this handles classOf[SmartCampusType]
+
+    val input = declare aGenericInput() named "sound"
+
+    val filter1 = define aFilter "value < 300"
+    val filter2 = define aFilter "value < 600"
+
+    val low = declare aGenericOutput() named "low"
+    val medium = declare aGenericOutput() named "medium"
+    val high = declare aGenericOutput() named "high"
+
+    flows{
+      input() -> filter1("input")
+      filter1("then") -> low()
+      filter1("else") -> filter2("input")
+      filter2("then") -> medium()
+      filter2("else") -> high()
+    }
+  }
+
    /*
     * This policy aims at convert a raw sensor (ie. magnetic switch) to an opening detection sensor.
     * Input: input / Output: {open,closed}
