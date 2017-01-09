@@ -125,7 +125,7 @@ object OfficeBuilder extends DEPOSIT {
     val window = EventSensor(s"WINDOW_$office", dataType)
     val ac = PeriodicSensor(ExperimentalValues.PERIOD, s"AC_$office", dataType)
     val process = Process(OfficePolicy(), dataType, dataType)
-    val collector = Collector("SERVER_1", dataType)
+    val collector = Collector("RESULT", dataType)
 
     val l1 = Flow(door.output, process.getInput("DOOR"))
     val l2 = Flow(window.output, process.getInput("WINDOW"))
@@ -185,7 +185,7 @@ object GlobalPolicy extends App {
   val topology = TopologyModelBuilder(ExperimentalValues.INFRA_XML)
 
   val t1 = System.currentTimeMillis()
-  val p = GlobalSmartBuildingDemo()
+  val p = ComprehensivePolicy()
   println(s"Concepts before expand ${p.concepts.size}")
   val preDeploy = PreDeploy(p, topology)
 

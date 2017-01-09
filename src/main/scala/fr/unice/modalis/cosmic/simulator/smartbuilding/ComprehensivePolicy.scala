@@ -718,3 +718,7 @@ object ComprehensivePolicy extends DEPOSIT{
   }
 
 }
+
+object Run extends App {
+  ComprehensivePolicy().exportToGraphviz()
+}
