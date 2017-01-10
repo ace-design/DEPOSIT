@@ -162,7 +162,7 @@ object ProcessingGenerator extends CodeGenerator with LazyLogging{
   }
 
   def generateBoardType(p:Policy) = {
-    p.readProperty("board_type").get.asInstanceOf[String] match {
+    p.readProperty("board_type").getOrElse("").asInstanceOf[String] match {
       case "Yun" => "0"
       case _ => "1" //Default: Uno platform
     }
@@ -260,7 +260,7 @@ object ProcessingGenerator extends CodeGenerator with LazyLogging{
     val name = "event_" + s.id
     var body = Source.fromFile(template).getLines().mkString("\n")
     body = replace("name", name, body)
-    body = replace("call_method", sensorTypeHandling(s.readProperty("type").get.asInstanceOf[SensorType.Value])._1, body)
+    body = replace("call_method", sensorTypeHandling(s.readProperty("type").getOrElse(SensorType.UNKNOWN).asInstanceOf[SensorType.Value])._1, body)
     body = replace("id", s.id, body)
     if (s.hasProperty("pin").isDefined) {
       body = replace("port", s.readProperty("pin").get.asInstanceOf[String], body)
@@ -278,7 +278,7 @@ object ProcessingGenerator extends CodeGenerator with LazyLogging{
     val name = "periodic_" + s.id
     var body = Source.fromFile(template).getLines().mkString("\n")
     body = replace("name", name, body)
-    body = replace("call_method", sensorTypeHandling(s.readProperty("type").get.asInstanceOf[SensorType.Value])._1, body)
+    body = replace("call_method", sensorTypeHandling(s.readProperty("type").getOrElse(SensorType.UNKNOWN).asInstanceOf[SensorType.Value])._1, body)
     body = replace("id", s.id, body)
     if (s.hasProperty("pin").isDefined) {
       body = replace("port", s.readProperty("pin").get.asInstanceOf[String], body)
@@ -295,8 +295,8 @@ object ProcessingGenerator extends CodeGenerator with LazyLogging{
   private def generateGlobalPointers(p:Policy) = {
     p.inputs.collect{case x:Sensor[_] => x}.foldLeft("") {
       (acc, e) => {
-        val parent = sensorTypeHandling(e.readProperty("type").get.asInstanceOf[SensorType.Value])._3
-        val brand = sensorBrandHandling(e.readProperty("brand").get.asInstanceOf[SensorBrand.Value])._2
+        val parent = sensorTypeHandling(e.readProperty("type").getOrElse(SensorType.UNKNOWN).asInstanceOf[SensorType.Value])._3
+        val brand = sensorBrandHandling(e.readProperty("brand").getOrElse(SensorBrand.UNKNOWN).asInstanceOf[SensorBrand.Value])._2
         val pin = if (e.hasProperty("pin").isDefined) e.readProperty("pin").get else Utils.lookupSensorAssignment(e.name)
         acc + parent + " *" + e.id + " = new " + brand + "(" + pin + ");\n"
       }}
@@ -305,7 +305,7 @@ object ProcessingGenerator extends CodeGenerator with LazyLogging{
   private def generateLibraries(p:Policy) = {
     p.inputs.collect{case x:Sensor[_] => x}.foldLeft("") {
       (acc, e) => {
-        val brand = sensorBrandHandling(e.readProperty("brand").get.asInstanceOf[SensorBrand.Value])._1
+        val brand = sensorBrandHandling(e.readProperty("brand").getOrElse(SensorBrand.UNKNOWN).asInstanceOf[SensorBrand.Value])._1
         acc + "#include <" + brand + ">\n"
       }}
   }
@@ -320,7 +320,8 @@ object ProcessingGenerator extends CodeGenerator with LazyLogging{
   override val sensorTypeHandling: HashMap[SensorType.Value, (String, String, String)] = HashMap(
     SensorType.Temperature -> ("readTemperature()",generateConcreteDataTypeName(classOf[DoubleType]), "TemperatureSensor"),
     SensorType.Magnetic -> ("readValue()", generateConcreteDataTypeName(classOf[IntegerType]), "RawSensor"),
-    SensorType.Sound -> ("readValue()", generateConcreteDataTypeName(classOf[IntegerType]), "RawSensor")
+    SensorType.Sound -> ("readValue()", generateConcreteDataTypeName(classOf[IntegerType]), "RawSensor"),
+    SensorType.UNKNOWN -> ("readValue()", generateConcreteDataTypeName(classOf[IntegerType]), "RawSensor")
   )
 
   override val sensorBrandHandling: HashMap[SensorBrand.Value, (String, String)] = HashMap(
@@ -328,7 +329,8 @@ object ProcessingGenerator extends CodeGenerator with LazyLogging{
     SensorBrand.EBTemperature -> ("ebtemperature.h", "EBTemperatureSensor"),
     SensorBrand.DFTemperature -> ("dftemperature.h", "DFTemperatureSensor"),
     SensorBrand.GroveMagnetic -> ("raw.h", "RawSensor"),
-    SensorBrand.GroveSound -> ("raw.h", "RawSensor")
+    SensorBrand.GroveSound -> ("raw.h", "RawSensor"),
+    SensorBrand.UNKNOWN -> ("raw.h", "RawSensor")
   )
 
   override def generateIntraMessage(dataType: DataType): String = s"struct ${dataType.name}{long t; String src; struct inner_${dataType.name} data;};"
