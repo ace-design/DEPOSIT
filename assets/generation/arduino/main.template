@@ -32,6 +32,7 @@ YunClient client;
 unsigned long timestamp0 = 0;
 
 void setup() {
+Wire.begin(); //I2C
 #if BOARD == 1
 Serial.begin(9600);
 Serial.println("Arduino Uno starting ...");
