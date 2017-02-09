@@ -1,7 +1,13 @@
 package fr.unice.modalis.cosmic.deployment.generator
 
+import java.io._
+
+import fr.unice.modalis.cosmic.ComprehensivePolicyWithoutDSL
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.ProgrammingLanguage.ProgrammingLanguage
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.{ProgrammingLanguage, SensorBrand, SensorType}
+import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
+import fr.unice.modalis.cosmic.deployment.utils.TopologyModelBuilder
+import fr.unice.modalis.cosmic.deployment.{Deploy, PreDeploy}
 import fr.unice.modalis.cosmic.deposit.core._
 import org.specs2.mutable.SpecificationWithJUnit
 
@@ -50,5 +56,19 @@ class CodeGeneratorTest  extends SpecificationWithJUnit{
     }
   }
 
+  "Processing code generator" should {
+    "generate the code for a given policy" in {
+      val testFile = new File("out/arduino/testFile.ino")
+      val bw = new BufferedWriter(new FileWriter(testFile))
+      val infra = TopologyModelBuilder("assets/configurations/demo_smartbuilding.xml")
+      val policies = Deploy(PreDeploy(ComprehensivePolicyWithoutDSL.p, infra), infra, DeploymentRepartition.CLOSEST_TO_SENSORS)
+      val candidate = policies.find(_.readProperty("board_type").get.asInstanceOf[String] equals "Arduino")
+      bw.write(ProcessingGenerator(candidate.get))
+      bw.close()
+
+      testFile.length() mustNotEqual 0
+      testFile.delete()
+    }
+  }
 
 }
