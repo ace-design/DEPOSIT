@@ -8,6 +8,7 @@ import fr.unice.modalis.cosmic.deposit.converter.{ToGraph, ToGraphviz}
 import scala.collection.mutable.ArrayBuffer
 
 
+
 /**
   * Policy definition
   * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
@@ -38,13 +39,6 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     * @return Result of id-lookup
     */
   def findConceptById(id:String) = concepts find {_.id equals id}
-
-  /**
-    * Find a concept by its common name
-    * @param commonName Common name
-    * @return Result of common name-lookup
-    */
-  def findConceptByItsCommonName(commonName:String) = concepts find {_.commonName equalsIgnoreCase commonName}
 
   /**
     * Find a sensor by its name
@@ -165,31 +159,41 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     * Compute the sub-policy between a root and a leaf
     * @param root Root concept
     * @param leaf Leaf concept
-    * @return A sub-policy corresponding to the extraction of concepts and flows between the root and the leaf
+    * @return A sub-policy corresponding to the extraction of concepts and flows between the root and the leaf or empty policy if no path has been found
     */
-  def subPolicy(root:Concept, leaf:Option[Concept] = None):Policy = {
-    val ios = new ArrayBuffer[PolicyIO[_<:DataType]]()
-    val activities = new ArrayBuffer[Operation[_<:DataType, _<:DataType]]()
-    val flows = new ArrayBuffer[Flow[_<:DataType]]()
-    // Add root into the activities/ios
+  def subPolicy(root:Concept, leaf:Concept):Policy = {
+    val theGraph = toGraph
 
-    root match {
-      case elem:PolicyIO[_] => ios += elem
-      case elem:Operation[_, _] => activities += elem
-    }
+    val nRoot = theGraph get root
+    val nLeaf = theGraph get leaf
 
-    def internal(e:Concept):Unit = {
-      val next = nextElements(e)
-      next.foreach(e => e._1 match {
-        case elem:Collector[_]  => ios += elem; flows += e._2
-        case elem:Sensor[_] =>  ios += elem; flows += e._2; if (e != Set.empty && leaf.isEmpty || leaf.get != e._1) internal(e._1)
-        case elem:Operation[_, _] => activities += elem; flows += e._2; if (e != Set.empty && leaf.isEmpty || leaf.get != e._1) internal(e._1)
-      }
-      )
+    val path = nRoot pathTo nLeaf
+
+    if (path.isDefined){
+      val nflows = path.get.edges.toList.flatMap{e => getFlowsBetween(e.from, e.to)}
+      val nconcepts = nflows.flatMap{e => List(e.source, e.destination)}
+      Policy(s"sub_${this.name}", nconcepts.collect{case x:DataIO[_] => x}.toSet, nconcepts.collect{case x:Operation[_,_] => x}.toSet, nflows.toSet)
+    } else {
+      new Policy()
     }
-    internal(root)
-    new Policy("sub" + name, ios.toSet, activities.toSet, flows.toSet)
   }
+
+  /**
+    * Compute the sub-policy between a root and all collectors
+    * @param root Root concept
+    * @return A sub-policy corresponding to the extraction of concepts and flows between the root and collectors or empty policy if no path has been found
+    */
+  def subPolicy(root:Concept):Policy = {
+    this.collectors.map{c => subPolicy(root, c)}.foldLeft(new Policy())( _ ++ _)
+  }
+
+  /**
+    * Find the flows having the specified source and destination
+    * @param source Source concept
+    * @param destination Destination concept
+    * @return A set of flows having the specified source and destination
+    */
+  def getFlowsBetween(source:Concept, destination:Concept) = flows.filter {f => (f.source equals source) && (f.destination equals destination)}
 
   /**
     * Find the next policy concepts
@@ -370,6 +374,8 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 }
 
 object Policy extends LazyLogging{
+
+
 
   case class NonValidPolicyException(policy:Policy, reason:String) extends Exception(policy.name + s" is not valid because $reason")
 

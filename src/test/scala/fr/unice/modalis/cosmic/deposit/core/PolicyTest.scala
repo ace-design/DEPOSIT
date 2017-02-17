@@ -1,5 +1,6 @@
 package fr.unice.modalis.cosmic.deposit.core
 
+import fr.unice.modalis.cosmic.ComprehensivePolicyWithoutDSL
 import fr.unice.modalis.cosmic.deposit.algo.{Unification, Weave}
 import fr.unice.modalis.cosmic.deposit.core.Policy.NonValidPolicyException
 import fr.unice.modalis.cosmic.deposit.dsl.DEPOSIT
@@ -52,8 +53,9 @@ class PolicyTest extends SpecificationWithJUnit {
 
     }
   }
-  "Policy#name" should {
+  "Policy accessors" should {
     "return the name of the policy" in { DCPTest.dcpA.name must beEqualTo("DCPA")}
+    "return a sensor by its name" in {ComprehensivePolicyWithoutDSL.p.findSensorByName("AC_443") must beSome}
   }
 
   "A concept can be found by its id" in {
@@ -182,5 +184,39 @@ class PolicyTest extends SpecificationWithJUnit {
     }
   }
 
+  "A sub policy" should {
+    "Compute the sub-policy between a root and a defined leaf" in {
+      val root = ComprehensivePolicyWithoutDSL.door_filter
+      val leaf = ComprehensivePolicyWithoutDSL.collector
+
+      val subPolicy = ComprehensivePolicyWithoutDSL.p.subPolicy(root, leaf)
+
+      subPolicy.concepts must haveLength(3)
+      subPolicy.flows must haveLength(2)
+    }
+
+    "Compute the sub-policy between a root and all collectors" in {
+      val root = ComprehensivePolicyWithoutDSL.ac443
+
+      val subPolicy = ComprehensivePolicyWithoutDSL.p.subPolicy(root)
+
+      subPolicy.concepts must haveLength(6)
+      subPolicy.flows must haveLength(5)
+    }
+
+    "retrieve the flows between two immediate concepts" in {
+      val source = ComprehensivePolicyWithoutDSL.ac443
+      val destination1 = ComprehensivePolicyWithoutDSL.temp_filter
+      val destination2 = ComprehensivePolicyWithoutDSL.collector
+
+      val policy = ComprehensivePolicyWithoutDSL.p
+
+      policy.getFlowsBetween(source, destination1) must haveLength(1)
+      policy.getFlowsBetween(source, destination2) must haveLength(0)
+
+
+    }
+
+  }
 
 }
