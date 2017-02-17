@@ -60,7 +60,7 @@ class CodeGeneratorTest  extends SpecificationWithJUnit{
     "generate the code for a given policy" in {
       val testFile = new File("out/arduino/testFile.ino")
       val bw = new BufferedWriter(new FileWriter(testFile))
-      val infra = TopologyModelBuilder("assets/configurations/demo_smartbuilding.xml")
+      val infra = TopologyModelBuilder("assets/configurations/smartcampus_xbeenetwork.xml")
       val policies = Deploy(PreDeploy(ComprehensivePolicyWithoutDSL.p, infra), infra, DeploymentRepartition.CLOSEST_TO_SENSORS)
       val candidate = policies.find(_.readProperty("board_type").get.asInstanceOf[String] equals "Arduino")
       bw.write(ProcessingGenerator(candidate.get))
