@@ -191,7 +191,7 @@ object PythonGenerator extends CodeGenerator{
   override def generatePolicyBody(policy: Policy) = generateInstructionList(policy).foldLeft(""){(acc, e) => acc + "\t" + e.body + "\n"}
 
   def generateInstructionList(p:Policy) = {
-    orderedGenerationList(p).map {generateInstruction(_,p)} map {i => i.copy(body = i.body + (if (i.outputs.nonEmpty) "; update()" else ""))}
+    CodeGenerator.orderedGenerationList(p).map {generateInstruction(_,p)} map {i => i.copy(body = i.body + (if (i.outputs.nonEmpty) "; update()" else ""))}
   }
 
   def generateVariablesDeclaration(variables:Set[Variable], inBody:Boolean = false) = variables.foldLeft(""){(acc, e) => acc + (if (inBody) "\tglobal " else "") + e.name + "\n"}

@@ -27,7 +27,7 @@ object ProcessingGenerator extends CodeGenerator with LazyLogging{
   def generatePolicyBody(policy: Policy) = generateInstructionList(policy).foldLeft(""){(acc, e) => acc + e.body + "\n"}
   
   def generateInstructionList(p:Policy) = {
-    orderedGenerationList(p).map {generateInstruction(_,p)} map {i => i.copy(body = i.body + (if (i.outputs.nonEmpty) " update();" else ""))}
+    CodeGenerator.orderedGenerationList(p).map {generateInstruction(_,p)} map {i => i.copy(body = i.body + (if (i.outputs.nonEmpty) " update();" else ""))}
   }
 
   def generateInstruction[T<:SensorDataType, U<:SensorDataType](c:Concept, policy: Policy):Instruction = c match {

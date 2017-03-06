@@ -122,32 +122,7 @@ trait CodeGenerator {
     if (toFile) produceSourceFile(p.name, generate(p)) else generate(p)
   }
 
-  /**
-   * Compute an ordered generation list (with Choco solver)
-   * @param p Data collection policy
-   * @return An ordered generation list
-   */
-  def orderedGenerationList(p:Policy) = {
-    val totalConcepts = p.ios.size + p.operations.size
-    val solver = new Solver("Generation ordering problem")
-    val inputVariablesChoco = for (s <- p.inputs) yield { VariableFactory.fixed(s.id, 1, solver)}
-    val operationVariablesChoco = for (o <- p.operations) yield { VariableFactory.bounded(o.id, 2, totalConcepts, solver)}
-    val outputVariablesChoco = for (c <- p.outputs) yield {VariableFactory.fixed(c.id, totalConcepts, solver)}
 
-    val variablesChoco = inputVariablesChoco ++ operationVariablesChoco ++ outputVariablesChoco
-
-    for (l <- p.flows) yield {solver.post(IntConstraintFactory.arithm(variablesChoco.find(_.getName equals l.source.id).get, "<", variablesChoco.find(_.getName equals l.destination.id).get))}
-
-    if (solver.findSolution()) {
-      val namedOperationsOrder = solver.retrieveIntVars().map(v => (v.getValue, v.getName)).toList.sortBy(_._1).map(_._2).map(p.findConceptById(_).get)
-
-      p.sources.toList ++ namedOperationsOrder
-    }
-    else {
-      throw new NonGenerableException(p)
-    }
-
-  }
 
   /**
     * Return if the policy has periodic sensors
@@ -171,8 +146,35 @@ object CodeGenerator {
     val file = new PrintWriter("out/"+ target + "/" + name + "." + extension.replace(".", ""))
     file.println(code)
     file.close()
+  }
+
+  /**
+    * Compute an ordered generation list (with Choco solver)
+    * @param p Data collection policy
+    * @return An ordered generation list
+    */
+  def orderedGenerationList(p:Policy) = {
+    val totalConcepts = p.ios.size + p.operations.size
+    val solver = new Solver("Generation ordering problem")
+    val inputVariablesChoco = for (s <- p.inputs) yield { VariableFactory.fixed(s.id, 1, solver)}
+    val operationVariablesChoco = for (o <- p.operations) yield { VariableFactory.bounded(o.id, 2, totalConcepts, solver)}
+    val outputVariablesChoco = for (c <- p.outputs) yield {VariableFactory.fixed(c.id, totalConcepts, solver)}
+
+    val variablesChoco = inputVariablesChoco ++ operationVariablesChoco ++ outputVariablesChoco
+
+    for (l <- p.flows) yield {solver.post(IntConstraintFactory.arithm(variablesChoco.find(_.getName equals l.source.id).get, "<", variablesChoco.find(_.getName equals l.destination.id).get))}
+
+    if (solver.findSolution()) {
+      val namedOperationsOrder = solver.retrieveIntVars().map(v => (v.getValue, v.getName)).toList.sortBy(_._1).map(_._2).map(p.findConceptById(_).get)
+
+      p.sources.toList ++ namedOperationsOrder
+    }
+    else {
+      throw new NonGenerableException(p)
+    }
 
   }
+
 }
 
 case class IntraMessage(t:Long, src:String, data: DataType)
