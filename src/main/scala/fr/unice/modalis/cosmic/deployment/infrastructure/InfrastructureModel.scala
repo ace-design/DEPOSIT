@@ -2,6 +2,9 @@ package fr.unice.modalis.cosmic.deployment.infrastructure
 
 import fr.unice.modalis.cosmic.deployment.network.{Edge, Entity, Sensor}
 import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
+import org.chocosolver.solver.Solver
+import org.chocosolver.solver.constraints.IntConstraintFactory
+import org.chocosolver.solver.variables.VariableFactory
 
 /**
   * An infrastructure model is composed by
@@ -35,6 +38,18 @@ case class NetworkTopology(name:String, resources:Set[Entity], edges:Set[Edge]) 
   def isConnectedBy(n: String) = edges.filter(_.destination == n).map(_.source)
   def findSensorByName(s:String) = resources.flatMap {_.sensors}.find(_.name equals s)
   def findEntityByName(s:String) = resources.find {_.name equals s}
+
+  lazy val orderedTopology = {
+    val solver = new Solver("Repartition problem")
+    val totalEntities = resources.size
+
+    val entitiesVariables = for (e <- resources) yield {VariableFactory.bounded(e.name, 1, totalEntities, solver)}
+    for (l <- edges) yield solver.post(IntConstraintFactory.arithm(entitiesVariables.find(_.getName equals l.source).get, "<", entitiesVariables.find(_.getName equals l.destination).get))
+    if (solver.findSolution())
+      solver.retrieveIntVars().map(v => (v.getValue, v.getName)).toList.sortBy(_._1).map(_._2).map(findEntityByName(_).get)
+     else
+      throw new Exception("Unable to solve the repartition problem")
+  }
 
   lazy val reachableSensors = resources.par.map{r => r.name -> getSensorsFromNode(r.name)}.seq.toMap
 }

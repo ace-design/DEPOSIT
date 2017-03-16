@@ -6,7 +6,7 @@ import com.typesafe.scalalogging.LazyLogging
 import fr.unice.modalis.cosmic.deployment.exception.NoTargetFoundException
 import fr.unice.modalis.cosmic.deployment.generator.CodeGenerator
 import fr.unice.modalis.cosmic.deployment.infrastructure.{Features, InfrastructureModel, NetworkTopology}
-import fr.unice.modalis.cosmic.deployment.network.GenericNode
+import fr.unice.modalis.cosmic.deployment.network.{Entity, GenericNode}
 import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
 import fr.unice.modalis.cosmic.deposit.algo.ExtendPolicy
 import fr.unice.modalis.cosmic.deposit.converter.ToGraphviz
@@ -81,6 +81,32 @@ object PreDeploy extends LazyLogging{
     val res = prepare(policy, topology)
     println(s"\tTime PreDeploy: ${System.currentTimeMillis() - tbegin} ms")
     res
+  }
+
+  def orderedGeneration(policy: Policy, topology: NetworkTopology) = {
+    val activitiesAndPlatforms = CodeGenerator.orderedGenerationList(policy).map{e => (e, e.readProperty("targets").get.asInstanceOf[Set[Entity]])}
+    val orderedTopology = topology.orderedTopology
+
+    def filterPlatforms(l:List[(Concept, Set[Entity])]):Unit = {
+      l match {
+        case a :: b :: tail =>
+          val result = a._2.filterNot(e => {
+            val indexA = orderedTopology.indexOf(e)
+            val indexesB = b._2.map {
+              orderedTopology.indexOf(_)
+            }
+            indexesB.map { s => s < indexA }.nonEmpty
+          }
+
+          )
+          a._1.addProperty("concepts", result)
+          filterPlatforms(b :: tail)
+        case a :: Nil => ()
+        case Nil => ()
+      }
+    }
+
+    filterPlatforms(activitiesAndPlatforms)
   }
 
   /**
@@ -183,7 +209,10 @@ object PreDeploy extends LazyLogging{
       else throw new NoTargetFoundException(concept) //If no target has been found for an concept, the policy can not be deployed
     }
 
+    orderedGeneration(policy, topology)
+
     // Return the policy
+
     policy
   }
 
