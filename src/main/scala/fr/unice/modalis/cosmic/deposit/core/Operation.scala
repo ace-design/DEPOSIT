@@ -161,6 +161,24 @@ trait Comparison[T<:DataType] extends ValueOperation[T] {
   val hasNewTimestamp = false
 }
 
+case class Abs[T<:DataType](iType:Class[T], rename:Option[String] = None) extends ValueOperation[T]{
+  override val applicationField: DataField = DataField.OBSERVATION
+  override val hasNewName: Boolean = true
+  override val hasNewTimestamp: Boolean = false
+  override val outputsNames: Set[String] = Set(DEFAULT_OUTPUT_NAME)
+  override val inputsNames: Set[String] = Set(DEFAULT_INPUT_NAME)
+  override val oType: Class[T] = iType
+
+  /**
+    * Return a copy of this concept (with different id)
+    *
+    * @return copy of this concept
+    */
+  override def duplicate: Concept = new Abs[T](iType, rename)
+
+  override val commonName: String = "ABS"
+}
+
 case class Increment[D<:AtomicType,T<:DataType](value:D, iType:Class[T], rename:Option[String] = None) extends Arithmetic[T] {
   override val inputsNames: Set[String] = Set(DEFAULT_INPUT_NAME)
   lazy val input = getInput()
@@ -229,7 +247,7 @@ case class Conditional[T<:DataType](predicate:String, iType:Class[T], applicatio
 
 case class Produce[I<:DataType, O<:DataType](inputsNames:Set[String], onSuccess:O, onFailure:Option[O], iType:Class[I], oType:Class[O]) extends Operation[I,O] {
   override val outputsNames: Predef.Set[String] = Set(DEFAULT_OUTPUT_NAME)
-  val output = getOutput()
+  lazy val output = getOutput(DEFAULT_OUTPUT_NAME)
 
   /**
    * Return a copy of this concept (with different id)

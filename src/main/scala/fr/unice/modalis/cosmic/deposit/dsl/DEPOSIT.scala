@@ -77,9 +77,20 @@ trait DEPOSIT {
 
     val flow = (source.builder,destination.builder) match {
       case (a:IOBuilder,b:IOBuilder) => new Flow(a.conceptProduced.get.asInstanceOf[DataInput[_<:DataType]].output, b.conceptProduced.get.asInstanceOf[DataOutput[_<:DataType]].input)
-      case (a:IOBuilder,b:OperationBuilder) => new Flow(a.conceptProduced.get.asInstanceOf[DataInput[_<:DataType]].output, b.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getInput(destination.name))
-      case (a:OperationBuilder, b:OperationBuilder) => new Flow(a.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getOutput(source.name), b.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getInput(destination.name))
-      case (a:OperationBuilder, b:IOBuilder) => new Flow(a.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getOutput(source.name), b.conceptProduced.get.asInstanceOf[DataOutput[_<:DataType]].input)
+      case (a:IOBuilder,b:OperationBuilder) => if (destination.name.equals("DEFAULT"))
+        new Flow(a.conceptProduced.get.asInstanceOf[DataInput[_<:DataType]].output, b.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getInput())
+        else new Flow(a.conceptProduced.get.asInstanceOf[DataInput[_<:DataType]].output, b.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getInput(destination.name))
+      case (a:OperationBuilder, b:OperationBuilder) => {
+        (source.name, destination.name) match {
+          case ("DEFAULT", "DEFAULT") => new Flow(a.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getOutput(), b.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getInput())
+          case ("DEFAULT", _) => new Flow(a.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getOutput(), b.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getInput(destination.name))
+          case (_, "DEFAULT") => new Flow(a.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getOutput(source.name), b.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getInput())
+          case (_, _) => new Flow(a.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getOutput(source.name), b.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getInput(destination.name))
+        }
+      }
+      case (a:OperationBuilder, b:IOBuilder) => if (source.name.equals("DEFAULT"))
+        new Flow(a.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getOutput(), b.conceptProduced.get.asInstanceOf[DataOutput[_<:DataType]].input)
+        else new Flow(a.conceptProduced.get.asInstanceOf[Operation[_<:DataType,_<:DataType]].getOutput(source.name), b.conceptProduced.get.asInstanceOf[DataOutput[_<:DataType]].input)
     }
     policy = policy.copy(flows = policy.flows + flow)
 
@@ -143,7 +154,7 @@ trait DEPOSIT {
   }
 
   protected object OperationType extends Enumeration {
-    val ADD, AVG, CONDITIONAL, CONSTANT, DIVIDE, HIGHER, HIGHEREQ, INCREMENT, LOWER, LOWEREQ, MAX, MIN, MULTIPLY, PRODUCE, PROCESS, RENAME, SUB, UNKNOWN = Value
+    val ABS, ADD, AVG, CONDITIONAL, CONSTANT, DIVIDE, HIGHER, HIGHEREQ, INCREMENT, LOWER, LOWEREQ, MAX, MIN, MULTIPLY, PRODUCE, PROCESS, RENAME, SUB, UNKNOWN = Value
   }
   protected case class OperationBuilder(kind: OperationType.Value = OperationType.UNKNOWN,
                                         inputs:Set[String] = Set.empty,
@@ -158,6 +169,21 @@ trait DEPOSIT {
                                         dataTypeOutput:Option[Class[_<:DataType]] = defaultType) extends ConceptBuilder{
 
     def apply(s:String):InterfaceBuilder = InterfaceBuilder(this, s, InterfaceType.OUTPUT)
+    def apply():InterfaceBuilder = InterfaceBuilder(this, "DEFAULT", InterfaceType.OUTPUT)
+
+    /** PROXY **/
+    def aCondition(s:String) = aFilter(s)
+    /****/
+
+    def anAbsoluteValue():OperationBuilder = {
+      currentOperation = Some(this.copy(kind = OperationType.ABS))
+      currentOperation.get
+    }
+
+    def anAvg():OperationBuilder = {
+      currentOperation = Some(this.copy(kind = OperationType.AVG))
+      currentOperation.get
+    }
 
     def aFilter(s:String):OperationBuilder = {
       currentOperation = Some(this.copy(kind = OperationType.CONDITIONAL, parameter = Some(s)))
@@ -181,6 +207,11 @@ trait DEPOSIT {
 
     def anAdder():OperationBuilder = {
       currentOperation = Some(this.copy(kind = OperationType.ADD))
+      currentOperation.get
+    }
+
+    def aSubstractor():OperationBuilder = {
+      currentOperation = Some(this.copy(kind = OperationType.SUB))
       currentOperation.get
     }
 
@@ -232,7 +263,9 @@ trait DEPOSIT {
     }
 
     def toOperation = kind match {
+      case OperationType.ABS => val c = new Abs(dataTypeInput.get, rename); conceptProduced = Some(c); c;
       case OperationType.ADD => val c = new Add(inputs, dataTypeInput.get, rename); conceptProduced = Some(c); c;
+      case OperationType.AVG => val c = new Average(inputs, dataTypeInput.get, rename); conceptProduced = Some(c); c;
       case OperationType.CONDITIONAL => val c = new Conditional(parameter.get, dataTypeInput.get); conceptProduced = Some(c); c;
       case OperationType.PRODUCE => val c = new Produce(inputs, produceTrue.get, produceFalse, dataTypeInput.get.asInstanceOf[Class[DataType]], dataTypeOutput.get.asInstanceOf[Class[DataType]]); conceptProduced = Some(c); c;
       case OperationType.DIVIDE => val c = new Divide(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
@@ -240,6 +273,7 @@ trait DEPOSIT {
       case OperationType.INCREMENT => val c = new Increment(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
       case OperationType.RENAME => val c = new Rename(rename.get, dataTypeInput.get); conceptProduced = Some(c); c;
       case OperationType.PROCESS => val c = new Process(innerPolicy.get, dataTypeInput.get, dataTypeOutput.get); conceptProduced = Some(c); c;
+      case OperationType.SUB => val c = new Sub(inputs, dataTypeInput.get, rename); conceptProduced = Some(c); c
     }
   }
 
