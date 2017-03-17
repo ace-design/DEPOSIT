@@ -1,3 +1,4 @@
+import fr.unice.modalis.cosmic._
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.SensorBrand.SensorBrand
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.SensorType.SensorType
 import fr.unice.modalis.cosmic.deployment.infrastructure.Features.{SensorBrand, SensorType}
@@ -9,7 +10,6 @@ import fr.unice.modalis.cosmic.deployment.{Decompose, Deploy, PreDeploy}
 import fr.unice.modalis.cosmic.deposit.algo.ExtendPolicy
 import fr.unice.modalis.cosmic.deposit.core.Policy.NonValidPolicyException
 import fr.unice.modalis.cosmic.deposit.core._
-import fr.unice.modalis.cosmic.{ComprehensivePolicy, ComprehensivePolicyWithoutDSL, NonValidPolicy, NonValidPolicy2}
 import org.specs2.mutable.SpecificationWithJUnit
 
 /**
@@ -72,7 +72,11 @@ class SpecificationsTest extends SpecificationWithJUnit{
     }
 
     "fail the validity check test (2)" in {
-      Policy.checkValidity(NonValidPolicy2.innerPolicy()) must throwA[NonValidPolicyException].like {case e => e.getMessage === NonValidPolicy2.innerPolicy().name + " is not valid because has empty ports"}
+      Policy.checkValidity(NonValidPolicy2.innerPolicy()) must throwA[NonValidPolicyException].like {case e => e.getMessage === NonValidPolicy2.innerPolicy().name + " is not valid because has empty input ports"}
+    }
+
+    "fail the validity check test (3)" in {
+      Policy.checkValidity(NonValidPolicy3.innerPolicy()) must throwA[NonValidPolicyException].like {case e => e.getMessage === NonValidPolicy3.innerPolicy().name + " is not valid because has a sink operation"}
     }
   }
   "The demo data collection policy defined with DEPOSIT" should {

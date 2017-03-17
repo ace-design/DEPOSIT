@@ -114,6 +114,29 @@ object NonValidPolicy2 extends DEPOSIT {
   def innerPolicy() = policy
 }
 
+object NonValidPolicy3 extends DEPOSIT {
+  this hasForName "NonValidPolicy3"
+  this handles classOf[SmartCampusType]
+
+  val testSensor = declare aPeriodicSensor() named "Test" withPeriod 3
+  val collector = declare aCollector() named "Collector"
+
+  val op1 = define aFilter "value < 5"
+  val op2 = define anIncrementBy IntegerType(3)
+  val op3 = define anAdder() withInputs ("i1","i2")
+
+  flows {
+    testSensor() -> op1("input")
+    op1("then") -> op2("input")
+    op2("output") -> op3("i1")
+    op2("output") -> op3("i2") //Whoups op3 is a sink
+    op2("output") -> collector()
+  }
+
+  def innerPolicy() = policy
+
+}
+
 object ComprehensivePolicyWithoutDSL {
   val ac443 = PeriodicSensor(300, "AC_443", classOf[SmartCampusType])
 

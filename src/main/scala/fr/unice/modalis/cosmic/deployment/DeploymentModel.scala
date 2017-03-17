@@ -118,6 +118,7 @@ object PreDeploy extends LazyLogging{
   def expandProcesses(p:Policy) = {
     var policy = p
     p.operations collect {case x:Process[_,_] => x } foreach {process => policy = process.expand(policy)}
+    policy.operations.filter(o => !policy.flows.exists(p => p.source == o)).foreach(o => policy = policy.delete(o))
     policy
   }
 

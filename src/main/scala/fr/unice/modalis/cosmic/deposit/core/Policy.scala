@@ -388,11 +388,14 @@ object Policy extends LazyLogging{
     if (policy.sensors.isEmpty) throw NonValidPolicyException(policy, "has no sensors")
     if (policy.collectors.isEmpty) throw NonValidPolicyException(policy, "has no collectors")
 
-    // A policy should have no non-connected ports
-    if (policy.getNonConnectedInputPorts.nonEmpty) throw NonValidPolicyException(policy, "has empty ports")
+    // A policy should not have non-connected input ports
+    if (policy.getNonConnectedInputPorts.nonEmpty) throw NonValidPolicyException(policy, "has empty input ports")
 
     // An operation input is connected by only one flow
     if (!policy.operations.forall(operation => operation.inputs.forall(input => policy.flows.count(_.destination_input equals input) == 1))) throw NonValidPolicyException(policy, "has an input port has more than one incoming data flow")
+
+    // A policy sink is a data output
+    if (policy.operations.exists(o => !policy.flows.exists(p => p.source == o))) throw NonValidPolicyException(policy, "has a sink operation")
 
     // A policy is acyclic
     if (policy.toGraph.isCyclic) throw NonValidPolicyException(policy, "has a cycle")
