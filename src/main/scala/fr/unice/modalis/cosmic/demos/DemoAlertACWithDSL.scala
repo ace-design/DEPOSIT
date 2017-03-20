@@ -6,7 +6,7 @@ import fr.unice.modalis.cosmic.deposit.dsl.DEPOSIT
 /**
   * Created by Cyril Cecchinel - I3S Laboratory on 23/11/2015.
   */
-object DemoAlertACWithDSL extends App with DEPOSIT{
+object DemoAlertACWithDSL extends DEPOSIT{
 
   this hasForName "DemoDSL"
   this handles classOf[SmartCampusType]
@@ -36,9 +36,10 @@ object DemoAlertACWithDSL extends App with DEPOSIT{
     produce("output") -> collector()
   }
 
+  /*this exportToGraphviz()
   this targets "assets/configurations/smartcampus_xbeenetwork.xml"
   val policies = deploy()
 
-  policies foreach println
+  policies foreach println*/
 
 }

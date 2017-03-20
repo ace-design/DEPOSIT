@@ -28,6 +28,10 @@ class RepositoryTest extends SpecificationWithJUnit with After{
       RepositoriesManager.removeRepository("TestRepo3")
       RepositoriesManager.getRepository("TestRepo3") must beNone
     }
+
+    "return an exception if a repository is not found" in {
+      RepositoriesManager.getRepository("NotExisting") must beNone
+    }
   }
 
   "A repository" should {
