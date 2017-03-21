@@ -18,7 +18,7 @@ import org.chocosolver.solver.variables.VariableFactory
 
 case class NetworkTopology(name:String, resources:Set[Entity], edges:Set[Edge]) {
 
-  def getSensorsFromNode(n: String):Set[Sensor] = {
+  def available(n: String):Set[Sensor] = {
     var visited = List[String]()
     def inner(n: String):List[Sensor] = {
       visited = n :: visited
@@ -51,7 +51,7 @@ case class NetworkTopology(name:String, resources:Set[Entity], edges:Set[Edge]) 
       throw new Exception("Unable to solve the repartition problem")
   }
 
-  lazy val reachableSensors = resources.par.map{r => r.name -> getSensorsFromNode(r.name)}.seq.toMap
+  lazy val reachableSensors = resources.par.map{r => r.name -> available(r.name)}.seq.toMap
 }
 
 
