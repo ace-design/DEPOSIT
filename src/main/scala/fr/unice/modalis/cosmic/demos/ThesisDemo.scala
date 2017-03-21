@@ -1,5 +1,8 @@
 package fr.unice.modalis.cosmic.demos
 
+import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
+import fr.unice.modalis.cosmic.deployment.utils.TopologyModelBuilder
+import fr.unice.modalis.cosmic.deployment.{Deploy, PreDeploy}
 import fr.unice.modalis.cosmic.deposit.core._
 import fr.unice.modalis.cosmic.deposit.dsl.DEPOSIT
 
@@ -81,7 +84,7 @@ object ThesisDemo extends DEPOSIT{
   val process = define aProcess ACStatusPolicy()
 
   flows {
-  r1_t1() -> avg("i1")
+    r1_t1() -> avg("i1")
     r1_t2() -> avg("i2")
     avg() -> sub("i1")
     outside_t() -> sub("i2")
@@ -95,5 +98,11 @@ object ThesisDemo extends DEPOSIT{
 }
 
 object Application extends App{
+  val infra = TopologyModelBuilder("assets/configurations/TheseDemo.xml")
   ThesisDemo().exportToGraphviz()
+  val policyPreDeployed = PreDeploy(ThesisDemo(),infra)
+  policyPreDeployed.exportToGraphviz()
+  val deployed = Deploy(policyPreDeployed, infra, DeploymentRepartition.CLOSEST_TO_SENSORS)
+  deployed.foreach(_.exportToGraphviz())
+
 }
