@@ -411,7 +411,7 @@ case class Process[I<:DataType, O<:DataType](workflow:Policy, iType:Class[I], oT
       l =>
         _workflow.flowsFrom(
           _workflow.ios.find(_.name == l.destination_input.name).get)
-          .foreach(n => newFlows += Flow(l.source_output, n.destination_input))
+          .foreach(n => newFlows += Flow(l.source_output.asInstanceOf[Output[_<:DataType]], n.destination_input.asInstanceOf[Input[_<:DataType]]))
     }
 
     // Compute the links to add between the last concept of this process and the first concept after this process
@@ -419,7 +419,7 @@ case class Process[I<:DataType, O<:DataType](workflow:Policy, iType:Class[I], oT
       l =>
         _workflow.flowsTo(
           _workflow.ios.find(_.name == l.source_output.name).get)
-          .foreach(n => newFlows += Flow(n.source_output, l.destination_input)
+          .foreach(n => newFlows += Flow(n.source_output.asInstanceOf[Output[_<:DataType]], l.destination_input.asInstanceOf[Input[_<:DataType]])
         )
     }
 

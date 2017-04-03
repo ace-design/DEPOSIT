@@ -5,7 +5,7 @@ package fr.unice.modalis.cosmic.deposit.core
  * Component IO trait : represent a component IO interface
  * @tparam T Supported datatype
  */
-trait Port[+T <: DataType] {
+trait Port[+T] {
   val parent:Concept
   var name:String
   def setName(n: String) = name = n // /!\ Mutable field, PoC Only

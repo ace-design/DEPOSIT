@@ -2,8 +2,6 @@ package fr.unice.modalis.cosmic.deposit.algo
 
 import fr.unice.modalis.cosmic.deposit.core._
 
-import scala.collection.mutable.ArrayBuffer
-
 /**
  * Methods and objects related to (de)composition operators
  * Created by Cyril Cecchinel - I3S Laboratory on 28/04/15.
@@ -12,93 +10,32 @@ case class Unification[T<:DataType](a:JoinPointOutput[T], b:JoinPointInput[T])
 
 object ExtendPolicy {
 
-
-  def generateJoinPointsForInterface(interface: PolicyIO[_ <: DataType], p: Policy, onlyEmptyPorts: Boolean) = {
-
-    interface match {
-      case i:Sensor[_] =>
-        if (onlyEmptyPorts && p.flowsFrom(i).nonEmpty) {
-          (None,None)
+  def apply(p: Policy, onlyEmptyPorts: Boolean = false): Policy = {
+    var newPolicy = p
+    p.concepts.foreach {
+      case c: Operation[_,_] =>
+        c.inputs.foreach { input =>
+          if (!p.flows.exists(_.destination_input == input)) {
+            val jpi = new JoinPointInput(input, c.iType); newPolicy = newPolicy.add(jpi); newPolicy = newPolicy.add(new Flow(jpi.output, input))
+          }
         }
-        else {
-          val jp = new JoinPointOutput(i.output, i.dataType)
-          val l = new Flow(i.output, jp.input)
-          (Some(jp),Some(l))
+        c.outputs.foreach { output =>
+          if (!onlyEmptyPorts || (onlyEmptyPorts && !p.flows.exists(_.source_output == output))) {
+            val jpo = new JoinPointOutput(output, c.oType)
+            newPolicy = newPolicy.add(jpo);
+            newPolicy = newPolicy.add(new Flow(output, jpo.input))
+          }
         }
-
-      case i:Collector[_] =>
-        if (p.flowsTo(i).nonEmpty) (None, None)
-        else {
-          val jp = new JoinPointInput(i.input, i.dataType)
-          val l = new Flow(jp.output, i.input)
-          (Some(jp), Some(l))
-        }
+      case i: DataInput[_] => if (!onlyEmptyPorts || (onlyEmptyPorts && !p.flows.exists(_.source_output == i.output))) {
+        val jpo = new JoinPointOutput(i.output, i.dataType); newPolicy = newPolicy.add(jpo); newPolicy = newPolicy.add(new Flow(i.output, jpo.input))
       }
-
-  }
-
-  def apply(p:Policy, onlyEmptyPorts:Boolean = false):Policy = {
-
-    val interfacesExtended = for (interface <- p.ios -- p.ios.collect {case x:JoinPoint[_] => x}) yield generateJoinPointsForInterface(interface, p, onlyEmptyPorts)
-
-    val toApply = (for (activity <- p.operations; if activity.isExpendable) yield generateJoinPointsForOperation(activity, p, onlyEmptyPorts))
-      .foldLeft(Set[JoinPoint[_ <:DataType]](),Set[Flow[_ <:DataType]]()){ (acc, e) => (acc._1 ++ e._1, acc._2 ++ e._2)}
-    var policy = p
-    toApply._1.foreach(j => policy = policy.add(j))
-    toApply._2.foreach(l => policy = policy.addFlow(l))
-
-    for (i <- interfacesExtended) {
-      if (i._1.isDefined) policy = policy.add(i._1.get)
-      if (i._2.isDefined) policy = policy.addFlow(i._2.get)
+      case o: DataOutput[_] => if (!p.flows.exists(_.destination == o)) {
+        val jpi = new JoinPointInput(o.input, o.dataType); newPolicy = newPolicy.add(jpi); newPolicy = newPolicy.add(new Flow(jpi.output, o.input))
+      }
     }
 
-    policy
+    newPolicy
   }
-
-
-
-  /**
-   * Compute the join points for an operation
-   * Pre-condition: The operation can be joined
-   * @param op Operation
-   * @tparam I Inputs type
-   * @tparam O Outputs type
-   * @return List of join points and List of links
-   */
-  def generateJoinPointsForOperation[I<:DataType, O<:DataType](op:Operation[I,O], p:Policy, emptyIOonly:Boolean = false) = {
-    require(op.isExpendable)
-    require(p.operations contains op)
-    var outputs:Set[Output[O]] = Set()
-    var inputs:Set[Input[I]] = Set()
-    val flowsToAdd = new ArrayBuffer[Flow[_<:DataType]]()
-    val iosToAdd = new ArrayBuffer[JoinPoint[_<:DataType]]()
-
-
-
-    inputs =  op.inputs -- p.flowsTo(op).map { l => l.destination_input}.asInstanceOf[Set[Input[I]]]
-    if (emptyIOonly)
-      outputs =  op.outputs -- p.flowsFrom(op).map { l => l.source_output}.asInstanceOf[Set[Output[O]]]
-    else
-      outputs = op.outputs
-
-    outputs.foreach(o => {
-      val l = new Flow(o, new JoinPointOutput(o, op.oType).input)
-      val s = l.destination
-      flowsToAdd += l
-      iosToAdd += s.asInstanceOf[JoinPointOutput[_ <: DataType]]
-    })
-
-    inputs.foreach(i => {
-        val l = new Flow(new JoinPointInput(i, op.iType).output, i)
-        val s = l.source
-        flowsToAdd += l
-        iosToAdd += s.asInstanceOf[JoinPointInput[_<:DataType]]
-    })
-
-    (iosToAdd.toSet, flowsToAdd.toSet)
-
-  }
-
 }
 
 object FactorizePolicy {
@@ -107,7 +44,8 @@ object FactorizePolicy {
 
   /**
    * Remove all join points in a policy
-   * @param p Input policy
+    *
+    * @param p Input policy
    * @return A new policy without join points
    */
   def deleteJoinPointsForOperation(p:Policy) = {
