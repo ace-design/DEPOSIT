@@ -36,10 +36,6 @@ object DemoAlertACWithDSL extends DEPOSIT{
     produce("output") -> collector()
   }
 
-  /*this exportToGraphviz()
-  this targets "assets/configurations/smartcampus_xbeenetwork.xml"
-  val policies = deploy()
-
-  policies foreach println*/
 
 }
+

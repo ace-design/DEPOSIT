@@ -1,8 +1,8 @@
 package fr.unice.modalis.cosmic.demos
 
-import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
+import fr.unice.modalis.cosmic.deployment.PreDeploy
 import fr.unice.modalis.cosmic.deployment.utils.TopologyModelBuilder
-import fr.unice.modalis.cosmic.deployment.{Deploy, PreDeploy}
+import fr.unice.modalis.cosmic.deposit.algo.ExtendPolicy
 import fr.unice.modalis.cosmic.deposit.core._
 import fr.unice.modalis.cosmic.deposit.dsl.DEPOSIT
 
@@ -99,10 +99,14 @@ object ThesisDemo extends DEPOSIT{
 
 object Application extends App{
   val infra = TopologyModelBuilder("assets/configurations/TheseDemo.xml")
-  ThesisDemo().exportToGraphviz()
+  //ThesisDemo().exportToGraphviz()
   val policyPreDeployed = PreDeploy(ThesisDemo(),infra)
-  policyPreDeployed.exportToGraphviz()
-  val deployed = Deploy(policyPreDeployed, infra, DeploymentRepartition.CLOSEST_TO_SENSORS)
-  deployed.foreach(_.exportToGraphviz())
+  //policyPreDeployed.exportToGraphviz()
+  ExtendPolicy(policyPreDeployed).exportToGraphviz()
+  //val deployed = Deploy(policyPreDeployed, infra, DeploymentRepartition.CLOSEST_TO_SENSORS)
+
+  //deployed.foreach(_.exportToGraphviz())
+//  println(CodeGenerator.orderedGenerationList(policyPreDeployed).map {_.commonName})
+  //println(infra.orderedTopology.map{_.name})
 
 }
