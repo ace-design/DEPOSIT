@@ -6,7 +6,7 @@ import fr.unice.modalis.cosmic.deposit.core._
 /**
   * Created by Cyril Cecchinel - I3S Laboratory on 11/04/2017.
   */
-trait ReuseDSL {
+trait ReuseDSL extends DEPOSIT{
 
   def selectIn(policy:Policy):SelectBuilder = {
     currentSelection = Some(SelectBuilder(policy))
@@ -18,9 +18,10 @@ trait ReuseDSL {
     currentWeave.get
   }
 
-  case class SelectBuilder(policy: Policy){
+  case class SelectBuilder(_policy: Policy){
     def conceptsMarked(markers:String*) = {
-      policy.select(policy.operations.filter(_._marker.isDefined).filter(o => markers.contains(o._marker.get)).toSet, "select_" + policy.name)
+      policy = _policy.select(_policy.operations.filter(_._marker.isDefined).filter(o => markers.contains(o._marker.get)).toSet, "select_" + _policy.name)
+      policy
     }
   }
 
@@ -36,7 +37,8 @@ trait ReuseDSL {
           Unification(jpoutput.get.asInstanceOf[JoinPointOutput[DataType]], jpinput.get.asInstanceOf[JoinPointInput[DataType]])
         } else throw new Exception("Join point not found")
       }
-      Weave(exPolicy1, exPolicy2, unifications.toSet)
+      policy = Weave(exPolicy1, exPolicy2, unifications.toSet)
+      policy
     }
   }
 

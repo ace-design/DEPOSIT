@@ -1,7 +1,7 @@
 package fr.unice.modalis.cosmic.demos
 
 import fr.unice.modalis.cosmic.deposit.core._
-import fr.unice.modalis.cosmic.deposit.dsl.DEPOSIT
+import fr.unice.modalis.cosmic.deposit.dsl.{DEPOSIT, ReuseDSL}
 
 /**
   * Created by Cyril Cecchinel - I3S Laboratory on 16/03/2017.
@@ -73,7 +73,7 @@ object ThesisDemo extends DEPOSIT{
   val r1_ac = declare aPeriodicSensor() withPeriod 60 named "R1_AC"
   val collector = declare aCollector() named "COLLECTOR"
 
-  val avg = define anAvg() withInputs("i1", "i2")  withMarker "average"
+  val avg = define anAvg() withInputs("i1", "i2") andRenameData "AVG_TEMP" withMarker "average"
   val sub = define aSubstractor() withInputs("i1", "i2") withMarker "substractor"
   val abs = define anAbsoluteValue() withMarker()
   val condition = define aCondition "v > 8"
@@ -94,6 +94,32 @@ object ThesisDemo extends DEPOSIT{
   }
 }
 
+object ThesisDemoMonitoring extends DEPOSIT {
+  this hasForName "EnergyLossMonitoring"
+  this handles classOf[TemperatureSensorDataType]
+
+  val r1_ac = declare aPeriodicSensor() named "R1_AC" withPeriod 300
+  val monitoring = declare aCollector() named "MONITORING"
+
+  val max = define aMax() withInputs("i1", "i2") onField DataField.NAME withMarker "max"
+  val condition = define aCondition "v == 'AVG_TEMP'" onField DataField.NAME
+
+  flows {
+    r1_ac() -> max("i2")
+    max() -> condition()
+    condition("then") -> monitoring()
+  }
+}
+
 object Application extends App{
- ThesisDemo().operations.foreach(x => println(x.commonName + " - " + x._marker))
+ThesisDemoMonitoring().exportToGraphviz()
+}
+
+object PolicyReused extends App with ReuseDSL{
+  this hasForName "ExampleReuse"
+  this handles classOf[TemperatureSensorDataType]
+
+  weaveBetween(ThesisDemo(), ThesisDemoMonitoring()) andAssociates((("average", "output"), ("max", "i1")))
+
+  exportToGraphviz()
 }

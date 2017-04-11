@@ -3,6 +3,7 @@ package fr.unice.modalis.cosmic.deposit.dsl
 import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
 import fr.unice.modalis.cosmic.deployment.utils.TopologyModelBuilder
 import fr.unice.modalis.cosmic.deployment.{Deploy, PreDeploy}
+import fr.unice.modalis.cosmic.deposit.core.DataField.DataField
 import fr.unice.modalis.cosmic.deposit.core._
 
 /**
@@ -167,7 +168,8 @@ trait DEPOSIT {
                                         innerPolicy:Option[Policy] = None,
                                         dataTypeInput: Option[Class[_<:DataType]] = defaultType,
                                         dataTypeOutput:Option[Class[_<:DataType]] = defaultType,
-                                        marker:Option[String] = None) extends ConceptBuilder{
+                                        marker:Option[String] = None,
+                                        applicationField:Option[DataField] = Some(DataField.OBSERVATION)) extends ConceptBuilder{
 
     def apply(s:String):InterfaceBuilder = InterfaceBuilder(this, s, InterfaceType.OUTPUT)
     def apply():InterfaceBuilder = InterfaceBuilder(this, "DEFAULT", InterfaceType.OUTPUT)
@@ -221,6 +223,11 @@ trait DEPOSIT {
       currentOperation.get
     }
 
+    def aMax():OperationBuilder = {
+      currentOperation = Some(this.copy(kind = OperationType.MAX))
+      currentOperation.get
+    }
+
     def aProcess(p:Policy) = {
       currentOperation = Some(this.copy(kind = OperationType.PROCESS, innerPolicy = Some(p)))
       currentOperation.get
@@ -263,15 +270,21 @@ trait DEPOSIT {
       currentOperation.get
     }
 
+    def onField(field:DataField):OperationBuilder = {
+      currentOperation = Some(this.copy(applicationField = Some(field)))
+      currentOperation.get
+    }
+
     def toOperation = {
       val result = kind match {
         case OperationType.ABS => val c = new Abs(dataTypeInput.get, rename); conceptProduced = Some(c); c;
         case OperationType.ADD => val c = new Add(inputs, dataTypeInput.get, rename); conceptProduced = Some(c); c;
         case OperationType.AVG => val c = new Average(inputs, dataTypeInput.get, rename); conceptProduced = Some(c); c;
-        case OperationType.CONDITIONAL => val c = new Conditional(parameter.get, dataTypeInput.get); conceptProduced = Some(c); c;
+        case OperationType.CONDITIONAL => val c = new Conditional(parameter.get, dataTypeInput.get, applicationField.get); conceptProduced = Some(c); c;
         case OperationType.PRODUCE => val c = new Produce(inputs, produceTrue.get, produceFalse, dataTypeInput.get.asInstanceOf[Class[DataType]], dataTypeOutput.get.asInstanceOf[Class[DataType]]); conceptProduced = Some(c); c;
         case OperationType.DIVIDE => val c = new Divide(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
         case OperationType.MULTIPLY => val c = new Multiply(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
+        case OperationType.MAX => val c = new Max(inputs, dataTypeInput.get, applicationField.get); conceptProduced = Some(c); c;
         case OperationType.INCREMENT => val c = new Increment(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
         case OperationType.RENAME => val c = new Rename(rename.get, dataTypeInput.get); conceptProduced = Some(c); c;
         case OperationType.PROCESS => val c = new Process(innerPolicy.get, dataTypeInput.get, dataTypeOutput.get); conceptProduced = Some(c); c;
