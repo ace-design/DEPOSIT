@@ -166,7 +166,8 @@ trait DEPOSIT {
                                         atomicValue:Option[AtomicType] = None,
                                         innerPolicy:Option[Policy] = None,
                                         dataTypeInput: Option[Class[_<:DataType]] = defaultType,
-                                        dataTypeOutput:Option[Class[_<:DataType]] = defaultType) extends ConceptBuilder{
+                                        dataTypeOutput:Option[Class[_<:DataType]] = defaultType,
+                                        marker:Option[String] = None) extends ConceptBuilder{
 
     def apply(s:String):InterfaceBuilder = InterfaceBuilder(this, s, InterfaceType.OUTPUT)
     def apply():InterfaceBuilder = InterfaceBuilder(this, "DEFAULT", InterfaceType.OUTPUT)
@@ -262,18 +263,35 @@ trait DEPOSIT {
       currentOperation.get
     }
 
-    def toOperation = kind match {
-      case OperationType.ABS => val c = new Abs(dataTypeInput.get, rename); conceptProduced = Some(c); c;
-      case OperationType.ADD => val c = new Add(inputs, dataTypeInput.get, rename); conceptProduced = Some(c); c;
-      case OperationType.AVG => val c = new Average(inputs, dataTypeInput.get, rename); conceptProduced = Some(c); c;
-      case OperationType.CONDITIONAL => val c = new Conditional(parameter.get, dataTypeInput.get); conceptProduced = Some(c); c;
-      case OperationType.PRODUCE => val c = new Produce(inputs, produceTrue.get, produceFalse, dataTypeInput.get.asInstanceOf[Class[DataType]], dataTypeOutput.get.asInstanceOf[Class[DataType]]); conceptProduced = Some(c); c;
-      case OperationType.DIVIDE => val c = new Divide(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
-      case OperationType.MULTIPLY => val c = new Multiply(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
-      case OperationType.INCREMENT => val c = new Increment(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
-      case OperationType.RENAME => val c = new Rename(rename.get, dataTypeInput.get); conceptProduced = Some(c); c;
-      case OperationType.PROCESS => val c = new Process(innerPolicy.get, dataTypeInput.get, dataTypeOutput.get); conceptProduced = Some(c); c;
-      case OperationType.SUB => val c = new Sub(inputs, dataTypeInput.get, rename); conceptProduced = Some(c); c
+    def toOperation = {
+      val result = kind match {
+        case OperationType.ABS => val c = new Abs(dataTypeInput.get, rename); conceptProduced = Some(c); c;
+        case OperationType.ADD => val c = new Add(inputs, dataTypeInput.get, rename); conceptProduced = Some(c); c;
+        case OperationType.AVG => val c = new Average(inputs, dataTypeInput.get, rename); conceptProduced = Some(c); c;
+        case OperationType.CONDITIONAL => val c = new Conditional(parameter.get, dataTypeInput.get); conceptProduced = Some(c); c;
+        case OperationType.PRODUCE => val c = new Produce(inputs, produceTrue.get, produceFalse, dataTypeInput.get.asInstanceOf[Class[DataType]], dataTypeOutput.get.asInstanceOf[Class[DataType]]); conceptProduced = Some(c); c;
+        case OperationType.DIVIDE => val c = new Divide(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
+        case OperationType.MULTIPLY => val c = new Multiply(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
+        case OperationType.INCREMENT => val c = new Increment(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
+        case OperationType.RENAME => val c = new Rename(rename.get, dataTypeInput.get); conceptProduced = Some(c); c;
+        case OperationType.PROCESS => val c = new Process(innerPolicy.get, dataTypeInput.get, dataTypeOutput.get); conceptProduced = Some(c); c;
+        case OperationType.SUB => val c = new Sub(inputs, dataTypeInput.get, rename); conceptProduced = Some(c); c
+      }
+      if (marker.isDefined) result.setMarker(marker.get)
+      result
+    }
+
+    /***********
+      * REUSE
+      */
+
+    def withMarker(s:String = ""):OperationBuilder = {
+      if (s.equals(""))
+        currentOperation = Some(this.copy(marker = Some(this.kind.toString.toLowerCase())))
+      else
+        currentOperation = Some(this.copy(marker = Some(s)))
+
+      currentOperation.get
     }
   }
 

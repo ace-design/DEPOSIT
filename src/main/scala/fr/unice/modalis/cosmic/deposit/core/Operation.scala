@@ -24,7 +24,10 @@ trait Operation[I<:DataType, O<:DataType] extends Concept with Properties{
   val iType:Class[I]
   val oType:Class[O]
 
+  var _marker:Option[String] = None
 
+  def setMarker(s:String) = _marker = Some(s)
+  def cleanMarker() = _marker = None
 
   /**
    * Get an input according its name
