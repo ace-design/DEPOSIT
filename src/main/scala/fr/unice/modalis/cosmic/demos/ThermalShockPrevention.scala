@@ -3,6 +3,8 @@ package fr.unice.modalis.cosmic.demos
 import fr.unice.modalis.cosmic.deposit.core._
 import fr.unice.modalis.cosmic.deposit.dsl.{DEPOSIT, ReuseDSL}
 
+import scalax.collection.{Graph, GraphEdge}
+
 /**
   * Created by Cyril Cecchinel - I3S Laboratory on 16/03/2017.
   */
@@ -62,19 +64,19 @@ object ACStatusPolicy extends DEPOSIT {
   }
 }
 
-object ThesisDemo extends DEPOSIT{
+object ThermalShockPrevention extends DEPOSIT{
 
   this hasForName "ThermalShockPrevention"
   this handles classOf[TemperatureSensorDataType]
 
-  val r1_t1 = declare aPeriodicSensor() withPeriod 300 named "R1_T1"
-  val r1_t2 = declare aPeriodicSensor() withPeriod 300 named "R1_T2"
+  val r1_t1 = declare aPeriodicSensor() withPeriod 300 named "R1_T1" withMarker "r1_t1"
+  val r1_t2 = declare aPeriodicSensor() withPeriod 300 named "R1_T2" withMarker "r1_t2"
   val outside_t = declare aPeriodicSensor() withPeriod 3600 named "OUTSIDE_T"
   val r1_ac = declare aPeriodicSensor() withPeriod 60 named "R1_AC"
-  val collector = declare aCollector() named "COLLECTOR"
+  val collector = declare aCollector() named "COLLECTOR" withMarker "collector"
 
   val avg = define anAvg() withInputs("i1", "i2") andRenameData "AVG_TEMP" withMarker "average"
-  val sub = define aSubstractor() withInputs("i1", "i2") withMarker "substractor"
+  val sub = define aSubstractor() withInputs("i1", "i2") withMarker "sub"
   val abs = define anAbsoluteValue() withMarker()
   val condition = define aCondition "v > 8"
   val produce = define aProducer new AlertMessageType("ALERT_TEMP", "R_1") withInputs("i1", "i2") withMarker()
@@ -112,14 +114,37 @@ object ThesisDemoMonitoring extends DEPOSIT {
 }
 
 object Application extends App{
-ThesisDemoMonitoring().exportToGraphviz()
+  def findAllPathFrom(graph:Graph[Concept,GraphEdge.DiEdge])(node:graph.NodeT, exitCondition: graph.NodeT => Boolean):Seq[graph.Path] = {
+
+    def findAllPathFrom(node:graph.NodeT, exitCondition: graph.NodeT => Boolean,  previousFoundPath:Seq[graph.Path]):Seq[graph.Path] = {
+      val newPath = node pathUntil( node => exitCondition(node))
+      newPath match{
+        case Some(path) if !previousFoundPath.contains(path) => findAllPathFrom(node, exitCondition, previousFoundPath:+path)
+        case _ => previousFoundPath
+      }
+    }
+    findAllPathFrom(node,exitCondition,Seq.empty[graph.Path])
+
+  }
+
+
+  val inputs = ThermalShockPrevention().inputs
+  val output = ThermalShockPrevention().outputs
+
+  val theGraph = ThermalShockPrevention().toGraph
+  val list = for (i <- inputs; o <- output) yield (theGraph get i,theGraph get o)
+  val paths = list.flatMap(e => findAllPathFrom(theGraph)(e._1, _.outDegree == 0))
+
+  //println(list.flatMap{e => e._1.pathTo(e._2)})
 }
 
-object PolicyReused extends App with ReuseDSL{
-  this hasForName "ExampleReuse"
+object SelectionDSLDemo extends App with ReuseDSL {""
+  this hasForName "SelectionDSLDemo"
   this handles classOf[TemperatureSensorDataType]
 
-  weaveBetween(ThesisDemo(), ThesisDemoMonitoring()) andAssociates((("average", "output"), ("max", "i1")))
+  selectIn(ThermalShockPrevention()) conceptsMarked("r1_t1", "r1_t2","average", "sub", "abs", "collector")
 
+  //weaveBetween(policy, policy) andAssociates((("average", "output"),("produce", "i1")))
+  //println(policy)
   exportToGraphviz()
 }

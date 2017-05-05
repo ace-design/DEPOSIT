@@ -48,4 +48,8 @@ trait Concept extends Properties{
     * @return A boolean indicating if the concept can be placed on the entity e
     */
   def placingConstraintsEquation(e:Entity):Boolean = true
+
+  var _marker:Option[String] = None
+  def setMarker(s:String) = _marker = Some(s)
+  def cleanMarker() = _marker = None
 }

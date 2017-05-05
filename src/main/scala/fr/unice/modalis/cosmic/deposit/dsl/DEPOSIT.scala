@@ -98,7 +98,7 @@ trait DEPOSIT {
   }
 
 
-  protected case class IOBuilder(kind: IOType.Value = IOType.UNKNOWN, name: String = "", period: Option[Int] = None, dataType: Option[Class[_<:DataType]] = defaultType) extends ConceptBuilder{
+  protected case class IOBuilder(kind: IOType.Value = IOType.UNKNOWN, name: String = "", period: Option[Int] = None, dataType: Option[Class[_<:DataType]] = defaultType, marker:Option[String] = None) extends ConceptBuilder{
     def apply():InterfaceBuilder = kind match {
       case IOType.COLLECTOR | IOType.GENERIC_INPUT => InterfaceBuilder(this, name, InterfaceType.INPUT)
       case _ => InterfaceBuilder(this, name, InterfaceType.OUTPUT)
@@ -144,13 +144,32 @@ trait DEPOSIT {
       currentIO.get
     }
 
-    def toIO = kind match {
-      case IOType.PERIODIC => val c = new PeriodicSensor(period.get, name, dataType.get); conceptProduced = Some(c); c;
-      case IOType.EVENT => val c = new EventSensor(name, dataType.get); conceptProduced = Some(c); c;
-      case IOType.COLLECTOR => val c = new Collector(name, dataType.get); conceptProduced = Some(c); c;
-      case IOType.GENERIC_INPUT => val c = new GenericInput(name, dataType.get); conceptProduced = Some(c); c;
-      case IOType.GENERIC_OUTPUT => val c = new GenericOutput(name, dataType.get); conceptProduced = Some(c); c;
+    /***********
+      * REUSE
+      */
+
+    def withMarker(s:String = ""):IOBuilder = {
+      if (s.equals(""))
+        currentIO = Some(this.copy(marker = Some(this.kind.toString.toLowerCase())))
+      else
+        currentIO = Some(this.copy(marker = Some(s)))
+
+      currentIO.get
     }
+
+    def toIO = {
+      val result = kind match {
+        case IOType.PERIODIC => val c = new PeriodicSensor(period.get, name, dataType.get); conceptProduced = Some(c); c;
+        case IOType.EVENT => val c = new EventSensor(name, dataType.get); conceptProduced = Some(c); c;
+        case IOType.COLLECTOR => val c = new Collector(name, dataType.get); conceptProduced = Some(c); c;
+        case IOType.GENERIC_INPUT => val c = new GenericInput(name, dataType.get); conceptProduced = Some(c); c;
+        case IOType.GENERIC_OUTPUT => val c = new GenericOutput(name, dataType.get); conceptProduced = Some(c); c;
+      }
+      if (marker.isDefined) result.setMarker(marker.get)
+      result
+    }
+
+
 
   }
 

@@ -20,7 +20,8 @@ trait ReuseDSL extends DEPOSIT{
 
   case class SelectBuilder(_policy: Policy){
     def conceptsMarked(markers:String*) = {
-      policy = _policy.select(_policy.operations.filter(_._marker.isDefined).filter(o => markers.contains(o._marker.get)).toSet, "select_" + _policy.name)
+      val selection = _policy.concepts.filter(_._marker.isDefined).filter(o => markers.contains(o._marker.get)).toSet
+      policy = _policy.select(selection, "select_" + _policy.name)
       policy
     }
   }
