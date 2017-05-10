@@ -3,8 +3,6 @@ package fr.unice.modalis.cosmic.demos
 import fr.unice.modalis.cosmic.deposit.core._
 import fr.unice.modalis.cosmic.deposit.dsl.{DEPOSIT, ReuseDSL}
 
-import scalax.collection.{Graph, GraphEdge}
-
 /**
   * Created by Cyril Cecchinel - I3S Laboratory on 16/03/2017.
   */
@@ -96,6 +94,33 @@ object ThermalShockPrevention extends DEPOSIT{
   }
 }
 
+object ACWarning extends DEPOSIT {
+  this hasForName "EnergyLossAlert"
+  this handles classOf[TemperatureSensorDataType]
+
+  val r1_t1 = declare aPeriodicSensor() named "R1_T1" withPeriod 300
+  val r1_t2 = declare aPeriodicSensor() named "R1_T2" withPeriod 300
+  val r1_ac = declare aPeriodicSensor() named "R1_AC" withPeriod 60
+  val r1_out = declare aPeriodicSensor() withPeriod 3600 named "OUTSIDE_T"
+  val collector = declare aCollector() named "COLLECTOR"
+
+  val average = define anAvg() withInputs("i1", "i2")
+  val max = define aMax() withInputs("i1", "i2")
+  val process_ac = define aProcess ACStatusPolicy()
+  val message = define aProducer new AlertMessageType("AC_WARNING", "R1") withInputs("i1", "i2")
+
+  flows{
+    r1_t1() -> average("i1")
+    r1_t2() -> average("i2")
+    average() -> max("i1")
+    r1_out() -> max("i2")
+    max() -> message("i1")
+    r1_ac() -> process_ac("AC")
+    process_ac("COOL") -> message("i2")
+    message() -> collector()
+  }
+}
+
 object ThesisDemoMonitoring extends DEPOSIT {
   this hasForName "EnergyLossMonitoring"
   this handles classOf[TemperatureSensorDataType]
@@ -114,31 +139,11 @@ object ThesisDemoMonitoring extends DEPOSIT {
 }
 
 object Application extends App{
-  def findAllPathFrom(graph:Graph[Concept,GraphEdge.DiEdge])(node:graph.NodeT, exitCondition: graph.NodeT => Boolean):Seq[graph.Path] = {
+  (ACWarning() ++ ThermalShockPrevention()).exportToGraphviz()
 
-    def findAllPathFrom(node:graph.NodeT, exitCondition: graph.NodeT => Boolean,  previousFoundPath:Seq[graph.Path]):Seq[graph.Path] = {
-      val newPath = node pathUntil( node => exitCondition(node))
-      newPath match{
-        case Some(path) if !previousFoundPath.contains(path) => findAllPathFrom(node, exitCondition, previousFoundPath:+path)
-        case _ => previousFoundPath
-      }
-    }
-    findAllPathFrom(node,exitCondition,Seq.empty[graph.Path])
-
-  }
-
-
-  val inputs = ThermalShockPrevention().inputs
-  val output = ThermalShockPrevention().outputs
-
-  val theGraph = ThermalShockPrevention().toGraph
-  val list = for (i <- inputs; o <- output) yield (theGraph get i,theGraph get o)
-  val paths = list.flatMap(e => findAllPathFrom(theGraph)(e._1, _.outDegree == 0))
-
-  //println(list.flatMap{e => e._1.pathTo(e._2)})
 }
 
-object SelectionDSLDemo extends App with ReuseDSL {""
+object SelectionDSLDemo extends App with ReuseDSL {
   this hasForName "SelectionDSLDemo"
   this handles classOf[TemperatureSensorDataType]
 

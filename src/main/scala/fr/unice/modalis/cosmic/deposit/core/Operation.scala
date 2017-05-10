@@ -24,7 +24,10 @@ trait Operation[I<:DataType, O<:DataType] extends Concept with Properties{
   val iType:Class[I]
   val oType:Class[O]
 
-
+  override def ~=(x:Any) = x.isInstanceOf[Operation[I,O]] &&
+    (x.asInstanceOf[Operation[I,O]].commonName equals this.commonName) &&
+    (x.asInstanceOf[Operation[I,O]].inputsNames equals this.inputsNames) &&
+    (x.asInstanceOf[Operation[I,O]].outputsNames equals this.outputsNames)
 
   /**
    * Get an input according its name
@@ -146,6 +149,9 @@ trait Arithmetic[T<:DataType] extends ValueOperation[T] {
   val applicationField = DataField.OBSERVATION
   val hasNewName  = true
   val hasNewTimestamp = true
+
+  override def ~=(x:Any) = super.~=(x) && x.asInstanceOf[Arithmetic[T]].rename == rename && x.asInstanceOf[Arithmetic[T]].applicationField == applicationField
+
 
 }
 

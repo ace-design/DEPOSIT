@@ -42,6 +42,8 @@ trait Concept extends Properties{
    */
   def duplicate:Concept
 
+  def ~=(x:Any) :Boolean
+
   /**
     * A boolean equation that a concept must satisfy in order to be placed on an entity (Default=true)
     * @param e Entity

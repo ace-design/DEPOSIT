@@ -12,6 +12,7 @@ import scala.collection.mutable.ArrayBuffer
 /**
   * Policy definition
   * Created by Cyril Cecchinel - I3S Laboratory on 03/11/14.
+  *
   * @param operations Workflow element list
   * @param flows Link list
   */
@@ -35,6 +36,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Find a concept by its id
+    *
     * @param id Concept if
     * @return Result of id-lookup
     */
@@ -42,6 +44,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Find a sensor by its name
+    *
     * @param name Sensor name
     * @return Result of name-lookup
     */
@@ -49,12 +52,14 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Graph representation
+    *
     * @return A Graph representation of this policy
     */
   def toGraph = ToGraph(this)
 
   /**
     * Add a concept in the policy
+    *
     * @param concept Concept to add
     * @return A new policy with the concept added
     */
@@ -68,6 +73,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Add a flow in the policy
+    *
     * @param flow Flow to add
     * @return A new policy with the flow added
     */
@@ -77,6 +83,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Delete a concept in the policy (remove also flows from and to this concepts)
+    *
     * @param concept Concept to delete
     * @return A new policy with the concept and relatives flows deleted
     */
@@ -90,6 +97,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Delete a flow in the policy
+    *
     * @param flow Flow to delete
     * @return A new policy with the flow deleted
     */
@@ -99,6 +107,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Add an I/O to the policy
+    *
     * @param io I/O to add
     * @return A new policy with the I/O added
     */
@@ -108,6 +117,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Add an operation in the current workflow
+    *
     * @param operation Operation to add
     * @return A new policy with the operation added
     */
@@ -120,6 +130,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Add a flow in the current policy
+    *
     * @param flow Flow
     * @return A new policy with the flow added
     */
@@ -129,6 +140,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Delete an operation in the current workflow (Delete also all flows referring this activity)
+    *
     * @param operation Operation to delete
     * @return A policy without this operation and flows referring this operation
     */
@@ -138,6 +150,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Delete an IO in the current policy (/!\ Delete also all flows referring this IO)
+    *
     * @param io I/O to delete
     * @return A policy without this IO and flows referring this IO
     */
@@ -147,6 +160,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Delete a flow in the current policy
+    *
     * @param flow Flow to delete
     * @return A new policy with the flow removed
     */
@@ -157,6 +171,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Compute the sub-policy between a root and a leaf
+    *
     * @param root Root concept
     * @param leaf Leaf concept
     * @return A sub-policy corresponding to the extraction of concepts and flows between the root and the leaf or empty policy if no path has been found
@@ -180,6 +195,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Compute the sub-policy between a root and all collectors
+    *
     * @param root Root concept
     * @return A sub-policy corresponding to the extraction of concepts and flows between the root and collectors or empty policy if no path has been found
     */
@@ -189,6 +205,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Find the flows having the specified source and destination
+    *
     * @param source Source concept
     * @param destination Destination concept
     * @return A set of flows having the specified source and destination
@@ -197,6 +214,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Find the next policy concepts
+    *
     * @param concept Current policy concept
     * @return A set of (Concept,Flow) referring to the next concepts and flows
     */
@@ -211,6 +229,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Find the previous policy concepts
+    *
     * @param concept Current policy concept
     * @return A set of (Concept,Flow) referring to the previous concepts and flows
     */
@@ -226,6 +245,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Generate flows required to connect a process with current known sensors in a policy
+    *
     * @param process Process operation
     * @tparam I Input Data type
     * @tparam O Output Data type
@@ -248,6 +268,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Return the set of sensors needed for a concept
+    *
     * @param concept Concept
     * @return A sensor set
     */
@@ -264,6 +285,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
   }
   /**
     * Select operator
+    *
     * @param n New policy's name
     * @param concepts Set of concepts
     * @return A new policy containing only selected concepts
@@ -275,6 +297,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Data types involved in a policy
+    *
     * @return A set of data types involved
     */
   def getInvolvedDataTypes[T<:DataType] = {
@@ -283,6 +306,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Input Ports that are not connected by a flow
+    *
     * @return A list of non-connected flows
     */
   def getNonConnectedInputPorts = {
@@ -302,6 +326,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Input Ports that are not connected by a flow
+    *
     * @return A list of non-connected flows
     */
   def getNonConnectedOutputPorts = {
@@ -321,6 +346,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Duplicate a policy
+    *
     * @return A duplicated policy
     */
   def duplicate = {
@@ -342,6 +368,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Compute flows going to a concept
+    *
     * @param concept Concept
     * @return List of in-going flows
     */
@@ -349,6 +376,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Compute flows going from a concept
+    *
     * @param concept Concept
     * @return List of out-going flows
     */
@@ -356,6 +384,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
 
   /**
     * Compose the current policy with an other one
+    *
     * @param other Other policy
     * @return A new policy resulted from the composition of the current one and the one specified as a parameter
     */
@@ -381,6 +410,7 @@ object Policy extends LazyLogging{
 
   /**
     * Check if the policy satisfies the validity properties. Returns nothing if the policy is valid but throws NonValidPolicyException if the policy is not valid
+    *
     * @param policy Policy
     */
   def checkValidity(policy: Policy):Unit = {
@@ -404,8 +434,38 @@ object Policy extends LazyLogging{
     if (policy.flows.exists {f => f.source == f.destination}) throw NonValidPolicyException(policy, "has a loop on a concept")
   }
 
+  def mergeActivities(p:Policy) = {
+
+    def similarities(list:List[Operation[_<:DataType,_<:DataType]]):Map[Operation[_<:DataType,_<:DataType], List[Operation[_<:DataType,_<:DataType]]] = {
+      list match {
+        case a :: tail => Map(a -> tail.filter(_ ~= a)) ++ similarities(tail)
+        case a :: Nil => Map(a -> List())
+        case Nil => Map()
+      }
+    }
+
+    val candidates = similarities(p.operations.toList).filter(_._2.nonEmpty)
+
+    val res = candidates.map { c =>
+      val inFlows = p.flowsTo(c._1).map{f => (f.source_output.name, f.destination_input.name)}
+      c._1 -> c._2.filter(f => p.flowsTo(f).map{f => (f.source_output.name, f.destination_input.name)} == inFlows)
+    }
+
+    val newFlows = res.flatMap { c =>
+      c._2.flatMap{f => p.flowsFrom(f).map{e => new Flow(c._1.getOutput(e.source_output.name), e.destination_input)}}
+    }
+
+    var policy = p
+    res.foreach(e => e._2.foreach(f => policy = policy.delete(f)))
+
+    newFlows.foreach(f => policy = policy.addFlow(f))
+
+    policy
+  }
+
   /**
     * Compose two policies together
+    *
     * @param p1 Data collection policy
     * @param p2 Data collection policy
     * @return A composed data collection policy
@@ -421,7 +481,20 @@ object Policy extends LazyLogging{
       }
     }
 
+
+
     def sensorFusion(p1:Policy, p2:Policy):Policy = {
+      var compose = Policy(composeName(p1, p2), p1.ios ++ p2.ios, p1.operations ++ p2.operations, p1.flows ++ p2.flows)
+
+      val similarities = p2.sensors.map { s => (s, p1.sensors.find(_ ~= s)) }
+      val flows = for (s <- similarities.filter(_._2.isDefined)) yield ((s._1, p1.flowsFrom(s._2.get)))
+      val flowsToAdd = flows.flatMap{couple => couple._2.map{f => new Flow(couple._1.output, f.destination_input)}}
+
+      similarities.filter(_._2.isDefined).foreach(e => compose = compose.delete(e._2.get))
+      flowsToAdd.foreach(f => compose = compose.addFlow(f))
+      compose
+    }
+    /*def sensorFusion(p1:Policy, p2:Policy):Policy = {
       // Find similar sensors in p2
       logger.debug("Sensors in p1:" + p1.sensors)
       logger.debug("Sensors in p2:" + p2.sensors)
@@ -431,6 +504,7 @@ object Policy extends LazyLogging{
         // Return similar sensors contained in p1 and p2
         val similar = p2.sensors.map {s => (s, p1.sensors.find(_ ~= s))}
         logger.debug(s"Simular sensors: $similar")
+
         if (similar.forall(_._2.isEmpty)){
           // If there is no similar sensors, return a trivial composition result
           new Policy(composeName(p1, p2), p1.ios ++ p2.ios, p1.operations ++ p2.operations, p1.flows ++ p2.flows)
@@ -460,11 +534,12 @@ object Policy extends LazyLogging{
       }
         // If there are no sensors in p1 and p2, abort the sensor fusion
       else new Policy(composeName(p1, p2), p1.ios ++ p2.ios, p1.operations ++ p2.operations, p1.flows ++ p2.flows)
-    }
+    }*/
 
 
     logger.debug(s"Prepare to compose ${p1.name}  ({${p1.sensors.map(_.name)}) with ${p2.name} ({${p2.sensors.map(_.name)})")
-    sensorFusion(p1, p2)
+    //mergeActivities(sensorFusion(p1, p2))
+    sensorFusion(p1,p2)
 
   }
 }

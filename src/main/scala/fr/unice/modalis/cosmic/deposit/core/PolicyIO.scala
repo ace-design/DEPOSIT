@@ -46,11 +46,16 @@ case class GenericInput[T<:DataType](name:String, dataType: Class[T]) extends Da
 
   /**
    * Return a copy of this concept (with different id)
-   * @return copy of this concept
+    *
+    * @return copy of this concept
    */
   override def duplicate: GenericInput[T] = new GenericInput[T](name, dataType)
 
   val url: String = ""
+
+  override def ~=(x: Any): Boolean = x.isInstanceOf[GenericInput[T]] &&
+    (x.asInstanceOf[GenericInput[T]].name equals this.name) &&
+    (x.asInstanceOf[GenericInput[T]].dataType equals this.dataType)
 }
 
 case class GenericOutput[T<:DataType](name:String, dataType: Class[T]) extends DataOutput[T] {
@@ -63,6 +68,10 @@ case class GenericOutput[T<:DataType](name:String, dataType: Class[T]) extends D
    * @return copy of this concept
    */
   override def duplicate: GenericOutput[T] = new GenericOutput[T](name, dataType)
+
+  override def ~=(x: Any): Boolean = x.isInstanceOf[GenericOutput[T]] &&
+    (x.asInstanceOf[GenericOutput[T]].name equals this.name) &&
+    (x.asInstanceOf[GenericOutput[T]].dataType equals this.dataType)
 }
 
 
@@ -84,6 +93,10 @@ case class JoinPointInput[I<:DataType](toConceptInput:Input[I], dataType: Class[
 
   override def placingConstraintsEquation(e:Entity) = e.communication.exists(_.cWay == CommunicationWay.In)
 
+  override def ~=(x: Any): Boolean = x.isInstanceOf[JoinPointInput[I]] &&
+    (x.asInstanceOf[JoinPointInput[I]].toConceptInput equals this.toConceptInput) &&
+    (x.asInstanceOf[JoinPointInput[I]].dataType equals this.dataType)
+
 }
 
 case class JoinPointOutput[O<:DataType](fromConceptOutput:Output[O], dataType: Class[O]) extends JoinPoint[O] with DataOutput[O]{
@@ -100,6 +113,9 @@ case class JoinPointOutput[O<:DataType](fromConceptOutput:Output[O], dataType: C
 
   override def placingConstraintsEquation(e:Entity) = e.communication.exists(_.cWay == CommunicationWay.Out)
 
+  override def ~=(x: Any): Boolean = x.isInstanceOf[JoinPointOutput[O]] &&
+    (x.asInstanceOf[JoinPointOutput[O]].fromConceptOutput equals this.fromConceptOutput) &&
+    (x.asInstanceOf[JoinPointOutput[O]].dataType equals this.dataType)
 }
 
 
@@ -118,7 +134,6 @@ trait Sensor[T<:DataType] extends DataInput[T]{
     * Check if two sensors are similar
     * @return True if similar, false otherwise
     */
-  def ~=(x:Any) :Boolean
 
   override def toString:String = "SENSOR[" + url + "]"
 }
@@ -191,7 +206,12 @@ case class Collector[T<:DataType](endpoint:String, dataType: Class[T]) extends D
 
   /**
    * Return a copy of this concept (with different id)
-   * @return copy of this concept
+    *
+    * @return copy of this concept
    */
   override def duplicate: Collector[T] = new Collector[T](endpoint, dataType)
+
+  override def ~=(x: Any): Boolean = x.isInstanceOf[Collector[T]] &&
+    (x.asInstanceOf[Collector[T]].dataType equals this.dataType) &&
+    (x.asInstanceOf[Collector[T]].endpoint equals this.endpoint)
 }
