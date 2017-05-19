@@ -185,11 +185,11 @@ class PolicyTest extends SpecificationWithJUnit {
 
   "A sub policy" should {
     "Compute the sub-policy between a root and a defined leaf" in {
+
       val root = ComprehensivePolicyWithoutDSL.door_filter
       val leaf = ComprehensivePolicyWithoutDSL.collector
 
       val subPolicy = ComprehensivePolicyWithoutDSL.p.subPolicy(root, leaf)
-
       subPolicy.concepts must haveLength(3)
       subPolicy.flows must haveLength(2)
     }
@@ -199,8 +199,11 @@ class PolicyTest extends SpecificationWithJUnit {
 
       val subPolicy = ComprehensivePolicyWithoutDSL.p.subPolicy(root)
 
+      Policy.checkValidity(subPolicy) must throwAn[NonValidPolicyException]
       subPolicy.concepts must haveLength(6)
       subPolicy.flows must haveLength(5)
+
+
     }
 
     "retrieve the flows between two immediate concepts" in {

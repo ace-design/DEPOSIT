@@ -32,7 +32,7 @@ object AutoDeploy extends LazyLogging {
     logger.debug("Registering policies in repository...")
     policies.foreach { p =>
       val target = p.readProperty("board").get.asInstanceOf[String]
-      val newPolicy = repository.getPolicy(target).getOrElse(new Policy("")) ++ p //If no policy was found, compose with empty policy
+      val newPolicy = repository.getPolicy(target).getOrElse(new Policy("")) + p //If no policy was found, compose with empty policy
 
       // Recopy only relevant properties in repository
       newPolicy.addProperty("generator", p.readProperty("generator").get)
@@ -233,7 +233,7 @@ object Deploy {
 
 
   private def getNetworkFlows(policies:Set[Policy], ref:Policy) = {
-    ref.flows -- policies.foldLeft(new Policy()){ (acc, e) => acc ++ e}.flows
+    ref.flows -- policies.foldLeft(new Policy()){ (acc, e) => acc + e}.flows
   }
 
 

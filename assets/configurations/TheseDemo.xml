@@ -35,6 +35,111 @@
             </language>
          </languages>
       </entity>
+      <entity computation="Low" name="P_PLUG1" type="Uno">
+         <sensors>
+            <sensor id="R1_PLUG1" pin="1">
+               <features>
+                  <feature>EBTemperature</feature>
+                  <feature>Temperature</feature>
+               </features>
+            </sensor>
+         </sensors>
+         <communications>
+            <communication>
+               <features>
+                  <feature>Way</feature>
+                  <feature>Media</feature>
+                  <feature>Out</feature>
+                  <feature>XBEE</feature>
+                  <feature>Wireless</feature>
+               </features>
+            </communication>
+         </communications>
+         <powers>
+            <power>
+               <features>
+                  <feature>Battery</feature>
+               </features>
+            </power>
+         </powers>
+         <languages>
+            <language>
+               <features>
+                  <feature>Processing</feature>
+               </features>
+            </language>
+         </languages>
+      </entity>
+      <entity computation="Low" name="P_PLUG2" type="Uno">
+         <sensors>
+            <sensor id="R1_PLUG2" pin="1">
+               <features>
+                  <feature>EBTemperature</feature>
+                  <feature>Temperature</feature>
+               </features>
+            </sensor>
+         </sensors>
+         <communications>
+            <communication>
+               <features>
+                  <feature>Way</feature>
+                  <feature>Media</feature>
+                  <feature>Out</feature>
+                  <feature>XBEE</feature>
+                  <feature>Wireless</feature>
+               </features>
+            </communication>
+         </communications>
+         <powers>
+            <power>
+               <features>
+                  <feature>Battery</feature>
+               </features>
+            </power>
+         </powers>
+         <languages>
+            <language>
+               <features>
+                  <feature>Processing</feature>
+               </features>
+            </language>
+         </languages>
+      </entity>
+      <entity computation="Low" name="P_PLUG3" type="Uno">
+         <sensors>
+            <sensor id="R1_PLUG3" pin="1">
+               <features>
+                  <feature>EBTemperature</feature>
+                  <feature>Temperature</feature>
+               </features>
+            </sensor>
+         </sensors>
+         <communications>
+            <communication>
+               <features>
+                  <feature>Way</feature>
+                  <feature>Media</feature>
+                  <feature>Out</feature>
+                  <feature>XBEE</feature>
+                  <feature>Wireless</feature>
+               </features>
+            </communication>
+         </communications>
+         <powers>
+            <power>
+               <features>
+                  <feature>Battery</feature>
+               </features>
+            </power>
+         </powers>
+         <languages>
+            <language>
+               <features>
+                  <feature>Processing</feature>
+               </features>
+            </language>
+         </languages>
+      </entity>
       <entity computation="Low" name="P_1_R1" type="Uno">
          <sensors>
             <sensor id="R1_T1" pin="3">
@@ -194,6 +299,9 @@
       </entity>
    </entities>
    <connections>
+      <connection from="P_PLUG1" to="BR" />
+      <connection from="P_PLUG2" to="BR" />
+      <connection from="P_PLUG3" to="BR" />
       <connection from="P_1_R1" to="P_2_R1" />
       <connection from="P_OUTSIDE" to="P_2_R1" />
       <connection from="P_2_R1" to="BR" />

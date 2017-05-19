@@ -56,15 +56,15 @@ object P3 extends DEPOSIT {
 class CompositionPolicyTest extends SpecificationWithJUnit{
   "The composition operator" should {
     "factorize similar sensors" in {
-      (P1.innerPolicy ++ P2.innerPolicy).sensors must haveSize(2)
+      (P1.innerPolicy + P2.innerPolicy).sensors must haveSize(2)
     }
 
     "not factorize collector" in {
-      (P1.innerPolicy ++ P2.innerPolicy).collectors must haveSize(2)
+      (P1.innerPolicy + P2.innerPolicy).collectors must haveSize(2)
     }
 
     "not only rely on name to factorize sensors" in {
-      (P1.innerPolicy ++ P2.innerPolicy ++ P3.innerPolicy).sensors must haveSize(3)
+      (P1.innerPolicy + P2.innerPolicy + P3.innerPolicy).sensors must haveSize(3)
     }
   }
 }

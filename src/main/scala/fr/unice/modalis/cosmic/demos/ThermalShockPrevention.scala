@@ -1,7 +1,11 @@
 package fr.unice.modalis.cosmic.demos
 
+import fr.unice.modalis.cosmic.deployment.infrastructure.InfrastructureModel
+import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
+import fr.unice.modalis.cosmic.deployment.utils.TopologyModelBuilder
 import fr.unice.modalis.cosmic.deposit.core._
 import fr.unice.modalis.cosmic.deposit.dsl.{DEPOSIT, ReuseDSL}
+import fr.unice.modalis.cosmic.runtime.InfrastructureManager
 
 /**
   * Created by Cyril Cecchinel - I3S Laboratory on 16/03/2017.
@@ -94,27 +98,29 @@ object ThermalShockPrevention extends DEPOSIT{
   }
 }
 
-object ACWarning extends DEPOSIT {
+object EnergyLosses extends DEPOSIT {
   this hasForName "EnergyLossAlert"
   this handles classOf[TemperatureSensorDataType]
 
-  val r1_t1 = declare aPeriodicSensor() named "R1_T1" withPeriod 300
-  val r1_t2 = declare aPeriodicSensor() named "R1_T2" withPeriod 300
+  val r1_t1 = declare aPeriodicSensor() named "R1_T1" withPeriod 60
+  val r1_t2 = declare aPeriodicSensor() named "R1_T2" withPeriod 60
   val r1_ac = declare aPeriodicSensor() named "R1_AC" withPeriod 60
   val r1_out = declare aPeriodicSensor() withPeriod 3600 named "OUTSIDE_T"
   val collector = declare aCollector() named "COLLECTOR"
 
   val average = define anAvg() withInputs("i1", "i2")
-  val max = define aMax() withInputs("i1", "i2")
+  val min = define aMin() withInputs("i1", "i2")
+  val cond = define aCondition("n == 'OUTSIDE_T'")
   val process_ac = define aProcess ACStatusPolicy()
   val message = define aProducer new AlertMessageType("AC_WARNING", "R1") withInputs("i1", "i2")
 
   flows{
     r1_t1() -> average("i1")
     r1_t2() -> average("i2")
-    average() -> max("i1")
-    r1_out() -> max("i2")
-    max() -> message("i1")
+    average() -> min("i1")
+    r1_out() -> min("i2")
+    min() -> cond()
+    cond("then") -> message("i1")
     r1_ac() -> process_ac("AC")
     process_ac("COOL") -> message("i2")
     message() -> collector()
@@ -138,8 +144,59 @@ object ThesisDemoMonitoring extends DEPOSIT {
   }
 }
 
+object PowerLimit extends DEPOSIT {
+  this hasForName "PowerLimit"
+  this handles classOf[SmartCampusType]
+
+  val plug1 = declare aPeriodicSensor() named "R1_PLUG1" withPeriod 60
+  val plug2 = declare aPeriodicSensor() named "R1_PLUG2" withPeriod 60
+  val plug3 = declare aPeriodicSensor() named "R1_PLUG3" withPeriod 60
+
+  val collector = declare aCollector() named "COLLECTOR"
+
+  val add = define anAdder() withInputs("i1","i2","i3")
+  val filter = define aCondition "v > 3000" andRenameData "POWER_ALERT"
+
+  flows {
+    plug1() -> add("i1")
+    plug2() -> add("i2")
+    plug3() -> add("i3")
+
+    add() -> filter()
+    filter("then") -> collector()
+  }
+
+}
+
+object DemoService extends App {
+
+
+  val topology = TopologyModelBuilder("assets/configurations/TheseDemo.xml")
+  val infrastructureModel = InfrastructureModel(topology, DeploymentRepartition.CLOSEST_TO_SENSORS)
+
+  val service = new InfrastructureManager(infrastructureModel)
+
+  service.registerPolicy(ThermalShockPrevention())
+  service.stats()
+  service.registerPolicy(EnergyLosses())
+  service.stats()
+  service.registerPolicy(PowerLimit())
+  service.stats()
+  /*println((ThermalShockPrevention() + EnergyLosses()).concepts.size)
+  List(ThermalShockPrevention(), EnergyLosses(), PowerLimit()).foreach{ p =>
+  println(p.name)
+  println(s"# Activites: ${p.concepts.size}")
+  println(s"#Flux: ${p.flows.size}")}*/
+
+
+}
+
 object Application extends App{
-  (ACWarning() ++ ThermalShockPrevention()).exportToGraphviz()
+  //this hasForName "composition_example"
+
+  (ThermalShockPrevention() + EnergyLosses()).exportToGraphviz()
+
+
 
 }
 

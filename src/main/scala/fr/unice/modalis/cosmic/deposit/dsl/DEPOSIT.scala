@@ -10,6 +10,15 @@ import fr.unice.modalis.cosmic.deposit.core._
   * DEPOSIT Language
   * Created by Cyril Cecchinel - I3S Laboratory on 23/11/2015.
   */
+trait DEPOSIT_EXEC extends App with DEPOSIT {
+  override def main(args:Array[String]):Unit = {
+    Console.println("   ___     ___      ___    ___     ___     ___    _____  \n  |   \\   | __|    | _ \\  / _ \\   / __|   |_ _|  |_   _| \n  | |) |  | _|     |  _/ | (_) |  \\__ \\    | |     | |   \n  |___/   |___|   _|_|_   \\___/   |___/   |___|   _|_|_  \n_|\"\"\"\"\"|_|\"\"\"\"\"|_| \"\"\" |_|\"\"\"\"\"|_|\"\"\"\"\"|_|\"\"\"\"\"|_|\"\"\"\"\"| \n\"`-0-0-'\"`-0-0-'\"`-0-0-'\"`-0-0-'\"`-0-0-'\"`-0-0-'\"`-0-0-' ")
+    Console.println(s"Started @ ${executionStart/1000}")
+    Console.println("#####")
+    super.main(args)
+  }
+}
+
 trait DEPOSIT {
 
   def apply() = this.policy
@@ -22,6 +31,14 @@ trait DEPOSIT {
   protected def exportToWiring() = policy.exportToWiring
   protected def exportToPython() = policy.exportToPython
   protected def exportToGraphviz() = policy.exportToGraphviz
+
+  class CompositionOps(self:Policy) {
+    def + (other:Policy):Unit = {
+      policy = self + other
+    }
+  }
+
+  implicit def plusPolicy(self:Policy) = new CompositionOps(self)
 
   /***********************
     * Deployment process *
@@ -247,6 +264,11 @@ trait DEPOSIT {
       currentOperation.get
     }
 
+    def aMin():OperationBuilder = {
+      currentOperation = Some(this.copy(kind = OperationType.MIN))
+      currentOperation.get
+    }
+
     def aProcess(p:Policy) = {
       currentOperation = Some(this.copy(kind = OperationType.PROCESS, innerPolicy = Some(p)))
       currentOperation.get
@@ -304,6 +326,7 @@ trait DEPOSIT {
         case OperationType.DIVIDE => val c = new Divide(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
         case OperationType.MULTIPLY => val c = new Multiply(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
         case OperationType.MAX => val c = new Max(inputs, dataTypeInput.get, applicationField.get); conceptProduced = Some(c); c;
+        case OperationType.MIN => val c = new Min(inputs, dataTypeInput.get, applicationField.get); conceptProduced = Some(c); c;
         case OperationType.INCREMENT => val c = new Increment(atomicValue.get, dataTypeInput.get); conceptProduced = Some(c); c;
         case OperationType.RENAME => val c = new Rename(rename.get, dataTypeInput.get); conceptProduced = Some(c); c;
         case OperationType.PROCESS => val c = new Process(innerPolicy.get, dataTypeInput.get, dataTypeOutput.get); conceptProduced = Some(c); c;

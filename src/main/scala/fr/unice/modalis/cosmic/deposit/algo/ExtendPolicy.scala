@@ -60,7 +60,7 @@ object Weave {
 
   def apply(p1: Policy, p2: Policy, associations:Set[Unification[_<:DataType]]) = {
     val flows = for (x<-associations) yield createFlow(x)
-    var newPolicy = p1 ++ p2
+    var newPolicy = p1 + p2
     for (l <- flows) yield newPolicy = newPolicy.addFlow(l)
     FactorizePolicy(newPolicy)
   }

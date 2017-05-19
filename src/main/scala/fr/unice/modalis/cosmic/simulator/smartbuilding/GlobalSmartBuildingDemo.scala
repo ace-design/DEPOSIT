@@ -200,7 +200,7 @@ object GlobalPolicyWithComposition extends App {
   val topology = TopologyModelBuilder(ExperimentalValues.INFRA_XML)
   val infraModel = InfrastructureModel(topology, ExperimentalValues.STRATEGY)
   val t1 = System.currentTimeMillis()
-  val p = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc ++ OfficeBuilder(e.toString)}
+  val p = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc + OfficeBuilder(e.toString)}
   println(s"Concepts before expand ${p.concepts.size}")
   val preDeploy = PreDeploy(p, topology)
 
@@ -214,7 +214,7 @@ object GlobalPolicyConverter extends App {
   val topology = TopologyModelBuilder(ExperimentalValues.INFRA_XML)
 
   val t1 = System.currentTimeMillis()
-  val p = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc ++ OfficeConverterBuilder(e.toString)}
+  val p = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc + OfficeConverterBuilder(e.toString)}
 
   println(s"Concepts before expand ${p.concepts.size}")
   val preDeploy = PreDeploy(p, topology)
@@ -231,7 +231,7 @@ object GlobalPolicyConverterWithComposition extends App {
   val topology = TopologyModelBuilder(ExperimentalValues.INFRA_XML)
   val infraModel = InfrastructureModel(topology, ExperimentalValues.STRATEGY)
   val t1 = System.currentTimeMillis()
-  val p = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc ++ OfficeConverterBuilder(e.toString)}
+  val p = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc + OfficeConverterBuilder(e.toString)}
   println(s"Concepts before expand ${p.concepts.size}")
   val preDeploy = PreDeploy(p, topology)
 
@@ -245,10 +245,10 @@ object TwoPoliciesWithComposition extends App {
   val topology = TopologyModelBuilder(ExperimentalValues.INFRA_XML)
 
 
- val policy1 = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc ++ OfficeBuilder(e.toString)}
- val policy2 = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc ++ OfficeConverterBuilder(e.toString)}
+ val policy1 = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc + OfficeBuilder(e.toString)}
+ val policy2 = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc + OfficeConverterBuilder(e.toString)}
 
- val composition = policy1 ++ policy2
+ val composition = policy1 + policy2
 
   val t1 = System.currentTimeMillis()
 

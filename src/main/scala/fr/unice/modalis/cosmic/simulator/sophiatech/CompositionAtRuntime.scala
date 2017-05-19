@@ -16,9 +16,9 @@ object CompositionAtRuntime extends App {
   val model = InfrastructureModel(topology, ExperimentalValues.STRATEGY)
 
   RepositoriesManager.addRepository(Repository(model))
-  val policy1 = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc ++ OfficeBuilder(e.toString)}
-  val policy2 = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc ++ OfficeConverterBuilder(e.toString)}
-  val policy3 = ExperimentalValues.RANGE_PRK.foldLeft(new Policy("")) { (acc, e) => acc ++ ParkingSpaceMonitoringBuilder(e.toString)}
+  val policy1 = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc + OfficeBuilder(e.toString)}
+  val policy2 = ExperimentalValues.RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc + OfficeConverterBuilder(e.toString)}
+  val policy3 = ExperimentalValues.RANGE_PRK.foldLeft(new Policy("")) { (acc, e) => acc + ParkingSpaceMonitoringBuilder(e.toString)}
 
   val tbegin = System.currentTimeMillis()
   AutoDeploy(policy1, model)

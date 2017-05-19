@@ -35,7 +35,7 @@ object InfoScreenPolicyBuilder {
 object CountPlacesBuilder {
 
   def apply(policies : Set[Policy]) = {
-    val composed = policies.reduceLeft(_ ++ _)
+    val composed = policies.reduceLeft(_ + _)
     val extended = ExtendPolicy(composed.select(composed.concepts.collect {case x:Sensor[_] => x
                                                 case x:Add[_] => x}, s"select_${composed.name}"), onlyEmptyPorts = true)
 
@@ -58,8 +58,8 @@ object GlobalTopology extends App {
   val parkingC = InfoScreenPolicyBuilder(201 to 300)
   val parkingD = InfoScreenPolicyBuilder(301 to 400)
   val counter = CountPlacesBuilder(Set(parkingA, parkingB, parkingC, parkingD))
-  val parkingSpaceMonitor = (for (i<- 1 to 400) yield ParkingSpaceMonitoringBuilder(i.toString)).reduceLeft(_ ++ _)
-  val officesAlertAC = (for (i <- 1 to 500) yield OfficeBuilder(i.toString)).reduceLeft(_ ++ _)
+  val parkingSpaceMonitor = (for (i<- 1 to 400) yield ParkingSpaceMonitoringBuilder(i.toString)).reduceLeft(_ + _)
+  val officesAlertAC = (for (i <- 1 to 500) yield OfficeBuilder(i.toString)).reduceLeft(_ + _)
 
 
 

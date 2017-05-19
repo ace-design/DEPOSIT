@@ -27,9 +27,9 @@ object Benchmark extends App{
       val RANGE_OFFICE = 1 to i
       val RANGE_PRK = 1 to i/2
 
-      val policy1 = RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc ++ OfficeBuilder(e.toString)}
-      val policy2 = RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc ++ OfficeConverterBuilder(e.toString)}
-      val policy3 = RANGE_PRK.foldLeft(new Policy("")) { (acc, e) => acc ++ ParkingSpaceMonitoringBuilder(e.toString)}
+      val policy1 = RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc + OfficeBuilder(e.toString)}
+      val policy2 = RANGE_OFFICE.foldLeft(new Policy("")){ (acc, e) => acc + OfficeConverterBuilder(e.toString)}
+      val policy3 = RANGE_PRK.foldLeft(new Policy("")) { (acc, e) => acc + ParkingSpaceMonitoringBuilder(e.toString)}
 
       val NB_SENSORS = i * 3 + i/2
 

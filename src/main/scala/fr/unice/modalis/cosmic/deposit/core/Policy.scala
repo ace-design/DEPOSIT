@@ -2,7 +2,7 @@ package fr.unice.modalis.cosmic.deposit.core
 
 
 import com.typesafe.scalalogging.LazyLogging
-import fr.unice.modalis.cosmic.deployment.generator.{ProcessingGenerator, PythonGenerator}
+import fr.unice.modalis.cosmic.deployment.generator.{CodeGenerator, ProcessingGenerator, PythonGenerator}
 import fr.unice.modalis.cosmic.deposit.converter.{ToGraph, ToGraphviz}
 
 import scala.collection.mutable.ArrayBuffer
@@ -200,7 +200,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     * @return A sub-policy corresponding to the extraction of concepts and flows between the root and collectors or empty policy if no path has been found
     */
   def subPolicy(root:Concept):Policy = {
-    this.collectors.map{c => subPolicy(root, c)}.foldLeft(new Policy())( _ ++ _)
+    this.collectors.map{c => subPolicy(root, c)}.reduceLeft(_ + _)//.foldLeft(new Policy())( _ + _)
   }
 
   /**
@@ -388,7 +388,7 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     * @param other Other policy
     * @return A new policy resulted from the composition of the current one and the one specified as a parameter
     */
-  def ++(other:Policy):Policy = Policy.compose(this, other)
+  def +(other:Policy):Policy = Policy.compose(this, other)
 
   override def toString = "Policy[name=" + name + ";ios={" + ios + "};operations={" + operations + "};flows={" + flows + "}]"
 
@@ -400,6 +400,19 @@ case class Policy(var name:String, ios:Set[PolicyIO[_<:DataType]], operations:Se
     * Export the policy to graphviz
     */
   def exportToGraphviz():Unit = ToGraphviz.writeSource(this)
+
+  def target():String = {
+    if (hasProperty("board").isDefined) {
+      readProperty("board").get.asInstanceOf[String]
+    } else throw new Exception(s"No target has been found for $name (perhaps the policy has not been predeployed")
+  }
+
+  def generate():Unit = {
+    if (hasProperty("generator").isDefined) {
+      val generator = readProperty("generator").get.asInstanceOf[CodeGenerator]
+      generator.apply(this, toFile = true)
+    } else throw new Exception(s"No code generator has been found for $name (perhaps the policy has not been predeployed)")
+  }
 }
 
 object Policy extends LazyLogging{
@@ -432,6 +445,9 @@ object Policy extends LazyLogging{
 
     // A policy has no loops
     if (policy.flows.exists {f => f.source == f.destination}) throw NonValidPolicyException(policy, "has a loop on a concept")
+
+    // Runtime invariant
+    if (policy.flows.exists {f => !policy.concepts.contains(f.source) || !policy.concepts.contains(f.destination)}) throw NonValidPolicyException(policy, "has an inconsistency between concepts and flows")
   }
 
   def mergeActivities(p:Policy) = {
@@ -484,14 +500,31 @@ object Policy extends LazyLogging{
 
 
     def sensorFusion(p1:Policy, p2:Policy):Policy = {
+      logger.info(s"Prepare composition of ${p1.name} with ${p2.name}")
       var compose = Policy(composeName(p1, p2), p1.ios ++ p2.ios, p1.operations ++ p2.operations, p1.flows ++ p2.flows)
 
-      val similarities = p2.sensors.map { s => (s, p1.sensors.find(_ ~= s)) }
-      val flows = for (s <- similarities.filter(_._2.isDefined)) yield ((s._1, p1.flowsFrom(s._2.get)))
+      logger.debug(s"Compose ios: ${compose.ios}")
+
+      val similarities = p2.sensors.map { s2 => (s2, p1.sensors.find(s1 => (s1 ~= s2) && (s1 != s2))) }
+
+      logger.info(s"Similarities found: $similarities")
+
+      val flows = for (s <- similarities.filter(_._2.isDefined)) yield (s._1, p1.flowsFrom(s._2.get))
       val flowsToAdd = flows.flatMap{couple => couple._2.map{f => new Flow(couple._1.output, f.destination_input)}}
 
-      similarities.filter(_._2.isDefined).foreach(e => compose = compose.delete(e._2.get))
-      flowsToAdd.foreach(f => compose = compose.addFlow(f))
+      logger.info(s"Flows to add: $flowsToAdd")
+
+      similarities.filter(_._2.isDefined).foreach(e => {
+        logger.debug(s"Deleting ${e._2.get}")
+        compose = compose.delete(e._2.get)
+      })
+
+      flowsToAdd.foreach(f => {
+        logger.debug(s"Adding $f")
+        compose = compose.addFlow(f)
+      })
+
+      println(s"Result: ${compose.sensors}")
       compose
     }
     /*def sensorFusion(p1:Policy, p2:Policy):Policy = {
