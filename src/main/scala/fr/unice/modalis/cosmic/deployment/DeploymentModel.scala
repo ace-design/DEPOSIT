@@ -9,7 +9,6 @@ import fr.unice.modalis.cosmic.deployment.infrastructure.{Features, Infrastructu
 import fr.unice.modalis.cosmic.deployment.network.{Entity, GenericNode}
 import fr.unice.modalis.cosmic.deployment.strategies.DeploymentRepartition
 import fr.unice.modalis.cosmic.deposit.algo.ExtendPolicy
-import fr.unice.modalis.cosmic.deposit.converter.ToGraphviz
 import fr.unice.modalis.cosmic.deposit.core._
 import fr.unice.modalis.cosmic.runtime.{RepositoriesManager, RepositoryNotFoundException}
 
@@ -295,11 +294,7 @@ object Deploy {
     }
     println(s"\t\t\tAssociating network id: ${System.currentTimeMillis() - tbegin} ms")
     // Delete non-relevant join points
-    val readyToDeployedPolicies = rawPolicies.map { deleteNonRelevantJoinPoints }
-    readyToDeployedPolicies.foreach(p => ToGraphviz.writeSource(p))
-
-    readyToDeployedPolicies
-
+    rawPolicies.map { deleteNonRelevantJoinPoints }
   }
 
   /**
